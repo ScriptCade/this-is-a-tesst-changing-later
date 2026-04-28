@@ -1,30 +1,178 @@
-import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
-import { Trophy, User, ArrowRight, MousePointerClick, Medal, Crown, Activity } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Clicker Leaderboard</title>
+  
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
 
-// --- Firebase Initialization (Required for Canvas Storage) ---
-// We initialize Firebase outside the component to ensure it only happens once.
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+  <!-- Loading State -->
+  <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-slate-900 z-50">
+    <i data-lucide="activity" class="w-10 h-10 animate-spin text-blue-500"></i>
+  </div>
 
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [myProfile, setMyProfile] = useState(null);
-  const [usernameInput, setUsernameInput] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isJoining, setIsJoining] = useState(false);
+  <!-- Main Application (Hidden until loaded) -->
+  <div id="appContent" class="max-w-4xl mx-auto space-y-8 hidden">
+    
+    <!-- Header -->
+    <header class="text-center space-y-4 pt-8">
+      <div class="inline-flex items-center justify-center p-4 bg-blue-500/10 rounded-full mb-2">
+        <i data-lucide="trophy" class="w-12 h-12 text-blue-400"></i>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+        Global Clicker
+      </h1>
+      <p class="text-slate-400 max-w-lg mx-auto">
+        Join the leaderboard, click to increase your score, and compete with everyone in real-time.
+      </p>
+    </header>
 
-  // 1. Authentication Effect (Runs once on mount)
-  useEffect(() => {
-    const initAuth = async () => {
+    <main class="grid md:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: Actions -->
+      <div class="md:col-span-5 space-y-6">
+        
+        <!-- Join Form (Shows when no profile) -->
+        <div id="joinSection" class="bg-slate-800/50 backdrop-blur border border-slate-700/50 p-6 rounded-2xl shadow-xl block">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="bg-indigo-500/20 p-2 rounded-lg">
+              <i data-lucide="user" class="w-6 h-6 text-indigo-400"></i>
+            </div>
+            <h2 class="text-xl font-bold">Join the Game</h2>
+          </div>
+          
+          <form id="joinForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-400 mb-2">Choose your Username</label>
+              <input
+                type="text"
+                id="usernameInput"
+                placeholder="e.g. PlayerOne"
+                maxlength="15"
+                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              id="joinButton"
+              class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+            >
+              Start Playing
+              <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Active Player Dashboard (Shows when joined) -->
+        <div id="playerSection" class="bg-gradient-to-b from-blue-900/40 to-slate-800/50 backdrop-blur border border-blue-500/20 p-6 rounded-2xl shadow-xl text-center flex flex-col items-center hidden">
+          <div class="bg-slate-900/50 px-4 py-1 rounded-full text-sm font-medium text-blue-300 mb-6 flex items-center gap-2 border border-blue-500/20">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            Playing as <span id="displayUsername" class="font-bold text-white"></span>
+          </div>
+          
+          <div id="displayScore" class="text-6xl font-black text-white mb-8 tracking-tighter">0</div>
+          
+          <button
+            id="clickButton"
+            class="group relative w-48 h-48 rounded-full bg-gradient-to-b from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.3)] hover:shadow-[0_0_60px_rgba(59,130,246,0.5)] transition-all active:scale-95 border-4 border-blue-400/30"
+          >
+            <i data-lucide="mouse-pointer-click" class="w-12 h-12 text-white mb-2 opacity-80 group-hover:scale-110 transition-transform"></i>
+            <span class="text-xl font-bold text-white">CLICK ME</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Leaderboard -->
+      <div class="md:col-span-7">
+        <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
+          <div class="p-4 border-b border-slate-700/50 bg-slate-800/50 flex items-center justify-between">
+            <h3 class="text-lg font-bold flex items-center gap-2">
+              <i data-lucide="medal" class="w-5 h-5 text-yellow-500"></i>
+              Top Players
+            </h3>
+            <span id="playerCount" class="text-xs font-medium text-slate-400 bg-slate-900 px-2 py-1 rounded-md">
+              0 Players Online
+            </span>
+          </div>
+          
+          <div id="leaderboardList" class="divide-y divide-slate-700/30 max-h-[500px] overflow-y-auto">
+            <!-- Leaderboard items will be injected here -->
+          </div>
+        </div>
+      </div>
+      
+    </main>
+  </div>
+
+  <script type="module">
+    // Import Firebase modules directly from CDN for standard HTML
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // =====================================================================
+    // 🔥 IMPORTANT FOR GITHUB PAGES 🔥
+    // When hosting on GitHub pages, you must replace the code inside the
+    // "else" block below with your OWN Firebase project configuration!
+    // Go to console.firebase.google.com to get your config keys.
+    // =====================================================================
+    
+    let firebaseConfig;
+    if (typeof __firebase_config !== 'undefined') {
+      // This runs when viewed in this chat platform (Canvas)
+      firebaseConfig = JSON.parse(__firebase_config);
+    } else {
+      // THIS RUNS ON GITHUB PAGES! Put your Firebase config here:
+      firebaseConfig = {
+        apiKey: "YOUR_API_KEY_HERE",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+    }
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-github-app-id';
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // App State
+    let currentUser = null;
+    let myProfile = null;
+    let leaderboardData = [];
+
+    // DOM Elements
+    const loadingScreen = document.getElementById('loadingScreen');
+    const appContent = document.getElementById('appContent');
+    const joinSection = document.getElementById('joinSection');
+    const playerSection = document.getElementById('playerSection');
+    const joinForm = document.getElementById('joinForm');
+    const usernameInput = document.getElementById('usernameInput');
+    const joinButton = document.getElementById('joinButton');
+    const displayUsername = document.getElementById('displayUsername');
+    const displayScore = document.getElementById('displayScore');
+    const clickButton = document.getElementById('clickButton');
+    const leaderboardList = document.getElementById('leaderboardList');
+    const playerCount = document.getElementById('playerCount');
+
+    // 1. Initialize Icons
+    lucide.createIcons();
+
+    // 2. Authentication
+    async function initAuth() {
       try {
-        // Authenticate using the environment's provided token or fallback to anonymous
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
         } else {
@@ -33,244 +181,167 @@ export default function App() {
       } catch (error) {
         console.error("Authentication failed:", error);
       }
-    };
+    }
+    
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) {
+        setupDatabaseListener();
+      } else {
+        loadingScreen.classList.add('hidden');
+        appContent.classList.remove('hidden');
+      }
+    });
+
     initAuth();
 
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (!currentUser) setIsLoading(false);
-    });
+    // 3. Database Real-time Listener
+    function setupDatabaseListener() {
+      if (!currentUser) return;
 
-    return () => unsubscribe();
-  }, []);
-
-  // 2. Data Fetching Effect (Runs when 'user' changes)
-  useEffect(() => {
-    // Guard: Do not query if user is not authenticated
-    if (!user) return;
-
-    // Strict Path: Using the required public data path for a shared leaderboard
-    const leaderboardCollection = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
-    
-    // Listen for real-time updates
-    const unsubscribe = onSnapshot(leaderboardCollection, (snapshot) => {
-      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const leaderboardCollection = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
       
-      // In-memory sorting (Required: Firebase complex queries are restricted)
-      docs.sort((a, b) => (b.score || 0) - (a.score || 0));
-      
-      setLeaderboard(docs);
-      
-      // Check if the current user already has a profile on the leaderboard
-      const existingProfile = docs.find(d => d.id === user.uid);
-      if (existingProfile) {
-        setMyProfile(existingProfile);
-      }
-      
-      setIsLoading(false);
-    }, (error) => {
-      console.error("Failed to fetch leaderboard:", error);
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [user]);
-
-  // Action: Create Profile / "Login"
-  const handleJoin = async (e) => {
-    e.preventDefault();
-    if (!usernameInput.trim() || !user) return;
-    
-    setIsJoining(true);
-    try {
-      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', user.uid);
-      const newProfile = {
-        username: usernameInput.trim(),
-        score: 0,
-        joinedAt: Date.now(),
-        lastActive: Date.now()
-      };
-      // Save data to Firestore
-      await setDoc(userRef, newProfile);
-      setMyProfile({ id: user.uid, ...newProfile });
-    } catch (error) {
-      console.error("Error creating profile:", error);
-    } finally {
-      setIsJoining(false);
-    }
-  };
-
-  // Action: Increase Score
-  const handleScoreClick = async () => {
-    if (!user || !myProfile) return;
-
-    const newScore = (myProfile.score || 0) + 1;
-    
-    // Optimistic UI update for immediate feedback
-    setMyProfile(prev => ({ ...prev, score: newScore }));
-
-    try {
-      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', user.uid);
-      // Update data in Firestore
-      await setDoc(userRef, { 
-        ...myProfile, 
-        score: newScore,
-        lastActive: Date.now()
-      });
-    } catch (error) {
-      console.error("Error saving score:", error);
-      // Revert optimistic update on error (optional, simplified here)
-    }
-  };
-
-  // Loading State
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
-        <Activity className="w-10 h-10 animate-spin text-blue-500" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      onSnapshot(leaderboardCollection, (snapshot) => {
+        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        {/* Header */}
-        <header className="text-center space-y-4 pt-8">
-          <div className="inline-flex items-center justify-center p-4 bg-blue-500/10 rounded-full mb-2">
-            <Trophy className="w-12 h-12 text-blue-400" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-            Global Clicker
-          </h1>
-          <p className="text-slate-400 max-w-lg mx-auto">
-            Join the leaderboard, click to increase your score, and compete with everyone in real-time.
-          </p>
-        </header>
+        // Sort by score
+        docs.sort((a, b) => (b.score || 0) - (a.score || 0));
+        leaderboardData = docs;
+        
+        // Check if I have a profile
+        const existingProfile = docs.find(d => d.id === currentUser.uid);
+        if (existingProfile) {
+          myProfile = existingProfile;
+          updateUIForActivePlayer();
+        }
 
-        {/* Main Content Area */}
-        <main className="grid md:grid-cols-12 gap-8 items-start">
-          
-          {/* Left Column: User Actions / Login */}
-          <div className="md:col-span-5 space-y-6">
-            {!myProfile ? (
-              /* "Login" / Create Profile Form */
-              <div className="bg-slate-800/50 backdrop-blur border border-slate-700/50 p-6 rounded-2xl shadow-xl">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="bg-indigo-500/20 p-2 rounded-lg">
-                    <User className="w-6 h-6 text-indigo-400" />
-                  </div>
-                  <h2 className="text-xl font-bold">Join the Game</h2>
-                </div>
-                
-                <form onSubmit={handleJoin} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">
-                      Choose your Username
-                    </label>
-                    <input
-                      type="text"
-                      value={usernameInput}
-                      onChange={(e) => setUsernameInput(e.target.value)}
-                      placeholder="e.g. PlayerOne"
-                      maxLength={15}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isJoining || !usernameInput.trim()}
-                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
-                  >
-                    {isJoining ? 'Joining...' : 'Start Playing'}
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                </form>
-              </div>
-            ) : (
-              /* Active Player Dashboard */
-              <div className="bg-gradient-to-b from-blue-900/40 to-slate-800/50 backdrop-blur border border-blue-500/20 p-6 rounded-2xl shadow-xl text-center flex flex-col items-center">
-                <div className="bg-slate-900/50 px-4 py-1 rounded-full text-sm font-medium text-blue-300 mb-6 flex items-center gap-2 border border-blue-500/20">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  Playing as <span className="font-bold text-white">{myProfile.username}</span>
-                </div>
-                
-                <div className="text-6xl font-black text-white mb-8 tracking-tighter">
-                  {myProfile.score.toLocaleString()}
-                </div>
-                
-                <button
-                  onClick={handleScoreClick}
-                  className="group relative w-48 h-48 rounded-full bg-gradient-to-b from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.3)] hover:shadow-[0_0_60px_rgba(59,130,246,0.5)] transition-all active:scale-95 border-4 border-blue-400/30"
-                >
-                  <MousePointerClick className="w-12 h-12 text-white mb-2 opacity-80 group-hover:scale-110 transition-transform" />
-                  <span className="text-xl font-bold text-white">CLICK ME</span>
-                </button>
-              </div>
-            )}
-          </div>
+        renderLeaderboard();
+        
+        // Hide loading screen
+        loadingScreen.classList.add('hidden');
+        appContent.classList.remove('hidden');
+      }, (error) => {
+        console.error("Failed to fetch leaderboard:", error);
+        loadingScreen.classList.add('hidden');
+        appContent.classList.remove('hidden');
+      });
+    }
 
-          {/* Right Column: Leaderboard */}
-          <div className="md:col-span-7">
-            <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
-              <div className="p-4 border-b border-slate-700/50 bg-slate-800/50 flex items-center justify-between">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  <Medal className="w-5 h-5 text-yellow-500" />
-                  Top Players
-                </h3>
-                <span className="text-xs font-medium text-slate-400 bg-slate-900 px-2 py-1 rounded-md">
-                  {leaderboard.length} Players Online
+    // 4. Create Profile (Join)
+    joinForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = usernameInput.value.trim();
+      if (!username || !currentUser) return;
+      
+      joinButton.disabled = true;
+      joinButton.innerHTML = `Joining... <i data-lucide="activity" class="w-5 h-5 animate-spin"></i>`;
+      lucide.createIcons();
+
+      try {
+        const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
+        const newProfile = {
+          username: username,
+          score: 0,
+          joinedAt: Date.now(),
+          lastActive: Date.now()
+        };
+        await setDoc(userRef, newProfile);
+        myProfile = { id: currentUser.uid, ...newProfile };
+        updateUIForActivePlayer();
+      } catch (error) {
+        console.error("Error creating profile:", error);
+        alert("Make sure you added your Firebase config in the code!");
+      } finally {
+        joinButton.disabled = false;
+        joinButton.innerHTML = `Start Playing <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
+        lucide.createIcons();
+      }
+    });
+
+    // 5. Click Action
+    clickButton.addEventListener('click', async () => {
+      if (!currentUser || !myProfile) return;
+
+      const newScore = (myProfile.score || 0) + 1;
+      
+      // Optimistic update
+      myProfile.score = newScore;
+      displayScore.textContent = newScore.toLocaleString();
+
+      try {
+        const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
+        await setDoc(userRef, { 
+          ...myProfile, 
+          score: newScore,
+          lastActive: Date.now()
+        });
+      } catch (error) {
+        console.error("Error saving score:", error);
+      }
+    });
+
+    // 6. UI Helpers
+    function updateUIForActivePlayer() {
+      joinSection.classList.add('hidden');
+      joinSection.classList.remove('block');
+      playerSection.classList.remove('hidden');
+      
+      displayUsername.textContent = myProfile.username;
+      displayScore.textContent = myProfile.score.toLocaleString();
+    }
+
+    function renderLeaderboard() {
+      playerCount.textContent = `${leaderboardData.length} Players Online`;
+      
+      if (leaderboardData.length === 0) {
+        leaderboardList.innerHTML = `<div class="p-8 text-center text-slate-500">No players yet. Be the first to join!</div>`;
+        return;
+      }
+
+      leaderboardList.innerHTML = leaderboardData.map((player, index) => {
+        const isMe = currentUser && player.id === currentUser.uid;
+        const rankClass = index === 0 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50' : 
+                          index === 1 ? 'bg-slate-300/20 text-slate-300 border border-slate-300/50' :
+                          index === 2 ? 'bg-amber-700/20 text-amber-500 border border-amber-700/50' :
+                          'bg-slate-800 text-slate-400';
+                          
+        const iconHtml = index === 0 ? `<i data-lucide="crown" class="w-4 h-4"></i>` : index + 1;
+        const highlightClass = isMe ? 'bg-blue-500/10' : 'hover:bg-slate-700/20';
+        const nameClass = isMe ? 'text-blue-400' : 'text-slate-200';
+        const youTag = isMe ? `<span class="ml-2 text-xs bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded-full">You</span>` : '';
+
+        return `
+          <div class="p-4 flex items-center justify-between transition-colors ${highlightClass}">
+            <div class="flex items-center gap-4">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${rankClass}">
+                ${iconHtml}
+              </div>
+              <div class="flex flex-col">
+                <span class="font-semibold ${nameClass}">
+                  ${escapeHtml(player.username)} ${youTag}
                 </span>
               </div>
-              
-              <div className="divide-y divide-slate-700/30 max-h-[500px] overflow-y-auto">
-                {leaderboard.length === 0 ? (
-                  <div className="p-8 text-center text-slate-500">
-                    No players yet. Be the first to join!
-                  </div>
-                ) : (
-                  leaderboard.map((player, index) => {
-                    const isMe = user && player.id === user.uid;
-                    return (
-                      <div 
-                        key={player.id} 
-                        className={`p-4 flex items-center justify-between transition-colors ${isMe ? 'bg-blue-500/10' : 'hover:bg-slate-700/20'}`}
-                      >
-                        <div className="flex items-center gap-4">
-                          {/* Rank Badge */}
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm
-                            ${index === 0 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50' : 
-                              index === 1 ? 'bg-slate-300/20 text-slate-300 border border-slate-300/50' :
-                              index === 2 ? 'bg-amber-700/20 text-amber-500 border border-amber-700/50' :
-                              'bg-slate-800 text-slate-400'}`}
-                          >
-                            {index === 0 ? <Crown className="w-4 h-4" /> : index + 1}
-                          </div>
-                          
-                          <div className="flex flex-col">
-                            <span className={`font-semibold ${isMe ? 'text-blue-400' : 'text-slate-200'}`}>
-                              {player.username}
-                              {isMe && <span className="ml-2 text-xs bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded-full">You</span>}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="font-mono text-xl font-bold text-slate-300">
-                          {player.score?.toLocaleString() || 0}
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+            </div>
+            <div class="font-mono text-xl font-bold text-slate-300">
+              ${(player.score || 0).toLocaleString()}
             </div>
           </div>
-          
-        </main>
-      </div>
-    </div>
-  );
-}
+        `;
+      }).join('');
+      
+      // Re-initialize icons inside the new HTML string
+      lucide.createIcons();
+    }
+
+    // Helper to prevent XSS in usernames
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
