@@ -97,21 +97,17 @@
         </div>
         <!-- Tool Grids (Categorized) -->
         <div class="p-2 overflow-y-auto custom-scrollbar flex-1 bg-[#223]">
-          
           <div id="cat-blocks" class="grid grid-cols-8 sm:grid-cols-12 gap-2">
             <button class="tool-btn active" data-tool="0" title="Solid Block"><div class="w-5 h-5 border-2 border-white bg-blue-400"></div></button>
             <button class="tool-btn" data-tool="13" title="Deco Block"><div class="w-5 h-5 border border-gray-500 bg-gray-700"></div></button>
           </div>
-          
           <div id="cat-hazards" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
             <button class="tool-btn" data-tool="1" title="Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-red-500"></div></div></button>
           </div>
-
           <div id="cat-interact" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
             <button class="tool-btn" data-tool="2" title="Jump Pad"><div class="w-5 h-2 border-t-2 border-yellow-400 rounded-t-full bg-yellow-600/50"></div></button>
             <button class="tool-btn" data-tool="5" title="Jump Orb"><div class="w-4 h-4 rounded-full border-4 border-yellow-400 bg-yellow-400/20"></div></button>
           </div>
-
           <div id="cat-portals" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
             <button class="tool-btn" data-tool="7" title="Cube Mode"><div class="w-3 h-5 border-2 border-green-400 rounded-full bg-green-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-green-200">C</span></div></button>
             <button class="tool-btn" data-tool="8" title="Ship Mode"><div class="w-3 h-5 border-2 border-pink-400 rounded-full bg-pink-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-pink-200">S</span></div></button>
@@ -120,7 +116,6 @@
             <button class="tool-btn" data-tool="4" title="Gravity Up"><div class="w-3 h-5 border-2 border-yellow-400 rounded-full bg-yellow-400/20"></div></button>
             <button class="tool-btn" data-tool="3" title="Gravity Down"><div class="w-3 h-5 border-2 border-blue-400 rounded-full bg-blue-400/20"></div></button>
           </div>
-
           <div id="cat-triggers" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
             <button class="tool-btn" data-tool="10" title="Slow Speed"><span class="text-orange-400 font-bold text-xs">&lt;</span></button>
             <button class="tool-btn" data-tool="11" title="Normal Speed"><span class="text-green-400 font-bold text-xs">&gt;&gt;</span></button>
@@ -131,7 +126,6 @@
             <button class="tool-btn" data-tool="17" title="BG Reset"><div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-gray-400"></div></button>
             <button class="tool-btn" data-tool="18" title="End Goal"><div class="w-3 h-6 border-2 border-white bg-white/50 flex flex-col justify-between items-center"><div class="w-full h-1 bg-black"></div><div class="w-full h-1 bg-black"></div></div></button>
           </div>
-
         </div>
       </div>
 
@@ -139,7 +133,6 @@
       <div id="panelEdit" class="hide flex-1 bg-[#223] flex items-center justify-center gap-6 p-4">
         <div id="editNoSelection" class="text-gray-400 font-bold">Select objects using SWIPE box to edit</div>
         <div id="editControls" class="hide flex gap-6 items-center w-full justify-center">
-          <!-- Nudge Controls -->
           <div class="grid grid-cols-3 gap-2">
             <div></div><button id="btnNudgeUp" class="tool-btn"><i data-lucide="arrow-up" class="w-5 h-5 text-white"></i></button><div></div>
             <button id="btnNudgeLeft" class="tool-btn"><i data-lucide="arrow-left" class="w-5 h-5 text-white"></i></button>
@@ -147,14 +140,9 @@
             <button id="btnNudgeRight" class="tool-btn"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></button>
           </div>
           <div class="w-px h-16 bg-gray-600"></div>
-          <!-- Rotation Controls -->
           <div class="flex gap-2">
-            <button id="btnEditRotLeft" class="tool-btn w-12 h-16 bg-purple-900 border-purple-500 hover:bg-purple-800 flex items-center justify-center shadow-lg">
-              <i data-lucide="rotate-ccw" class="w-6 h-6 text-white"></i>
-            </button>
-            <button id="btnEditRotRight" class="tool-btn w-12 h-16 bg-purple-900 border-purple-500 hover:bg-purple-800 flex items-center justify-center shadow-lg">
-              <i data-lucide="rotate-cw" class="w-6 h-6 text-white"></i>
-            </button>
+            <button id="btnEditRotLeft" class="tool-btn w-12 h-16 bg-purple-900 border-purple-500 hover:bg-purple-800 shadow-lg"><i data-lucide="rotate-ccw" class="w-6 h-6 text-white"></i></button>
+            <button id="btnEditRotRight" class="tool-btn w-12 h-16 bg-purple-900 border-purple-500 hover:bg-purple-800 shadow-lg"><i data-lucide="rotate-cw" class="w-6 h-6 text-white"></i></button>
           </div>
         </div>
       </div>
@@ -167,7 +155,6 @@
           <i data-lucide="trash-2" class="w-5 h-5"></i> CLEAR ALL
         </button>
       </div>
-
     </div>
 
     <!-- Right: Toggles & Camera -->
@@ -175,7 +162,7 @@
       <button id="btnSwipeToggle" class="ed-btn active flex-1 text-xs tracking-wider border-green-900 shadow">SWIPE<br><span id="swipeStatus" class="text-[10px] text-green-200">ON</span></button>
       
       <!-- Build Rotation State -->
-      <div id="buildRotState" class="flex flex-col bg-slate-800 border border-slate-600 rounded pt-1 pb-1">
+      <div id="buildRotState" class="flex flex-col bg-gray-800 border border-gray-600 rounded pt-1 pb-1">
         <div class="text-[10px] text-center text-yellow-200 font-bold mb-1" id="lblBuildRot">0°</div>
         <div class="flex gap-1 px-1">
            <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white text-xs flex items-center justify-center rounded py-1 border border-purple-900 shadow"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
@@ -183,7 +170,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- Win Overlay -->
@@ -199,10 +185,10 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 🌐 HUB UI & MODALS (OVERLAYS)              -->
+  <!-- 🌐 HUB UI & MAIN MENU                      -->
   <!-- ========================================== -->
   <div id="hubUI" class="absolute inset-0 overflow-y-auto z-10 p-4 md:p-8 bg-black/40 backdrop-blur-sm">
-    <div class="max-w-6xl mx-auto space-y-8 pb-12">
+    <div class="max-w-6xl mx-auto space-y-6 pb-12">
       <!-- Header -->
       <header class="text-center space-y-4 pt-4">
         <div class="inline-flex items-center justify-center p-4 bg-purple-500/10 rounded-full mb-2 border border-purple-500/20 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
@@ -216,71 +202,98 @@
         </p>
       </header>
 
-      <main class="grid lg:grid-cols-12 gap-8 items-start">
-        <!-- Left Column: User Profile / Auth -->
-        <div class="lg:col-span-4 space-y-6">
-          <!-- Auth Form -->
-          <div id="joinSection" class="bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl block">
-            <button id="googleLoginBtn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]">
-              <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google
+      <!-- UNLOGGED STATE (Auth) -->
+      <div id="joinSection" class="max-w-md mx-auto bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl block mt-8">
+        <button id="googleLoginBtn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]">
+          <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google
+        </button>
+        <div class="my-6 flex items-center before:flex-1 before:border-t before:border-gray-700 after:flex-1 after:border-t after:border-gray-700"><p class="mx-4 text-center font-semibold text-gray-400 text-sm">OR</p></div>
+        <div class="flex gap-2 mb-6">
+          <button id="tabLogin" class="flex-1 pb-2 border-b-2 border-blue-500 font-bold text-white transition-colors">Log In</button>
+          <button id="tabSignup" class="flex-1 pb-2 border-b-2 border-gray-700 font-bold text-gray-500 transition-colors hover:text-gray-300">Sign Up</button>
+        </div>
+        <form id="emailAuthForm" class="space-y-4">
+          <div id="usernameGroup" class="hidden"><input type="text" id="usernameInput" placeholder="Username" maxlength="15" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" /></div>
+          <input type="email" id="emailInput" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
+          <input type="password" id="passwordInput" placeholder="Password" minlength="6" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
+          <button type="submit" id="emailSubmitBtn" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all">Log In</button>
+        </form>
+      </div>
+
+      <!-- LOGGED IN STATE (Hub Dashboard) -->
+      <div id="loggedInSection" class="hidden w-full max-w-5xl mx-auto flex flex-col items-center gap-8 mt-8">
+        
+        <!-- Profile Banner -->
+        <div class="w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl shadow-xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Change Profile Picture">
+              <img id="displayPfp" src="" class="w-14 h-14 rounded-full object-cover border-2 border-purple-500 shadow-lg bg-gray-800">
+              <div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="w-5 h-5 text-white"></i></div>
+              <input type="file" id="pfpUpload" accept="image/*" class="hidden">
+            </div>
+            <div class="flex flex-col">
+              <div class="flex items-center gap-2">
+                <span id="displayUsername" class="font-bold text-white text-xl truncate max-w-[200px]"></span>
+                <div id="myRoleBadge"></div>
+              </div>
+              <div class="text-sm font-bold text-yellow-400 flex items-center gap-1"><span id="displayScore">0</span> <i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> Stars</div>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap gap-2 items-center">
+            <button id="openAdminBtn" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-400 text-white px-4 py-2 rounded-lg font-bold transition-all hidden items-center gap-2 shadow-lg"><i data-lucide="terminal" class="w-4 h-4"></i> Admin Panel</button>
+            <button id="redeemCodeBtn" class="bg-yellow-600 hover:bg-yellow-500 border border-yellow-400 text-white px-4 py-2 rounded-lg font-bold transition-all hidden items-center gap-2 shadow-lg"><i data-lucide="key" class="w-4 h-4"></i> Redeem Crown</button>
+            <button id="logoutBtn" class="text-xs font-medium text-gray-400 hover:text-white flex items-center gap-1 px-3 py-2 rounded hover:bg-gray-700/50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Logout</button>
+            <button id="deleteAccountBtn" class="text-xs font-medium text-red-400 hover:text-red-300 flex items-center gap-1 px-3 py-2 rounded hover:bg-red-500/10 transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete Account</button>
+          </div>
+        </div>
+
+        <!-- MAIN MENU (3 Big Buttons) -->
+        <div id="viewMainMenu" class="w-full flex flex-col items-center gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+            <button id="btnViewBrowser" class="p-8 bg-blue-600 hover:bg-blue-500 rounded-3xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-blue-400 h-64 relative overflow-hidden group">
+              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+              <i data-lucide="globe" class="w-20 h-20 text-white drop-shadow-md relative z-10"></i>
+              <span class="text-3xl font-black tracking-widest text-white relative z-10">BROWSE<br>LEVELS</span>
             </button>
-            <div class="my-6 flex items-center before:flex-1 before:border-t before:border-gray-700 after:flex-1 after:border-t after:border-gray-700"><p class="mx-4 text-center font-semibold text-gray-400 text-sm">OR</p></div>
-            <div class="flex gap-2 mb-6">
-              <button id="tabLogin" class="flex-1 pb-2 border-b-2 border-blue-500 font-bold text-white transition-colors">Log In</button>
-              <button id="tabSignup" class="flex-1 pb-2 border-b-2 border-gray-700 font-bold text-gray-500 transition-colors hover:text-gray-300">Sign Up</button>
-            </div>
-            <form id="emailAuthForm" class="space-y-4">
-              <div id="usernameGroup" class="hidden"><input type="text" id="usernameInput" placeholder="Username" maxlength="15" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" /></div>
-              <input type="email" id="emailInput" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
-              <input type="password" id="passwordInput" placeholder="Password" minlength="6" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
-              <button type="submit" id="emailSubmitBtn" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all">Log In</button>
-            </form>
-          </div>
-
-          <!-- Player Dashboard -->
-          <div id="playerSection" class="bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl flex flex-col items-center hidden relative">
-            <div class="flex items-center justify-center gap-4 mb-6 bg-gray-900/80 w-full py-3 px-4 rounded-2xl border border-gray-700">
-              <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Change Profile Picture">
-                <img id="displayPfp" src="" class="w-16 h-16 rounded-full object-cover border-2 border-purple-500 shadow-lg bg-gray-800">
-                <div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="w-6 h-6 text-white"></i></div>
-                <input type="file" id="pfpUpload" accept="image/*" class="hidden">
-              </div>
-              <div class="text-left flex-1 truncate">
-                <div id="displayUsername" class="font-bold text-white text-xl truncate"></div>
-                <div id="myRoleBadge" class="mt-1"></div>
-              </div>
-            </div>
-            
-            <!-- Creator Stars -->
-            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl w-full p-4 flex justify-between items-center mb-6">
-              <span class="text-sm text-yellow-500 font-bold uppercase tracking-wider">Creator Stars</span>
-              <div class="text-3xl font-black text-yellow-400 flex items-center gap-2"><span id="displayScore">0</span> <i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i></div>
-            </div>
-            
-            <button id="btnCreateLevel" class="w-full py-4 bg-green-600 hover:bg-green-500 rounded-xl text-white font-black text-lg shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex justify-center items-center gap-2 mb-4"><i data-lucide="hammer"></i> CREATE NEW LEVEL</button>
-
-            <!-- Admin Toggle -->
-            <button id="openAdminBtn" class="bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/50 text-indigo-300 w-full py-3 rounded-xl font-bold transition-all hidden items-center justify-center gap-2 mb-4"><i data-lucide="terminal" class="w-5 h-5"></i> Command Center</button>
-
-            <div class="border-t border-gray-700/80 w-full pt-4 flex flex-wrap gap-2 justify-center items-center">
-              <button id="redeemCodeBtn" class="text-xs font-medium text-yellow-500 hover:text-yellow-400 flex items-center gap-1 px-2 py-1 rounded hover:bg-yellow-500/10 hidden"><i data-lucide="key" class="w-3 h-3"></i> Redeem King</button>
-              <button id="logoutBtn" class="text-xs font-medium text-gray-400 hover:text-white flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-700/50"><i data-lucide="log-out" class="w-3 h-3"></i> Logout</button>
-              <button id="deleteAccountBtn" class="text-xs font-medium text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 px-2 py-1 rounded hover:bg-red-500/10"><i data-lucide="trash-2" class="w-3 h-3"></i> Delete Account</button>
-            </div>
+            <button id="btnCreateLevel" class="p-8 bg-green-600 hover:bg-green-500 rounded-3xl shadow-[0_0_30px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-green-400 h-64 relative overflow-hidden group">
+              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+              <i data-lucide="hammer" class="w-20 h-20 text-white drop-shadow-md relative z-10"></i>
+              <span class="text-3xl font-black tracking-widest text-white relative z-10">CREATE<br>LEVEL</span>
+            </button>
+            <button id="btnViewLeaderboard" class="p-8 bg-yellow-600 hover:bg-yellow-500 rounded-3xl shadow-[0_0_30px_rgba(202,138,4,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-yellow-400 h-64 relative overflow-hidden group">
+              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+              <i data-lucide="trophy" class="w-20 h-20 text-white drop-shadow-md relative z-10"></i>
+              <span class="text-3xl font-black tracking-widest text-white relative z-10">TOP<br>CREATORS</span>
+            </button>
           </div>
         </div>
 
-        <!-- Right Column: Level Browser -->
-        <div class="lg:col-span-8">
-          <div class="bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[700px]">
-            <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
+        <!-- LEVEL BROWSER VIEW -->
+        <div id="viewBrowser" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px]">
+          <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+              <button class="btnBackToMain text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
               <h3 class="text-xl font-bold flex items-center gap-2 text-white"><i data-lucide="globe" class="w-6 h-6 text-blue-400"></i> Community Levels</h3>
-              <span id="levelCount" class="text-xs font-bold text-gray-400 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700">0 Levels</span>
             </div>
-            <div id="levelBrowserList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
+            <span id="levelCount" class="text-xs font-bold text-gray-400 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700">0 Levels</span>
           </div>
+          <div id="levelBrowserList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
         </div>
-      </main>
+
+        <!-- LEADERBOARD VIEW -->
+        <div id="viewLeaderboard" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px]">
+          <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+              <button class="btnBackToMain text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+              <h3 class="text-xl font-bold flex items-center gap-2 text-white"><i data-lucide="trophy" class="w-6 h-6 text-yellow-500"></i> Top Creators</h3>
+            </div>
+            <span id="creatorCount" class="text-xs font-bold text-gray-400 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700">0 Creators</span>
+          </div>
+          <div id="leaderboardViewList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -356,7 +369,7 @@
 
   <script type="module">
     // ==========================================
-    // 🔥 FIREBASE IMPORTS & SETUP (CLEAN SINGLE BLOCK)
+    // 🔥 FIREBASE IMPORTS & SETUP
     // ==========================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -496,7 +509,12 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     
-    const GRID_SIZE = 40, GROUND_HEIGHT = 100, PLAYER_SIZE = 30, GRAVITY = 0.85, JUMP_FORCE = -12.5, PAD_FORCE = -17, BASE_MOVE_SPEED = 6, WAVE_SPEED = 8, SHIP_GRAVITY = 0.35, SHIP_THRUST = -0.65;
+    // TIGHTER, FASTER PHYSICS PARAMETERS
+    const GRID_SIZE = 40, GROUND_HEIGHT = 100, PLAYER_SIZE = 30;
+    const GRAVITY = 1.35, JUMP_FORCE = -17.5, PAD_FORCE = -24; 
+    const BASE_MOVE_SPEED = 9.2, WAVE_SPEED = 12; 
+    const SHIP_GRAVITY = 0.55, SHIP_THRUST = -1.0;
+    
     let groundY = 0;
     const DEFAULT_BG = [26, 26, 36], C_BLOCK = '#1a5f7a', C_BLOCK_OUTLINE = '#22d3ee', C_SPIKE = '#ff2a6d', C_PLAYER = '#00f0ff', C_PLAYER_TRAIL = 'rgba(0, 240, 255, 0.3)';
 
@@ -590,7 +608,7 @@
 
         let nextY = player.y + player.vy; player.grounded = false;
 
-        if (player.gamemode === 0 && !player.grounded) player.rotation += 6 * player.gravityDir; 
+        if (player.gamemode === 0 && !player.grounded) player.rotation += 8 * player.gravityDir; 
         else if (player.gamemode === 1) player.rotation = (input.jumpHeld ? -45 : 45) * player.gravityDir;
         else if (player.gamemode === 2) player.rotation = player.vy * 3 * player.gravityDir;
         else if (player.gamemode === 3) player.rotation = 0; 
@@ -808,6 +826,9 @@
     }
 
     canvas.addEventListener('pointerdown', (e) => {
+      // PREVENT UI CLICKS FROM DRAWING ON CANVAS
+      if (e.target !== canvas) return;
+      
       if (state.mode === 'play' || state.isPlaytesting) { triggerAction(); return; }
       if (state.mode !== 'edit') return;
       
@@ -848,7 +869,7 @@
 
     window.addEventListener('pointerup', (e) => {
       input.jumpHeld = false;
-      if (state.mode !== 'edit') return;
+      if (state.mode !== 'edit' || !editor.isDragging) return;
       
       if (editor.mode === 'edit' && editor.selBox && editor.swipeEnabled) {
         // Process Selection Box
@@ -1008,10 +1029,20 @@
     // 🌐 APP STATE & FIREBASE INTEGRATION
     // ==========================================
     
-    const hubUI = document.getElementById('hubUI'), joinSection = document.getElementById('joinSection'), playerSection = document.getElementById('playerSection'), emailAuthForm = document.getElementById('emailAuthForm');
-    const tabLogin = document.getElementById('tabLogin'), tabSignup = document.getElementById('tabSignup'), usernameGroup = document.getElementById('usernameGroup'), displayScore = document.getElementById('displayScore'), levelBrowserList = document.getElementById('levelBrowserList');
+    const hubUI = document.getElementById('hubUI'), joinSection = document.getElementById('joinSection'), emailAuthForm = document.getElementById('emailAuthForm');
+    const tabLogin = document.getElementById('tabLogin'), tabSignup = document.getElementById('tabSignup'), usernameGroup = document.getElementById('usernameGroup');
     const adminPanelModal = document.getElementById('adminPanelModal'), adminCommandForm = document.getElementById('adminCommandForm');
+    const loggedInSection = document.getElementById('loggedInSection');
+    const viewMainMenu = document.getElementById('viewMainMenu'), viewBrowser = document.getElementById('viewBrowser'), viewLeaderboard = document.getElementById('viewLeaderboard');
 
+    // Hub View Toggles
+    document.getElementById('btnViewBrowser').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewBrowser.classList.remove('hidden'); });
+    document.getElementById('btnViewLeaderboard').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewLeaderboard.classList.remove('hidden'); });
+    document.querySelectorAll('.btnBackToMain').forEach(btn => {
+      btn.addEventListener('click', () => { viewBrowser.classList.add('hidden'); viewLeaderboard.classList.add('hidden'); viewMainMenu.classList.remove('hidden'); });
+    });
+
+    // Hub UI Auth Tabs
     tabLogin.addEventListener('click', () => { isSignupMode = false; usernameGroup.classList.add('hidden'); document.getElementById('usernameInput').removeAttribute('required'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
     tabSignup.addEventListener('click', () => { isSignupMode = true; usernameGroup.classList.remove('hidden'); document.getElementById('usernameInput').setAttribute('required', 'true'); document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; });
 
@@ -1049,7 +1080,7 @@
         if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
         myProfile = null; clearTrollEffects();
         document.getElementById('bannedScreen').classList.add('hidden'); document.getElementById('warningScreen').classList.add('hidden');
-        hubUI.classList.remove('hidden'); joinSection.classList.remove('hidden'); playerSection.classList.add('hidden');
+        hubUI.classList.remove('hidden'); joinSection.classList.remove('hidden'); loggedInSection.classList.add('hidden');
         document.getElementById('loadingScreen').classList.add('hidden');
       }
     });
@@ -1079,6 +1110,8 @@
         if (!usersData.some(d => d.role === 'king') && myProfile && myProfile.role !== 'king') document.getElementById('redeemCodeBtn').classList.remove('hidden');
         else document.getElementById('redeemCodeBtn').classList.add('hidden');
         if (!adminPanelModal.classList.contains('hidden')) renderAdminPanel();
+        
+        renderLeaderboard();
         document.getElementById('loadingScreen').classList.add('hidden');
       });
 
@@ -1100,10 +1133,10 @@
     }
 
     function updateHubUI() {
-      joinSection.classList.add('hidden'); playerSection.classList.remove('hidden');
+      joinSection.classList.add('hidden'); loggedInSection.classList.remove('hidden');
       if (state.mode === 'menu') hubUI.classList.remove('hide');
       document.getElementById('displayUsername').textContent = myProfile.username;
-      displayScore.textContent = (myProfile.score || 0).toLocaleString();
+      document.getElementById('displayScore').textContent = (myProfile.score || 0).toLocaleString();
       document.getElementById('displayPfp').src = myProfile.photoURL ? myProfile.photoURL : getDefaultAvatar(myProfile.username);
       
       const rb = document.getElementById('myRoleBadge');
@@ -1120,12 +1153,41 @@
       lucide.createIcons();
     }
 
+    function renderLeaderboard() {
+      // Sort users by score (Creator Stars)
+      const visibleUsers = usersData.filter(u => !u.banned).sort((a,b) => (b.score||0) - (a.score||0));
+      document.getElementById('creatorCount').textContent = `${visibleUsers.length} Creators`;
+      
+      const lbList = document.getElementById('leaderboardViewList');
+      if (visibleUsers.length === 0) { lbList.innerHTML = `<div class="p-8 text-center text-gray-500">No creators yet.</div>`; return; }
+      
+      lbList.innerHTML = visibleUsers.map((u, i) => {
+        let badge = u.role === 'king' ? `<i data-lucide="crown" class="w-4 h-4 text-yellow-500 inline"></i>` : u.role === 'admin' ? `<i data-lucide="shield" class="w-4 h-4 text-indigo-500 inline"></i>` : '';
+        let rankClass = i === 0 ? 'bg-yellow-500/20 text-yellow-400' : i === 1 ? 'bg-gray-300/20 text-gray-300' : i === 2 ? 'bg-amber-700/20 text-amber-500' : 'bg-gray-800 text-gray-400';
+        return `
+          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
+            <div class="flex items-center gap-4">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${rankClass}">${i + 1}</div>
+              <img src="${escapeHtml(u.photoURL || getDefaultAvatar(u.username))}" class="w-10 h-10 rounded-full border border-gray-600">
+              <h4 class="text-lg font-bold text-white flex items-center gap-2">${escapeHtml(u.username)} ${badge}</h4>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xl font-bold text-yellow-400 font-mono">${(u.score || 0).toLocaleString()}</span>
+              <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400"></i>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
     function renderLevelBrowser() {
       document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
-      if (levelsList.length === 0) { levelBrowserList.innerHTML = `<div class="p-8 text-center text-gray-500">No community levels yet. Be the first to build one!</div>`; return; }
+      const browserList = document.getElementById('levelBrowserList');
+      if (levelsList.length === 0) { browserList.innerHTML = `<div class="p-8 text-center text-gray-500">No community levels yet. Be the first to build one!</div>`; return; }
       
       levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
-      levelBrowserList.innerHTML = levelsList.map(lvl => {
+      browserList.innerHTML = levelsList.map(lvl => {
         return `
           <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
             <div>
@@ -1142,7 +1204,7 @@
       lucide.createIcons();
     }
 
-    levelBrowserList.addEventListener('click', async (e) => {
+    document.getElementById('levelBrowserList').addEventListener('click', async (e) => {
       const btn = e.target.closest('button[data-play-lvl]');
       if (btn) {
         const lvlId = btn.dataset.playLvl; const lvlObj = levelsList.find(l => l.id === lvlId);
