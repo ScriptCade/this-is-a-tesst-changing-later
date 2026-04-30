@@ -34,13 +34,20 @@
     .ed-btn.delete { background: linear-gradient(180deg, #f87171, #dc2626); }
     .ed-btn.delete.active { background: linear-gradient(180deg, #60a5fa, #2563eb); }
     
-    /* Consistently Sized Tool Buttons */
-    .tool-btn { background: #334; border: 2px solid #111; border-radius: 4px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background 0.1s; width: 48px; height: 48px; flex-shrink: 0; }
-    .tool-btn:hover { background: #445; }
-    .tool-btn.active { background: #556; border-color: #fff; }
+    /* Consistently Huge Tool Buttons (~3x larger) */
+    .tool-btn { 
+      background: #334; border: 3px solid #111; border-radius: 8px; 
+      display: flex; justify-content: center; align-items: center; 
+      cursor: pointer; transition: background 0.1s, transform 0.1s; 
+      width: clamp(80px, 12vw, 144px); height: clamp(80px, 12vw, 144px); 
+      flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .tool-btn:hover { background: #445; transform: scale(1.05); }
+    .tool-btn.active { background: #556; border-color: #4ade80; box-shadow: 0 0 15px rgba(74,222,128,0.4); }
+    .tool-btn > div, .tool-btn > span { transform: scale(clamp(1.5, 2.5vw, 3)); pointer-events: none; }
 
-    .cat-btn { padding: 4px 12px; background: #223; border: 1px solid #111; border-bottom: none; color: #889; font-weight: bold; font-size: 12px; cursor: pointer; border-radius: 6px 6px 0 0; margin-right: 2px; }
-    .cat-btn.active { background: #445; color: #fff; }
+    .cat-btn { padding: 8px 16px; background: #223; border: 2px solid #111; border-bottom: none; color: #889; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px 8px 0 0; margin-right: 4px; }
+    .cat-btn.active { background: #445; color: #fff; border-color: #4ade80; border-bottom: 2px solid #445; }
 
     /* Troll Event Animations */
     @keyframes earthquake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
@@ -86,52 +93,52 @@
   <!-- Editor Top Right Options (Playtest & Publish) -->
   <div id="editorTopRight" class="hide absolute top-4 right-4 z-50 flex gap-2 pointer-events-auto">
     <button id="btnPlaytest" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 border border-blue-400/30 transition-transform hover:scale-105">
-      <i data-lucide="play" class="w-5 h-5"></i> Test
+      <i data-lucide="play" class="w-5 h-5"></i> Test (Z)
     </button>
     <button id="btnPublish" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 border border-green-400/30 transition-transform hover:scale-105">
       <i data-lucide="upload-cloud" class="w-5 h-5"></i> Publish
     </button>
   </div>
 
-  <!-- Advanced Editor Toolbar -->
-  <div id="editorToolbar" class="hide fixed bottom-0 left-0 w-full bg-black/90 border-t-2 border-gray-700 p-2 pointer-events-auto z-40 flex gap-4 h-36">
+  <!-- Advanced Editor Toolbar (Taller for huge buttons) -->
+  <div id="editorToolbar" class="hide fixed bottom-0 left-0 w-full bg-black/95 border-t-4 border-gray-700 p-3 pointer-events-auto z-40 flex gap-4 h-[35vh] min-h-[250px] shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
     
     <!-- Left: Main Tabs -->
-    <div class="flex flex-col gap-1 w-24 flex-shrink-0">
-      <button id="tabBuild" class="ed-btn active flex-1 text-sm tracking-wider">BUILD</button>
-      <button id="tabEditMode" class="ed-btn flex-1 text-sm tracking-wider">EDIT</button>
-      <button id="tabDelete" class="ed-btn delete flex-1 text-sm tracking-wider">DELETE</button>
+    <div class="flex flex-col gap-2 w-32 flex-shrink-0">
+      <button id="tabBuild" class="ed-btn active flex-1 text-lg tracking-wider">BUILD</button>
+      <button id="tabEditMode" class="ed-btn flex-1 text-lg tracking-wider">EDIT</button>
+      <button id="tabDelete" class="ed-btn delete flex-1 text-lg tracking-wider">DELETE</button>
     </div>
 
     <!-- Center: Dynamic Content Panels -->
-    <div class="flex-1 bg-[#1a1a24] border-2 border-gray-800 rounded-lg flex flex-col overflow-hidden relative">
+    <div class="flex-1 bg-[#1a1a24] border-4 border-gray-800 rounded-xl flex flex-col overflow-hidden relative shadow-inner">
       
       <!-- BUILD PANEL -->
       <div id="panelBuild" class="flex-1 flex flex-col h-full">
         <!-- Top Categories -->
-        <div class="flex px-2 pt-2 border-b-2 border-[#111] bg-[#111]">
-          <button class="cat-btn active" data-cat="blocks">Blocks</button>
-          <button class="cat-btn" data-cat="hazards">Hazards</button>
-          <button class="cat-btn" data-cat="interact">Orbs/Pads</button>
-          <button class="cat-btn" data-cat="portals">Portals</button>
-          <button class="cat-btn" data-cat="triggers">Triggers</button>
+        <div class="flex px-3 pt-3 border-b-4 border-[#111] bg-[#111] overflow-x-auto custom-scrollbar">
+          <button class="cat-btn active whitespace-nowrap" data-cat="blocks">Blocks</button>
+          <button class="cat-btn whitespace-nowrap" data-cat="hazards">Hazards</button>
+          <button class="cat-btn whitespace-nowrap" data-cat="interact">Orbs/Pads</button>
+          <button class="cat-btn whitespace-nowrap" data-cat="portals">Portals</button>
+          <button class="cat-btn whitespace-nowrap" data-cat="triggers">Triggers</button>
         </div>
-        <!-- Tool Grids (Categorized) - Now using flex-wrap for consistent square sizing -->
-        <div class="p-2 overflow-y-auto custom-scrollbar flex-1 bg-[#223]">
+        <!-- Tool Grids (Categorized) -->
+        <div class="p-4 overflow-y-auto custom-scrollbar flex-1 bg-[#223]">
           
-          <div id="cat-blocks" class="flex flex-wrap gap-2 content-start">
+          <div id="cat-blocks" class="flex flex-wrap gap-4 content-start">
             <button class="tool-btn active" data-tool="0" title="Solid Block"><div class="w-5 h-5 border-2 border-white bg-blue-400"></div></button>
             <button class="tool-btn" data-tool="19" title="Half Block"><div class="w-5 h-2.5 border-2 border-white bg-blue-400 mt-2.5"></div></button>
             <button class="tool-btn" data-tool="13" title="Deco Block"><div class="w-5 h-5 border border-gray-500 bg-gray-700"></div></button>
           </div>
           
-          <div id="cat-hazards" class="flex flex-wrap gap-2 content-start hide">
+          <div id="cat-hazards" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="1" title="Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-red-500"></div></div></button>
             <button class="tool-btn" data-tool="20" title="Small Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[8px] border-b-red-500"></div></div></button>
             <button class="tool-btn" data-tool="21" title="Sawblade"><div class="w-5 h-5 rounded-full border-2 border-gray-400 bg-gray-600 flex items-center justify-center"><div class="w-1 h-1 bg-white rounded-full"></div></div></button>
           </div>
           
-          <div id="cat-interact" class="flex flex-wrap gap-2 content-start hide">
+          <div id="cat-interact" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="5" title="Yellow Orb (Normal)"><div class="w-4 h-4 rounded-full border-2 border-yellow-200 bg-yellow-400 shadow-[0_0_8px_#facc15]"></div></button>
             <button class="tool-btn" data-tool="23" title="Pink Orb (Low)"><div class="w-4 h-4 rounded-full border-2 border-pink-200 bg-pink-400 shadow-[0_0_8px_#f472b6]"></div></button>
             <button class="tool-btn" data-tool="25" title="Red Orb (High)"><div class="w-4 h-4 rounded-full border-2 border-red-200 bg-red-500 shadow-[0_0_8px_#ef4444]"></div></button>
@@ -143,7 +150,7 @@
             <button class="tool-btn" data-tool="26" title="Blue Pad"><div class="w-5 h-2 border-t-2 border-blue-200 rounded-t-full bg-blue-500 mt-3 shadow-[0_0_8px_#3b82f6]"></div></button>
           </div>
           
-          <div id="cat-portals" class="flex flex-wrap gap-2 content-start hide">
+          <div id="cat-portals" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="7" title="Cube Mode"><div class="w-3 h-5 border-2 border-green-400 rounded-full bg-green-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-green-200">C</span></div></button>
             <button class="tool-btn" data-tool="8" title="Ship Mode"><div class="w-3 h-5 border-2 border-pink-400 rounded-full bg-pink-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-pink-200">S</span></div></button>
             <button class="tool-btn" data-tool="9" title="UFO Mode"><div class="w-3 h-5 border-2 border-purple-400 rounded-full bg-purple-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-purple-200">U</span></div></button>
@@ -154,7 +161,7 @@
             <button class="tool-btn" data-tool="29" title="Normal Portal"><div class="w-4 h-6 border-2 border-emerald-400 rounded bg-emerald-400/30"></div></button>
           </div>
           
-          <div id="cat-triggers" class="flex flex-wrap gap-2 content-start hide">
+          <div id="cat-triggers" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="10" title="Slow Speed"><span class="text-orange-400 font-bold text-xs">&lt;</span></button>
             <button class="tool-btn" data-tool="11" title="Normal Speed"><span class="text-green-400 font-bold text-xs">&gt;&gt;</span></button>
             <button class="tool-btn" data-tool="12" title="Fast Speed"><span class="text-pink-400 font-bold text-xs">&gt;&gt;&gt;</span></button>
@@ -168,43 +175,50 @@
       </div>
 
       <!-- EDIT PANEL -->
-      <div id="panelEdit" class="hide flex-1 bg-[#223] flex items-center justify-center gap-6 p-4">
-        <div id="editNoSelection" class="text-gray-400 font-bold">Select objects using SWIPE box to edit</div>
-        <div id="editControls" class="hide flex gap-6 items-center w-full justify-center">
-          <div class="grid grid-cols-3 gap-2">
-            <div></div><button id="btnNudgeUp" class="tool-btn"><i data-lucide="arrow-up" class="w-5 h-5 text-white"></i></button><div></div>
-            <button id="btnNudgeLeft" class="tool-btn"><i data-lucide="arrow-left" class="w-5 h-5 text-white"></i></button>
-            <button id="btnNudgeDown" class="tool-btn"><i data-lucide="arrow-down" class="w-5 h-5 text-white"></i></button>
-            <button id="btnNudgeRight" class="tool-btn"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></button>
+      <div id="panelEdit" class="hide flex-1 bg-[#223] flex items-center justify-center gap-12 p-6">
+        <div id="editNoSelection" class="text-gray-400 font-bold text-xl">Select objects to edit (or place a block)</div>
+        <div id="editControls" class="hide flex gap-12 items-center w-full justify-center">
+          <div class="grid grid-cols-3 gap-3">
+            <div></div><button id="btnNudgeUp" class="tool-btn bg-gray-700 border-gray-500"><i data-lucide="arrow-up" class="w-6 h-6 text-white"></i></button><div></div>
+            <button id="btnNudgeLeft" class="tool-btn bg-gray-700 border-gray-500"><i data-lucide="arrow-left" class="w-6 h-6 text-white"></i></button>
+            <button id="btnNudgeDown" class="tool-btn bg-gray-700 border-gray-500"><i data-lucide="arrow-down" class="w-6 h-6 text-white"></i></button>
+            <button id="btnNudgeRight" class="tool-btn bg-gray-700 border-gray-500"><i data-lucide="arrow-right" class="w-6 h-6 text-white"></i></button>
           </div>
-          <div class="w-px h-16 bg-gray-600"></div>
-          <div class="flex gap-2">
-            <button id="btnEditRotLeft" class="tool-btn bg-purple-900 border-purple-500 hover:bg-purple-800 shadow-lg"><i data-lucide="rotate-ccw" class="w-6 h-6 text-white"></i></button>
-            <button id="btnEditRotRight" class="tool-btn bg-purple-900 border-purple-500 hover:bg-purple-800 shadow-lg"><i data-lucide="rotate-cw" class="w-6 h-6 text-white"></i></button>
+          <div class="w-1 h-32 bg-gray-600 rounded-full"></div>
+          <div class="flex gap-4">
+            <button id="btnEditRotLeft" class="tool-btn bg-purple-900 border-purple-500 hover:bg-purple-800 shadow-lg"><i data-lucide="rotate-ccw" class="w-8 h-8 text-white"></i></button>
+            <button id="btnEditRotRight" class="tool-btn bg-purple-900 border-purple-500 hover:bg-purple-800 shadow-lg"><i data-lucide="rotate-cw" class="w-8 h-8 text-white"></i></button>
+          </div>
+          <div class="w-1 h-32 bg-gray-600 rounded-full"></div>
+          <div class="flex flex-col gap-2">
+             <span class="text-gray-400 text-xs font-bold font-mono">WASD = Move</span>
+             <span class="text-gray-400 text-xs font-bold font-mono">Q/E = Rotate</span>
+             <span class="text-gray-400 text-xs font-bold font-mono">Ctrl+D = Duplicate</span>
+             <span class="text-gray-400 text-xs font-bold font-mono">Ctrl+Z/Y = Undo/Redo</span>
+             <span class="text-gray-400 text-xs font-bold font-mono">T = Toggle Swipe | Esc = Deselect</span>
           </div>
         </div>
       </div>
 
       <!-- DELETE PANEL -->
-      <div id="panelDelete" class="hide flex-1 bg-[#223] flex items-center justify-center gap-6 p-4">
-        <p class="text-gray-400 font-bold text-sm">Swipe over objects to delete them.</p>
-        <div class="w-px h-12 bg-gray-600"></div>
-        <button id="btnDeleteAll" class="px-6 py-3 bg-red-900 border-2 border-red-500 hover:bg-red-800 text-white font-bold rounded-lg flex items-center gap-2 transition-colors">
-          <i data-lucide="trash-2" class="w-5 h-5"></i> CLEAR ALL
+      <div id="panelDelete" class="hide flex-1 bg-[#223] flex flex-col items-center justify-center gap-6 p-6">
+        <p class="text-gray-400 font-bold text-lg">Swipe over objects to delete them.</p>
+        <button id="btnDeleteAll" class="px-8 py-4 bg-red-900 border-4 border-red-500 hover:bg-red-800 text-white font-black text-2xl rounded-xl flex items-center gap-3 transition-colors shadow-2xl">
+          <i data-lucide="trash-2" class="w-8 h-8"></i> CLEAR ALL
         </button>
       </div>
     </div>
 
     <!-- Right: Toggles & Camera -->
-    <div class="flex flex-col gap-1 w-[120px] flex-shrink-0">
-      <button id="btnSwipeToggle" class="ed-btn active flex-1 text-xs tracking-wider border-green-900 shadow">SWIPE<br><span id="swipeStatus" class="text-[10px] text-green-200">ON</span></button>
+    <div class="flex flex-col gap-2 w-32 flex-shrink-0">
+      <button id="btnSwipeToggle" class="ed-btn active flex-1 text-sm tracking-wider border-green-900 shadow">SWIPE<br><span id="swipeStatus" class="text-xs text-green-200">ON</span></button>
       
       <!-- Build Rotation State -->
-      <div id="buildRotState" class="flex flex-col bg-gray-800 border border-gray-600 rounded pt-1 pb-1">
-        <div class="text-[10px] text-center text-yellow-200 font-bold mb-1" id="lblBuildRot">0°</div>
-        <div class="flex gap-1 px-1">
-           <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white text-xs flex items-center justify-center rounded py-1 border border-purple-900 shadow"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
-           <button id="btnBuildRotRight" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white text-xs flex items-center justify-center rounded py-1 border border-purple-900 shadow"><i data-lucide="rotate-cw" class="w-3 h-3"></i></button>
+      <div id="buildRotState" class="flex flex-col bg-gray-800 border-2 border-gray-600 rounded-lg pt-2 pb-2 shadow-inner">
+        <div class="text-xs text-center text-yellow-200 font-black mb-2" id="lblBuildRot">0°</div>
+        <div class="flex gap-2 px-2 h-12">
+           <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></button>
+           <button id="btnBuildRotRight" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-cw" class="w-5 h-5"></i></button>
         </div>
       </div>
     </div>
@@ -513,6 +527,43 @@
     
     // Preview Modal State
     let currentPreviewLevel = null;
+    
+    // History System for Undo/Redo
+    let historyList = [];
+    let historyIndex = -1;
+
+    function saveHistory() {
+       historyList = historyList.slice(0, historyIndex + 1);
+       historyList.push(JSON.parse(JSON.stringify(level)));
+       historyIndex++;
+    }
+
+    function undo() {
+       if (historyIndex > 0) {
+           historyIndex--;
+           level = JSON.parse(JSON.stringify(historyList[historyIndex]));
+           editor.selectedObjs = []; updateEditPanelUI();
+       }
+    }
+
+    function redo() {
+       if (historyIndex < historyList.length - 1) {
+           historyIndex++;
+           level = JSON.parse(JSON.stringify(historyList[historyIndex]));
+           editor.selectedObjs = []; updateEditPanelUI();
+       }
+    }
+
+    function duplicateSelected() {
+       if (editor.selectedObjs.length > 0) {
+           let newObjs = JSON.parse(JSON.stringify(editor.selectedObjs));
+           newObjs.forEach(o => o.gx += 1); // offset by 1 block so they aren't directly on top
+           level.push(...newObjs);
+           editor.selectedObjs = level.slice(-newObjs.length);
+           updateEditPanelUI();
+           saveHistory();
+       }
+    }
 
     // ==========================================
     // UTILS & TROLL EVENTS
@@ -649,7 +700,7 @@
     let level = [], levelMaxX = 0, input = { jumpHeld: false };
 
     let editor = { 
-      mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: true, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }
+      mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: true, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }, hasChangedLevel: false
     };
 
     const BLANK_LEVEL_DATA = (() => { let str = ""; for(let i=-5; i<=60; i++) str += `${i},-1,0,0;${i},-2,0,0;${i},-3,0,0;`; return str; })();
@@ -945,7 +996,7 @@
           ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
         }
 
-        if (editor.mode === 'edit' && editor.selectedObjs.length > 0) {
+        if (editor.selectedObjs.length > 0) {
           ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 3; ctx.setLineDash([5, 5]);
           editor.selectedObjs.forEach(obj => {
             let px = obj.gx * GRID_SIZE, py = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE;
@@ -1084,10 +1135,16 @@
 
       if (editor.mode === 'build') {
         level = level.filter(b => !(b.gx === gx && b.gy === gy));
-        level.push({ gx, gy, type: editor.tool, rot: editor.rot });
+        let newObj = { gx, gy, type: editor.tool, rot: editor.rot };
+        level.push(newObj);
+        editor.selectedObjs = [newObj]; // Auto-select last placed block
+        updateEditPanelUI();
+        editor.hasChangedLevel = true;
       } 
       else if (editor.mode === 'delete') {
+        let prevLen = level.length;
         level = level.filter(b => !(b.gx === gx && b.gy === gy));
+        if(level.length !== prevLen) editor.hasChangedLevel = true;
       }
     }
 
@@ -1103,7 +1160,6 @@
       
       if (editor.swipeEnabled) {
         if (editor.mode === 'edit') {
-          editor.selectedObjs = []; updateEditPanelUI();
           const p = getGridPos(e.clientX, e.clientY);
           editor.selBox = { sx: p.worldX, sy: p.worldY, ex: p.worldX, ey: p.worldY };
         } else {
@@ -1134,34 +1190,81 @@
       input.jumpHeld = false;
       if (state.mode !== 'edit' || !editor.isDragging) return;
       
-      if (editor.mode === 'edit' && editor.selBox && editor.swipeEnabled) {
+      if (editor.mode === 'edit') {
         if (editor.isClick) {
            const {gx, gy} = getGridPos(e.clientX, e.clientY);
-           let obj = level.find(b => b.gx === gx && b.gy === gy);
-           if (obj) editor.selectedObjs = [obj];
-        } else {
+           let obj = level.slice().reverse().find(b => b.gx === gx && b.gy === gy);
+           editor.selectedObjs = obj ? [obj] : [];
+           updateEditPanelUI();
+        } else if (editor.selBox && editor.swipeEnabled) {
            let minX = Math.min(editor.selBox.sx, editor.selBox.ex), maxX = Math.max(editor.selBox.sx, editor.selBox.ex);
            let minY = Math.min(editor.selBox.sy, editor.selBox.ey), maxY = Math.max(editor.selBox.sy, editor.selBox.ey);
            editor.selectedObjs = level.filter(b => {
              let px = b.gx * GRID_SIZE, py = groundY - (b.gy * GRID_SIZE) - GRID_SIZE;
              return (px < maxX && px + GRID_SIZE > minX && py < maxY && py + GRID_SIZE > minY);
            });
+           updateEditPanelUI();
         }
         editor.selBox = null;
-        updateEditPanelUI();
       } else if (!editor.swipeEnabled && editor.isClick && editor.mode !== 'edit') {
         handleEditorAction(e.clientX, e.clientY);
+      }
+
+      if (editor.hasChangedLevel) {
+         saveHistory();
+         editor.hasChangedLevel = false;
       }
 
       editor.isDragging = false; editor.lastGx = -1; editor.lastGy = -1;
     });
 
     document.addEventListener('keydown', (e) => {
-      if (state.mode === 'play' || state.isPlaytesting) { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') triggerAction(); } 
+      // Don't intercept typing in inputs or textareas
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.code === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); return; }
+      if (e.code === 'KeyT') { document.getElementById('btnSwipeToggle').click(); e.preventDefault(); return; }
+
+      // Z to Playtest/Exit
+      if (e.code === 'KeyZ' && !e.ctrlKey && !e.metaKey) {
+          if (state.mode === 'edit') {
+              document.getElementById('btnPlaytest').click();
+          } else if (state.isPlaytesting) {
+              document.getElementById('btnExitGame').click();
+          }
+          return;
+      }
+
+      // Undo / Redo / Duplicate Shortcuts
+      if (e.ctrlKey || e.metaKey) {
+          if (e.code === 'KeyZ') { undo(); e.preventDefault(); return; }
+          if (e.code === 'KeyY') { redo(); e.preventDefault(); return; }
+          if (e.code === 'KeyD') { duplicateSelected(); e.preventDefault(); return; }
+      }
+
+      if (state.mode === 'play' || state.isPlaytesting) { 
+          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') triggerAction(); 
+      } 
       else if (state.mode === 'edit') {
-        if(e.code === 'ArrowRight' || e.code === 'KeyD') state.cameraX += GRID_SIZE; if(e.code === 'ArrowLeft' || e.code === 'KeyA') state.cameraX -= GRID_SIZE;
-        if(e.code === 'ArrowUp' || e.code === 'KeyW') state.cameraY -= GRID_SIZE; if(e.code === 'ArrowDown' || e.code === 'KeyS') state.cameraY += GRID_SIZE;
-        state.cameraX = Math.max(0, state.cameraX);
+          let isWASD = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code);
+          
+          if (editor.selectedObjs.length > 0 && isWASD) {
+             if (e.code === 'KeyW') document.getElementById('btnNudgeUp').click();
+             if (e.code === 'KeyA') document.getElementById('btnNudgeLeft').click();
+             if (e.code === 'KeyS') document.getElementById('btnNudgeDown').click();
+             if (e.code === 'KeyD') document.getElementById('btnNudgeRight').click();
+          } else {
+             if(e.code === 'ArrowRight' || (!editor.selectedObjs.length && e.code === 'KeyD')) state.cameraX += GRID_SIZE; 
+             if(e.code === 'ArrowLeft' || (!editor.selectedObjs.length && e.code === 'KeyA')) state.cameraX -= GRID_SIZE;
+             if(e.code === 'ArrowUp' || (!editor.selectedObjs.length && e.code === 'KeyW')) state.cameraY -= GRID_SIZE; 
+             if(e.code === 'ArrowDown' || (!editor.selectedObjs.length && e.code === 'KeyS')) state.cameraY += GRID_SIZE;
+             state.cameraX = Math.max(0, state.cameraX);
+          }
+          
+          if (editor.selectedObjs.length > 0) {
+             if (e.code === 'KeyQ') document.getElementById('btnEditRotLeft').click();
+             if (e.code === 'KeyE') document.getElementById('btnEditRotRight').click();
+          }
       }
     });
     document.addEventListener('keyup', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') input.jumpHeld = false; });
@@ -1191,8 +1294,8 @@
 
     btnSwipeToggle.addEventListener('click', () => {
       editor.swipeEnabled = !editor.swipeEnabled;
-      if (editor.swipeEnabled) { btnSwipeToggle.classList.add('active'); swipeStatus.textContent = 'ON'; swipeStatus.className = 'text-[10px] text-green-200'; } 
-      else { btnSwipeToggle.classList.remove('active'); swipeStatus.textContent = 'OFF'; swipeStatus.className = 'text-[10px] text-red-200'; }
+      if (editor.swipeEnabled) { btnSwipeToggle.classList.add('active'); swipeStatus.textContent = 'ON'; swipeStatus.className = 'text-xs text-green-200'; } 
+      else { btnSwipeToggle.classList.remove('active'); swipeStatus.textContent = 'OFF'; swipeStatus.className = 'text-xs text-red-200'; }
     });
 
     document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -1227,15 +1330,58 @@
       }
     }
 
-    document.getElementById('btnNudgeUp').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.gy++); });
-    document.getElementById('btnNudgeDown').addEventListener('click', () => { editor.selectedObjs.forEach(o => { if(o.gy > 0) o.gy--; }); });
-    document.getElementById('btnNudgeLeft').addEventListener('click', () => { editor.selectedObjs.forEach(o => { if(o.gx > 0) o.gx--; }); });
-    document.getElementById('btnNudgeRight').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.gx++); });
+    document.getElementById('btnNudgeUp').addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => o.gy++); saveHistory(); } });
+    document.getElementById('btnNudgeDown').addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => { if(o.gy > 0) o.gy--; }); saveHistory(); } });
+    document.getElementById('btnNudgeLeft').addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => { if(o.gx > 0) o.gx--; }); saveHistory(); } });
+    document.getElementById('btnNudgeRight').addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => o.gx++); saveHistory(); } });
     
-    document.getElementById('btnEditRotLeft').addEventListener('click', () => { editor.selectedObjs.forEach(o => { o.rot = ((o.rot||0) - 90 + 360) % 360; }); });
-    document.getElementById('btnEditRotRight').addEventListener('click', () => { editor.selectedObjs.forEach(o => { o.rot = ((o.rot||0) + 90) % 360; }); });
+    document.getElementById('btnEditRotLeft').addEventListener('click', () => { 
+       if(editor.selectedObjs.length === 0) return;
+       if(editor.selectedObjs.length === 1) {
+          editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) - 90 + 360) % 360;
+       } else {
+          // Group Rotation Math
+          let minX = Math.min(...editor.selectedObjs.map(o => o.gx));
+          let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
+          let minY = Math.min(...editor.selectedObjs.map(o => o.gy));
+          let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
+          let cx = (minX + maxX) / 2;
+          let cy = (minY + maxY) / 2;
+          editor.selectedObjs.forEach(o => {
+              let dx = o.gx - cx;
+              let dy = o.gy - cy;
+              o.gx = cx - dy; // Rotate Left (Counter-Clockwise)
+              o.gy = cy + dx; 
+              o.rot = ((o.rot||0) - 90 + 360) % 360;
+          });
+       }
+       saveHistory();
+    });
 
-    document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear entire level?")) { level = []; editor.selectedObjs = []; updateEditPanelUI(); } });
+    document.getElementById('btnEditRotRight').addEventListener('click', () => { 
+       if(editor.selectedObjs.length === 0) return;
+       if(editor.selectedObjs.length === 1) {
+          editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) + 90) % 360;
+       } else {
+          // Group Rotation Math
+          let minX = Math.min(...editor.selectedObjs.map(o => o.gx));
+          let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
+          let minY = Math.min(...editor.selectedObjs.map(o => o.gy));
+          let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
+          let cx = (minX + maxX) / 2;
+          let cy = (minY + maxY) / 2;
+          editor.selectedObjs.forEach(o => {
+              let dx = o.gx - cx;
+              let dy = o.gy - cy;
+              o.gx = cx + dy; // Rotate Right (Clockwise)
+              o.gy = cy - dx; 
+              o.rot = ((o.rot||0) + 90) % 360;
+          });
+       }
+       saveHistory();
+    });
+
+    document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear entire level?")) { level = []; editor.selectedObjs = []; updateEditPanelUI(); saveHistory(); } });
 
     document.getElementById('btnPlaytest').addEventListener('click', () => {
       editor.restoreState = { camX: state.cameraX, camY: state.cameraY };
@@ -1245,7 +1391,7 @@
       document.getElementById('stats').classList.remove('hide');
       document.getElementById('gameProgressContainer').classList.remove('hide');
       document.getElementById('stats').innerText = `Test: Attempt 1`;
-      document.getElementById('lblExitGame').innerText = 'Stop Test';
+      document.getElementById('lblExitGame').innerText = 'Stop Test (Z)';
       document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'square'); lucide.createIcons();
     });
 
@@ -1685,6 +1831,8 @@
     function launchGame(dataStr, mode) {
       hubUI.classList.add('hide'); document.getElementById('gameUI').classList.remove('hide');
       level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
+      
+      historyList = []; historyIndex = -1; saveHistory();
       
       if (mode === 'edit') { 
         document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
