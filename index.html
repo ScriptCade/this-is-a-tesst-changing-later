@@ -2,17 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global Clicker Leaderboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Geometry Dash Maker Online</title>
   
-  <!-- Tailwind CSS for styling -->
+  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Fun Custom Animations for Troll Events -->
   <style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #1a1a24; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
+    canvas { display: block; position: absolute; top: 0; left: 0; z-index: 0; }
+    .hide { display: none !important; }
+    
+    /* Custom Scrollbars */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #2d3748; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #718096; }
+
+    /* Troll Event Animations */
     @keyframes earthquake {
       0% { transform: translate(2px, 1px) rotate(0deg); }
       10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -30,89 +38,225 @@
     .troll-invert { filter: invert(100%) hue-rotate(180deg); }
     .troll-tiny { transform: scale(0.2); transition: transform 1s ease-in-out; }
     .troll-spin { animation: spin 2s linear infinite; }
-    .troll-barrel-roll { animation: spin 1s ease-in-out 1; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8 transition-all duration-500" id="mainBody">
+<body class="text-white select-none transition-all duration-500" id="mainBody">
 
-  <!-- Loading State -->
-  <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-slate-900 z-[200]">
-    <i data-lucide="activity" class="w-10 h-10 animate-spin text-blue-500"></i>
+  <!-- ========================================== -->
+  <!-- 🎮 GAME CANVAS & UI ELEMENTS               -->
+  <!-- ========================================== -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- In-Game UI Overlay -->
+  <div id="gameUI" class="hide absolute top-0 left-0 w-full p-4 pointer-events-none flex justify-between items-start z-40">
+    <div class="pointer-events-auto flex gap-2 bg-gray-900/80 p-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl">
+      <button id="btnExitGame" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-white font-bold transition-colors shadow flex items-center gap-2">
+        <i data-lucide="log-out" class="w-4 h-4"></i> Exit
+      </button>
+      <button id="btnMusic" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow">🎵 Music: OFF</button>
+    </div>
+    <div id="stats" class="pointer-events-auto bg-gray-900/80 px-4 py-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl font-mono text-xl text-yellow-400">
+      Attempt 1
+    </div>
   </div>
 
-  <!-- GLOBAL BROADCAST BANNER -->
-  <div id="globalBanner" class="fixed top-0 left-0 right-0 bg-indigo-600 text-white p-3 font-bold text-center z-[150] shadow-xl transform -translate-y-full transition-transform duration-500 flex justify-center items-center gap-3">
-    <i data-lucide="radio" class="w-5 h-5 animate-pulse"></i>
-    <span id="globalBannerText">System Message</span>
-    <button id="closeBannerBtn" class="absolute right-4 text-white/70 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-  </div>
-
-  <!-- BANNED SCREEN OVERLAY -->
-  <div id="bannedScreen" class="fixed inset-0 bg-red-950 z-[100] hidden flex-col items-center justify-center p-4 text-center">
-    <i data-lucide="shield-alert" class="w-24 h-24 text-red-500 mb-6"></i>
-    <h1 class="text-5xl font-black text-white mb-4 tracking-tight">ACCOUNT BANNED</h1>
-    <p class="text-red-300 text-lg max-w-md">Your account has been permanently suspended from the leaderboard by an administrator.</p>
-  </div>
-
-  <!-- WARNING SCREEN OVERLAY -->
-  <div id="warningScreen" class="fixed inset-0 bg-amber-600/95 z-[90] hidden flex-col items-center justify-center p-4 text-center backdrop-blur-sm">
-    <div class="bg-slate-900 p-8 rounded-3xl shadow-2xl max-w-md w-full border-2 border-amber-500">
-      <i data-lucide="alert-triangle" class="w-16 h-16 text-amber-500 mx-auto mb-4"></i>
-      <h2 class="text-3xl font-black text-white mb-2">MODERATOR WARNING</h2>
-      <p id="warningMessageText" class="text-amber-200 mb-8 text-lg bg-slate-800 p-4 rounded-xl border border-slate-700"></p>
-      <button id="dismissWarningBtn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-3 px-6 rounded-xl transition-colors">
-        I Understand
+  <!-- Editor Toolbar -->
+  <div id="editorToolbar" class="hide absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-auto flex flex-col gap-2 bg-gray-900/90 p-3 rounded-xl backdrop-blur-md border border-gray-700 shadow-2xl transition-all z-40">
+    <div class="flex gap-2 justify-center items-center">
+      <!-- Camera Controls -->
+      <div class="grid grid-cols-3 gap-1">
+        <div></div><button id="btnCamUp" class="p-2 bg-gray-800 hover:bg-gray-700 rounded text-xs shadow">&uarr;</button><div></div>
+        <button id="btnCamLeft" class="p-2 bg-gray-800 hover:bg-gray-700 rounded text-xs shadow">&larr;</button>
+        <button id="btnCamDown" class="p-2 bg-gray-800 hover:bg-gray-700 rounded text-xs shadow">&darr;</button>
+        <button id="btnCamRight" class="p-2 bg-gray-800 hover:bg-gray-700 rounded text-xs shadow">&rarr;</button>
+      </div>
+      <div class="w-px h-12 bg-gray-600 mx-1"></div>
+      
+      <button id="btnRotate" class="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg shadow border-2 border-transparent font-bold text-xs h-full" title="Rotate Object">ROT<br><span id="rotLabel">0°</span></button>
+      
+      <div class="w-px h-12 bg-gray-600 mx-1"></div>
+      
+      <!-- Tools Palette -->
+      <div class="grid grid-cols-6 gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar w-[300px]">
+        <button id="toolBlock" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-white flex justify-center items-center h-10" title="Solid Block"><div class="w-5 h-5 border-2 border-white bg-blue-400"></div></button>
+        <button id="toolDeco" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Deco Block"><div class="w-5 h-5 border border-gray-500 bg-gray-700"></div></button>
+        <button id="toolSpike" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-red-500"></div></div></button>
+        <button id="toolPad" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex items-end justify-center h-10" title="Jump Pad"><div class="w-5 h-2 border-t-2 border-yellow-400 rounded-t-full bg-yellow-600/50"></div></button>
+        <button id="toolOrb" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex items-center justify-center h-10" title="Jump Orb"><div class="w-4 h-4 rounded-full border-4 border-yellow-400 bg-yellow-400/20"></div></button>
+        <button id="toolPortalCube" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Cube"><div class="w-3 h-5 border-2 border-green-400 rounded-full bg-green-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-green-200">C</span></div></button>
+        <button id="toolPortalShip" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Ship"><div class="w-3 h-5 border-2 border-pink-400 rounded-full bg-pink-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-pink-200">S</span></div></button>
+        <button id="toolPortalUFO" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="UFO"><div class="w-3 h-5 border-2 border-purple-400 rounded-full bg-purple-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-purple-200">U</span></div></button>
+        <button id="toolPortalWave" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Wave"><div class="w-3 h-5 border-2 border-orange-500 rounded-full bg-orange-500/20 flex items-center justify-center"><span class="text-[8px] font-bold text-orange-200">W</span></div></button>
+        <button id="toolPortalUp" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Gravity Up"><div class="w-3 h-5 border-2 border-yellow-400 rounded-full bg-yellow-400/20"></div></button>
+        <button id="toolPortalDown" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Gravity Down"><div class="w-3 h-5 border-2 border-blue-400 rounded-full bg-blue-400/20"></div></button>
+        <button id="toolSpeedSlow" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10 text-orange-400 font-bold leading-none text-xs">&lt;</button>
+        <button id="toolSpeedNorm" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10 text-green-400 font-bold leading-none text-xs">&gt;&gt;</button>
+        <button id="toolSpeedFast" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10 text-pink-400 font-bold leading-none text-xs">&gt;&gt;&gt;</button>
+        <button id="toolBgRed" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-4 h-4 rounded-full bg-red-900 border-2 border-red-500"></div></button>
+        <button id="toolBgBlue" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-4 h-4 rounded-full bg-blue-900 border-2 border-blue-500"></div></button>
+        <button id="toolBgGreen" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-4 h-4 rounded-full bg-green-900 border-2 border-green-500"></div></button>
+        <button id="toolBgReset" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-gray-400"></div></button>
+        <button id="toolEnd" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-3 h-6 border-2 border-white bg-white/50 flex flex-col justify-between items-center"><div class="w-full h-1 bg-black"></div><div class="w-full h-1 bg-black"></div></div></button>
+      </div>
+      <div class="w-px h-12 bg-gray-600 mx-1"></div>
+      <button id="toolEraser" class="p-3 bg-gray-800 hover:bg-gray-700 rounded-lg shadow border-2 border-transparent font-bold text-red-400 h-full" title="Eraser">DEL</button>
+    </div>
+    <div class="flex gap-2 mt-2 w-full">
+      <button id="btnClear" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-sm font-bold shadow transition-colors flex items-center gap-1"><i data-lucide="trash-2" class="w-4 h-4"></i> Clear</button>
+      <button id="btnPublish" class="flex-1 py-2 bg-green-600 hover:bg-green-500 rounded text-sm font-bold shadow transition-colors flex items-center justify-center gap-2">
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i> Publish Level to Server
       </button>
     </div>
   </div>
 
-  <!-- ADMIN PANEL MODAL (COMMAND CENTER) -->
+  <!-- Win Overlay -->
+  <div id="winOverlay" class="hide absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex justify-center items-center">
+    <div class="bg-gray-900 border-2 border-yellow-400 p-10 rounded-2xl text-center shadow-[0_0_80px_rgba(250,204,21,0.4)] flex flex-col items-center">
+      <h1 class="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">LEVEL COMPLETE</h1>
+      <p id="winAttempts" class="text-2xl text-yellow-400 font-mono mb-8">Attempts: 1</p>
+      <div class="flex gap-4">
+        <button id="btnWinReplay" class="px-8 py-3 bg-green-500 hover:bg-green-600 rounded-lg text-white font-bold text-xl transition-transform hover:scale-105 shadow-lg">Replay</button>
+        <button id="btnWinExit" class="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-bold text-xl transition-transform hover:scale-105 shadow-lg">Back to Hub</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 🌐 HUB UI & MODALS (OVERLAYS)              -->
+  <!-- ========================================== -->
+
+  <!-- Hub Main Container -->
+  <div id="hubUI" class="absolute inset-0 overflow-y-auto z-10 p-4 md:p-8 bg-black/40 backdrop-blur-sm">
+    <div class="max-w-6xl mx-auto space-y-8 pb-12">
+      <!-- Header -->
+      <header class="text-center space-y-4 pt-4">
+        <div class="inline-flex items-center justify-center p-4 bg-purple-500/10 rounded-full mb-2 border border-purple-500/20 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+          <i data-lucide="boxes" class="w-12 h-12 text-purple-400"></i>
+        </div>
+        <h1 class="text-4xl md:text-6xl font-black tracking-widest bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md">
+          GEOMETRY DASH MAKER
+        </h1>
+        <p class="text-gray-300 max-w-lg mx-auto font-medium text-lg">
+          Create levels, publish them to the world, and play creations from other users!
+        </p>
+      </header>
+
+      <main class="grid lg:grid-cols-12 gap-8 items-start">
+        <!-- Left Column: User Profile / Auth -->
+        <div class="lg:col-span-4 space-y-6">
+          
+          <!-- Auth Form (Hidden when logged in) -->
+          <div id="joinSection" class="bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl block">
+            <button id="googleLoginBtn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]">
+              <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google
+            </button>
+            <div class="my-6 flex items-center before:flex-1 before:border-t before:border-gray-700 after:flex-1 after:border-t after:border-gray-700">
+              <p class="mx-4 text-center font-semibold text-gray-400 text-sm">OR</p>
+            </div>
+            <div class="flex gap-2 mb-6">
+              <button id="tabLogin" class="flex-1 pb-2 border-b-2 border-blue-500 font-bold text-white transition-colors">Log In</button>
+              <button id="tabSignup" class="flex-1 pb-2 border-b-2 border-gray-700 font-bold text-gray-500 transition-colors hover:text-gray-300">Sign Up</button>
+            </div>
+            <form id="emailAuthForm" class="space-y-4">
+              <div id="usernameGroup" class="hidden">
+                <input type="text" id="usernameInput" placeholder="Username" maxlength="15" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+              <input type="email" id="emailInput" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
+              <input type="password" id="passwordInput" placeholder="Password" minlength="6" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
+              <button type="submit" id="emailSubmitBtn" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all">Log In</button>
+            </form>
+          </div>
+
+          <!-- Player Dashboard (Visible when logged in) -->
+          <div id="playerSection" class="bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl flex flex-col items-center hidden relative">
+            <div class="flex items-center justify-center gap-4 mb-6 bg-gray-900/80 w-full py-3 px-4 rounded-2xl border border-gray-700">
+              <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Change Profile Picture">
+                <img id="displayPfp" src="" class="w-16 h-16 rounded-full object-cover border-2 border-purple-500 shadow-lg bg-gray-800">
+                <div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="camera" class="w-6 h-6 text-white"></i></div>
+                <input type="file" id="pfpUpload" accept="image/*" class="hidden">
+              </div>
+              <div class="text-left flex-1 truncate">
+                <div id="displayUsername" class="font-bold text-white text-xl truncate"></div>
+                <div id="myRoleBadge" class="mt-1"></div>
+              </div>
+            </div>
+            
+            <!-- Creator Stars (Admin Awarded) -->
+            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl w-full p-4 flex justify-between items-center mb-6">
+              <span class="text-sm text-yellow-500 font-bold uppercase tracking-wider">Creator Stars</span>
+              <div class="text-3xl font-black text-yellow-400 flex items-center gap-2">
+                <span id="displayScore">0</span> <i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i>
+              </div>
+            </div>
+            
+            <button id="btnCreateLevel" class="w-full py-4 bg-green-600 hover:bg-green-500 rounded-xl text-white font-black text-lg shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex justify-center items-center gap-2 mb-4">
+              <i data-lucide="hammer"></i> CREATE NEW LEVEL
+            </button>
+
+            <!-- Admin Toggle -->
+            <button id="openAdminBtn" class="bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/50 text-indigo-300 w-full py-3 rounded-xl font-bold transition-all hidden items-center justify-center gap-2 mb-4">
+              <i data-lucide="terminal" class="w-5 h-5"></i> Command Center
+            </button>
+
+            <div class="border-t border-gray-700/80 w-full pt-4 flex flex-wrap gap-2 justify-center items-center">
+              <button id="redeemCodeBtn" class="text-xs font-medium text-yellow-500 hover:text-yellow-400 flex items-center gap-1 px-2 py-1 rounded hover:bg-yellow-500/10 hidden"><i data-lucide="key" class="w-3 h-3"></i> Redeem King</button>
+              <button id="logoutBtn" class="text-xs font-medium text-gray-400 hover:text-white flex items-center gap-1 px-2 py-1 rounded hover:bg-gray-700/50"><i data-lucide="log-out" class="w-3 h-3"></i> Logout</button>
+              <button id="deleteAccountBtn" class="text-xs font-medium text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 px-2 py-1 rounded hover:bg-red-500/10"><i data-lucide="trash-2" class="w-3 h-3"></i> Delete Account</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Level Browser -->
+        <div class="lg:col-span-8">
+          <div class="bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[700px]">
+            <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
+              <h3 class="text-xl font-bold flex items-center gap-2 text-white">
+                <i data-lucide="globe" class="w-6 h-6 text-blue-400"></i> Community Levels
+              </h3>
+              <span id="levelCount" class="text-xs font-bold text-gray-400 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700">0 Levels</span>
+            </div>
+            
+            <div id="levelBrowserList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30">
+              <!-- Levels injected here -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Loading & Admin Overlays (From Command Center System) -->
+  <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-gray-900 z-[200]"><i data-lucide="activity" class="w-12 h-12 animate-spin text-blue-500"></i></div>
+  <div id="globalBanner" class="fixed top-0 left-0 right-0 bg-indigo-600 text-white p-3 font-bold text-center z-[150] shadow-xl transform -translate-y-full transition-transform duration-500 flex justify-center items-center gap-3"><i data-lucide="radio" class="w-5 h-5 animate-pulse"></i><span id="globalBannerText">System Message</span><button id="closeBannerBtn" class="absolute right-4 text-white/70 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+  <div id="bannedScreen" class="fixed inset-0 bg-red-950 z-[100] hidden flex-col items-center justify-center p-4 text-center"><i data-lucide="shield-alert" class="w-24 h-24 text-red-500 mb-6"></i><h1 class="text-5xl font-black text-white mb-4">ACCOUNT BANNED</h1><p class="text-red-300">Your account has been permanently suspended.</p></div>
+  <div id="warningScreen" class="fixed inset-0 bg-amber-600/95 z-[90] hidden flex-col items-center justify-center p-4 text-center"><div class="bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-md border-2 border-amber-500"><i data-lucide="alert-triangle" class="w-16 h-16 text-amber-500 mx-auto mb-4"></i><h2 class="text-3xl font-black text-white mb-2">WARNING</h2><p id="warningMessageText" class="text-amber-200 mb-8 p-4 bg-gray-800 rounded-xl border border-gray-700"></p><button id="dismissWarningBtn" class="w-full bg-amber-500 text-gray-900 font-bold py-3 rounded-xl">I Understand</button></div></div>
+
+  <!-- COMMAND CENTER MODAL -->
   <div id="adminPanelModal" class="fixed inset-0 bg-black/80 z-[80] hidden flex-col items-center justify-center p-2 md:p-4 backdrop-blur-sm">
-    <div class="bg-slate-800 rounded-3xl shadow-2xl w-full max-w-5xl border border-slate-700 flex flex-col h-full max-h-[90vh]">
-      
-      <!-- Admin Header -->
-      <div class="p-4 md:p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-3xl">
-        <h2 class="text-xl md:text-2xl font-black flex items-center gap-3 text-white">
-          <i data-lucide="terminal" class="w-6 h-6 text-indigo-400"></i>
-          Command Center
-        </h2>
-        <div class="flex items-center gap-2 md:gap-4">
-          <button id="changeCodeBtn" class="hidden bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
-            <i data-lucide="key-round" class="w-4 h-4"></i> <span class="hidden sm:inline">Edit Code</span>
-          </button>
-          <button id="closeAdminBtn" class="bg-slate-700 hover:bg-red-500 text-white p-1.5 rounded-lg transition-colors">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
+    <div class="bg-gray-800 rounded-3xl shadow-2xl w-full max-w-5xl border border-gray-700 flex flex-col h-full max-h-[90vh]">
+      <div class="p-4 md:p-6 border-b border-gray-700 flex justify-between items-center bg-gray-800/50 rounded-t-3xl">
+        <h2 class="text-xl md:text-2xl font-black flex items-center gap-3 text-white"><i data-lucide="terminal" class="w-6 h-6 text-indigo-400"></i> Command Center</h2>
+        <div class="flex gap-2">
+          <button id="changeCodeBtn" class="hidden bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-2"><i data-lucide="key-round" class="w-4 h-4"></i> <span class="hidden sm:inline">Edit Code</span></button>
+          <button id="closeAdminBtn" class="bg-gray-700 hover:bg-red-500 text-white p-1.5 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
       </div>
-      
-      <!-- Admin Body (Split Layout) -->
       <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
-        
-        <!-- Left Side: Execution Form -->
-        <div class="md:w-1/2 p-4 md:p-6 bg-slate-800/80 border-b md:border-b-0 md:border-r border-slate-700 overflow-y-auto">
-          <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Execute Command</h3>
-          
+        <div class="md:w-1/2 p-4 md:p-6 bg-gray-800/80 border-r border-gray-700 overflow-y-auto">
+          <h3 class="text-sm font-bold text-gray-400 uppercase mb-4">Execute Command</h3>
           <form id="adminCommandForm" class="space-y-5">
-            <!-- Target Selection -->
             <div>
-              <label class="block text-sm font-medium text-slate-300 mb-1">Target Player</label>
-              <select id="cmdTarget" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none appearance-none font-semibold">
-                <option value="GLOBAL">🌐 EVERYONE (GLOBAL)</option>
-                <!-- Populated by JS -->
-              </select>
+              <label class="block text-sm text-gray-300 mb-1">Target Player</label>
+              <select id="cmdTarget" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white outline-none font-semibold"><option value="GLOBAL">🌐 EVERYONE (GLOBAL)</option></select>
             </div>
-
-            <!-- Action Selection -->
             <div>
-              <label class="block text-sm font-medium text-slate-300 mb-1">Command Action</label>
-              <select id="cmdAction" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none appearance-none font-semibold">
-                <optgroup label="Score Math">
-                  <option value="addScore">➕ Add to Score</option>
-                  <option value="subScore">➖ Subtract from Score</option>
-                  <option value="multScore">✖️ Multiply Score</option>
-                  <option value="divScore">➗ Divide Score (Rounds Up)</option>
-                  <option value="setScore">🎯 Set Exact Score</option>
+              <label class="block text-sm text-gray-300 mb-1">Action</label>
+              <select id="cmdAction" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white outline-none font-semibold">
+                <optgroup label="Creator Stars">
+                  <option value="addScore">➕ Award Stars</option>
+                  <option value="subScore">➖ Subtract Stars</option>
+                  <option value="setScore">🎯 Set Exact Stars</option>
                 </optgroup>
                 <optgroup label="Moderation">
                   <option value="warn">⚠️ Send Warning Message</option>
@@ -121,8 +265,8 @@
                   <option value="role">👑 Change Role</option>
                   <option value="globalMsg">📢 Broadcast Global Message</option>
                 </optgroup>
-                <optgroup label="Troll Events (10s duration)">
-                  <option value="troll_earthquake">🌋 Troll: Earthquake</option>
+                <optgroup label="Troll Events (10s)">
+                  <option value="troll_earthquake">🌋 Troll: Earthquake (Screen Shake)</option>
                   <option value="troll_spin">🌀 Troll: Spin Screen</option>
                   <option value="troll_tiny">🔬 Troll: Make Tiny</option>
                   <option value="troll_invert">👽 Troll: Invert Colors</option>
@@ -130,210 +274,39 @@
                 </optgroup>
               </select>
             </div>
-
-            <!-- Dynamic Parameter Input -->
             <div id="cmdParamContainer">
-              <label id="cmdParamLabel" class="block text-sm font-medium text-slate-300 mb-1">Value / Amount</label>
-              <input type="number" id="cmdParamNumber" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Enter amount...">
-              <input type="text" id="cmdParamText" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none hidden" placeholder="Enter message...">
-              <select id="cmdParamRole" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none hidden">
-                <option value="user">User</option>
-                <option value="mod">Moderator</option>
-                <option value="admin">Admin</option>
-                <option value="king">King (Transfer Crown)</option>
+              <label id="cmdParamLabel" class="block text-sm text-gray-300 mb-1">Amount</label>
+              <input type="number" id="cmdParamNumber" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white outline-none" placeholder="Amount...">
+              <input type="text" id="cmdParamText" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white outline-none hidden" placeholder="Message...">
+              <select id="cmdParamRole" class="w-full bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white outline-none hidden">
+                <option value="user">User</option><option value="mod">Moderator</option><option value="admin">Admin</option><option value="king">King</option>
               </select>
             </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-2 border border-indigo-500/50 mt-4">
-              <i data-lucide="zap" class="w-5 h-5"></i> Execute Command
-            </button>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg flex justify-center items-center gap-2"><i data-lucide="zap" class="w-5 h-5"></i> Execute Command</button>
           </form>
         </div>
-
-        <!-- Right Side: Player Directory -->
-        <div class="md:w-1/2 p-0 flex flex-col bg-slate-900">
-          <div class="p-4 border-b border-slate-700 bg-slate-800 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Player Directory</h3>
-            <span id="adminPlayerCount" class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300 font-mono">0 Players</span>
+        <div class="md:w-1/2 flex flex-col bg-gray-900">
+          <div class="p-4 border-b border-gray-700 bg-gray-800 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-gray-400 uppercase">Player Directory</h3>
+            <span id="adminPlayerCount" class="text-xs bg-gray-700 px-2 py-1 rounded">0 Players</span>
           </div>
-          <div class="overflow-y-auto flex-1 p-2">
-            <div id="adminDirectoryList" class="space-y-1">
-              <!-- Directory populated by JS -->
-            </div>
-          </div>
+          <div class="overflow-y-auto flex-1 p-2"><div id="adminDirectoryList" class="space-y-1"></div></div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- Main Application (Hidden until loaded) -->
-  <div id="appContent" class="max-w-4xl mx-auto space-y-8 hidden">
-    
-    <!-- Header -->
-    <header class="text-center space-y-4 pt-8">
-      <div class="inline-flex items-center justify-center p-4 bg-blue-500/10 rounded-full mb-2">
-        <i data-lucide="trophy" class="w-12 h-12 text-blue-400"></i>
-      </div>
-      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-        Global Clicker
-      </h1>
-      <p class="text-slate-400 max-w-lg mx-auto">
-        Join the leaderboard, click to increase your score, and compete with everyone in real-time.
-      </p>
-    </header>
-
-    <main class="grid md:grid-cols-12 gap-8 items-start">
-      
-      <!-- Left Column: Actions -->
-      <div class="md:col-span-5 space-y-6">
-        
-        <!-- Join Form (Shows when no profile) -->
-        <div id="joinSection" class="bg-slate-800/50 backdrop-blur border border-slate-700/50 p-6 rounded-2xl shadow-xl block">
-          
-          <button
-            id="googleLoginBtn"
-            class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 text-slate-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            Sign in with Google
-          </button>
-
-          <div class="my-6 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-slate-700/50 after:mt-0.5 after:flex-1 after:border-t after:border-slate-700/50">
-            <p class="mx-4 mb-0 text-center font-semibold text-slate-500 text-sm">OR EMAIL</p>
-          </div>
-
-          <!-- Login/Signup Tabs -->
-          <div class="flex gap-2 mb-6">
-            <button id="tabLogin" class="flex-1 pb-2 border-b-2 border-blue-500 font-bold text-white transition-colors">Log In</button>
-            <button id="tabSignup" class="flex-1 pb-2 border-b-2 border-slate-700 font-bold text-slate-400 transition-colors hover:text-slate-200">Sign Up</button>
-          </div>
-          
-          <form id="emailAuthForm" class="space-y-4">
-            <div id="usernameGroup" class="hidden">
-              <label class="block text-sm font-medium text-slate-400 mb-2">Username</label>
-              <input type="text" id="usernameInput" placeholder="e.g. PlayerOne" maxlength="15" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-400 mb-2">Email</label>
-              <input type="email" id="emailInput" placeholder="you@email.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-400 mb-2">Password</label>
-              <input type="password" id="passwordInput" placeholder="••••••••" minlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required />
-            </div>
-            <button type="submit" id="emailSubmitBtn" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all disabled:opacity-50 active:scale-[0.98]">
-              Log In
-              <i data-lucide="arrow-right" class="w-5 h-5"></i>
-            </button>
-          </form>
-        </div>
-
-        <!-- Active Player Dashboard (Shows when joined) -->
-        <div id="playerSection" class="bg-gradient-to-b from-blue-900/40 to-slate-800/50 backdrop-blur border border-blue-500/20 p-6 rounded-2xl shadow-xl text-center flex flex-col items-center hidden relative overflow-hidden">
-          
-          <!-- Profile Info with Picture -->
-          <div class="flex items-center justify-center gap-4 mb-6 bg-slate-900/50 w-full py-3 px-4 rounded-2xl border border-blue-500/20 mt-4">
-            <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Click to change profile picture">
-              <img id="displayPfp" src="" class="w-16 h-16 rounded-full object-cover border-2 border-blue-500 shadow-lg bg-slate-800">
-              <div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
-                <i data-lucide="camera" class="w-6 h-6 text-white"></i>
-              </div>
-              <input type="file" id="pfpUpload" accept="image/*" class="hidden">
-            </div>
-            
-            <div class="text-left flex-1">
-              <div class="text-xs font-medium text-blue-300 flex items-center gap-2 mb-0.5">
-                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> Playing as
-              </div>
-              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                <div id="displayUsername" class="font-bold text-white text-xl truncate max-w-[150px]"></div>
-                <!-- Role Badge injected here -->
-                <div id="myRoleBadge"></div>
-              </div>
-            </div>
-          </div>
-          
-          <div id="displayScore" class="text-6xl font-black text-white mb-8 tracking-tighter transition-all">0</div>
-          
-          <button
-            id="clickButton"
-            class="group relative w-48 h-48 rounded-full bg-gradient-to-b from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.3)] hover:shadow-[0_0_60px_rgba(59,130,246,0.5)] transition-all active:scale-95 border-4 border-blue-400/30"
-          >
-            <i data-lucide="mouse-pointer-click" class="w-12 h-12 text-white mb-2 opacity-80 group-hover:scale-110 transition-transform"></i>
-            <span class="text-xl font-bold text-white">CLICK ME</span>
-          </button>
-
-          <!-- Admin Panel Toggle (Hidden by default) -->
-          <button id="openAdminBtn" class="mt-8 bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/50 text-indigo-300 w-full py-3 rounded-xl font-bold transition-all hidden items-center justify-center gap-2">
-            <i data-lucide="terminal" class="w-5 h-5"></i> Open Command Center
-          </button>
-
-          <!-- Account Actions (Logout / Deactivate) -->
-          <div class="mt-4 pt-4 border-t border-slate-700/50 w-full flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button id="redeemCodeBtn" class="text-sm font-medium text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-yellow-500/10 hidden">
-              <i data-lucide="key" class="w-4 h-4"></i> Redeem Code
-            </button>
-            <button id="logoutBtn" class="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-700/50">
-              <i data-lucide="log-out" class="w-4 h-4"></i> Log Out
-            </button>
-            <button id="deleteAccountBtn" class="text-sm font-medium text-red-400 hover:text-red-300 transition-colors flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-500/10">
-              <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Account
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column: Leaderboard -->
-      <div class="md:col-span-7">
-        <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
-          <div class="p-4 border-b border-slate-700/50 bg-slate-800/50 flex items-center justify-between">
-            <h3 class="text-lg font-bold flex items-center gap-2">
-              <i data-lucide="medal" class="w-5 h-5 text-yellow-500"></i>
-              Top Players
-            </h3>
-            <span id="playerCount" class="text-xs font-medium text-slate-400 bg-slate-900 px-2 py-1 rounded-md">
-              0 Players Online
-            </span>
-          </div>
-          
-          <div id="leaderboardList" class="divide-y divide-slate-700/30 max-h-[600px] overflow-y-auto">
-            <!-- Leaderboard items will be injected here -->
-          </div>
-        </div>
-      </div>
-      
-    </main>
-  </div>
-
   <script type="module">
+    // ==========================================
+    // 🔥 FIREBASE IMPORTS & SETUP
+    // ==========================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // =====================================================================
-    // 🔥 GITHUB PAGES CONFIG 🔥
-    // =====================================================================
-    let firebaseConfig;
-    if (typeof __firebase_config !== 'undefined') {
-      firebaseConfig = JSON.parse(__firebase_config);
-    } else {
-      firebaseConfig = {
-        apiKey: "AIzaSyBBMqL7mb5j0ZLm4WhcB09LmA8CJRGXHfI",
-        authDomain: "testing-c7477.firebaseapp.com",
-        projectId: "testing-c7477",
-        storageBucket: "testing-c7477.firebasestorage.app",
-        messagingSenderId: "743729171693",
-        appId: "1:743729171693:web:86891606fc9392677ed0e4"
-      };
-    }
-
+    let firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+      apiKey: "AIzaSyBBMqL7mb5j0ZLm4WhcB09LmA8CJRGXHfI", authDomain: "testing-c7477.firebaseapp.com", projectId: "testing-c7477", storageBucket: "testing-c7477.firebasestorage.app", messagingSenderId: "743729171693", appId: "1:743729171693:web:86891606fc9392677ed0e4"
+    };
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-github-app-id';
 
     const app = initializeApp(firebaseConfig);
@@ -341,333 +314,512 @@
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
 
-    // App State
-    let currentUser = null;
-    let myProfile = null;
-    let leaderboardData = [];
-    let isSignupMode = false;
-    let pendingUsername = null;
-    let dbUnsubscribe = null;
-    let settingsUnsubscribe = null;
-    let activeTrollTimeout = null;
+    // ==========================================
+    // 🌐 APP STATE
+    // ==========================================
+    let currentUser = null, myProfile = null;
+    let usersData = [], levelsList = [], isSignupMode = false, pendingUsername = null, dbUnsubscribe = null, levelsUnsubscribe = null, settingsUnsubscribe = null, activeTrollTimeout = null;
     let globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
 
-    // DOM Elements - Core
-    const mainBody = document.getElementById('mainBody');
-    const loadingScreen = document.getElementById('loadingScreen');
-    const appContent = document.getElementById('appContent');
-    const joinSection = document.getElementById('joinSection');
-    const playerSection = document.getElementById('playerSection');
-    
-    // Auth Elements
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    const tabLogin = document.getElementById('tabLogin');
-    const tabSignup = document.getElementById('tabSignup');
-    const emailAuthForm = document.getElementById('emailAuthForm');
-    const usernameGroup = document.getElementById('usernameGroup');
-    const usernameInput = document.getElementById('usernameInput');
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const emailSubmitBtn = document.getElementById('emailSubmitBtn');
-
-    // Dashboard Elements
-    const displayUsername = document.getElementById('displayUsername');
-    const myRoleBadge = document.getElementById('myRoleBadge');
-    const displayScore = document.getElementById('displayScore');
-    const displayPfp = document.getElementById('displayPfp');
-    const pfpContainer = document.getElementById('pfpContainer');
-    const pfpUpload = document.getElementById('pfpUpload');
-    const clickButton = document.getElementById('clickButton');
-    const leaderboardList = document.getElementById('leaderboardList');
-    const playerCount = document.getElementById('playerCount');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-
-    // Command Center / Admin Elements
-    const openAdminBtn = document.getElementById('openAdminBtn');
-    const adminPanelModal = document.getElementById('adminPanelModal');
-    const closeAdminBtn = document.getElementById('closeAdminBtn');
-    const adminCommandForm = document.getElementById('adminCommandForm');
-    const cmdTarget = document.getElementById('cmdTarget');
-    const cmdAction = document.getElementById('cmdAction');
-    const cmdParamContainer = document.getElementById('cmdParamContainer');
-    const cmdParamLabel = document.getElementById('cmdParamLabel');
-    const cmdParamNumber = document.getElementById('cmdParamNumber');
-    const cmdParamText = document.getElementById('cmdParamText');
-    const cmdParamRole = document.getElementById('cmdParamRole');
-    const adminDirectoryList = document.getElementById('adminDirectoryList');
-    const adminPlayerCount = document.getElementById('adminPlayerCount');
-    const redeemCodeBtn = document.getElementById('redeemCodeBtn');
-    const changeCodeBtn = document.getElementById('changeCodeBtn');
-    
-    // Overlays & Banner
-    const bannedScreen = document.getElementById('bannedScreen');
-    const warningScreen = document.getElementById('warningScreen');
-    const warningMessageText = document.getElementById('warningMessageText');
-    const dismissWarningBtn = document.getElementById('dismissWarningBtn');
-    const globalBanner = document.getElementById('globalBanner');
-    const globalBannerText = document.getElementById('globalBannerText');
-    const closeBannerBtn = document.getElementById('closeBannerBtn');
-
-    lucide.createIcons();
-
     // ==========================================
-    // INITIALIZATION & OBSERVERS
+    // 🎵 AUDIO ENGINE
     // ==========================================
-    async function initAuth() {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else if (typeof __firebase_config !== 'undefined') {
-          await signInAnonymously(auth); 
-        }
-      } catch (error) {
-        console.error("Authentication failed:", error);
+    let audioCtx, noiseBuffer, isMusicOn = false, nextNoteTime = 0, current16thNote = 0, tempo = 140;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+        const out = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < out.length; i++) out[i] = Math.random() * 2 - 1;
       }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function playKick(time) {
+      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.frequency.setValueAtTime(150, time); osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+      gain.gain.setValueAtTime(1, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+      osc.start(time); osc.stop(time + 0.5);
+    }
+    function playSnare(time) {
+      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.frequency.setValueAtTime(250, time); osc.frequency.exponentialRampToValueAtTime(100, time + 0.1);
+      gain.gain.setValueAtTime(0.6, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+      osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.1);
+      if (noiseBuffer) {
+        const ns = audioCtx.createBufferSource(), nf = audioCtx.createBiquadFilter(), ng = audioCtx.createGain();
+        ns.buffer = noiseBuffer; nf.type = 'highpass'; nf.frequency.value = 1000;
+        ng.gain.setValueAtTime(0.6, time); ng.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+        ns.connect(nf); nf.connect(ng); ng.connect(audioCtx.destination); ns.start(time); ns.stop(time + 0.2);
+      }
+    }
+    function playHiHat(time, isOpen) {
+      if (!noiseBuffer || !audioCtx) return; const dur = isOpen ? 0.25 : 0.05;
+      const ns = audioCtx.createBufferSource(), nf = audioCtx.createBiquadFilter(), ng = audioCtx.createGain();
+      ns.buffer = noiseBuffer; nf.type = 'highpass'; nf.frequency.value = 6000;
+      ng.gain.setValueAtTime(0.3, time); ng.gain.exponentialRampToValueAtTime(0.01, time + dur);
+      ns.connect(nf); nf.connect(ng); ng.connect(audioCtx.destination); ns.start(time); ns.stop(time + dur);
+    }
+    function playBass(time, note, filterFreq) {
+      if (!note || !audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), filter = audioCtx.createBiquadFilter();
+      osc.type = 'sawtooth'; osc.frequency.value = 440 * Math.pow(2, (note - 69) / 12);
+      filter.type = 'lowpass'; filter.frequency.setValueAtTime(filterFreq, time); filter.frequency.exponentialRampToValueAtTime(200, time + 0.2);
+      gain.gain.setValueAtTime(0.3, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
+      osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.25);
+    }
+    function playArp(time, note) {
+      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type = 'square'; osc.frequency.value = 440 * Math.pow(2, (note - 69) / 12);
+      gain.gain.setValueAtTime(0.08, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+      osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.1);
+    }
+    function scheduleAudio() {
+      if (!isMusicOn || !audioCtx) return;
+      while (nextNoteTime < audioCtx.currentTime + 0.1) {
+        const loopPos = current16thNote % 512, bar = Math.floor(loopPos / 16), step = loopPos % 16; 
+        const isBuild = bar >= 8 && bar < 16, isDrop = bar >= 16 && bar < 24, isBreak = bar >= 24;
+
+        if (!isBreak && step % 4 === 0) playKick(nextNoteTime);
+        if (isBuild && bar === 15 && step >= 8 && step % 2 === 0) playKick(nextNoteTime);
+        if ((isBuild || isDrop) && (step === 4 || step === 12)) playSnare(nextNoteTime);
+        if (isBuild && bar === 15 && step >= 8) playSnare(nextNoteTime);
+        if (isDrop) { if (step % 2 !== 0) playHiHat(nextNoteTime, true); else playHiHat(nextNoteTime, false); } 
+        else if (isBuild || isBreak) { if (step % 2 === 0) playHiHat(nextNoteTime, false); }
+
+        const seqA = [36, 0, 36, 36, 48, 0, 36, 0, 39, 0, 39, 39, 51, 0, 39, 0], seqB = [44, 0, 44, 44, 56, 0, 44, 0, 41, 0, 41, 41, 53, 0, 41, 0], seqDrop = [36, 36, 48, 36, 39, 39, 51, 39, 44, 44, 56, 44, 41, 41, 53, 41];
+        let currentSeq = (bar % 4 >= 2) ? seqB : seqA; if (isDrop) currentSeq = (bar % 2 === 0) ? seqDrop : seqB;
+        
+        let filterFreq = 1500;
+        if (isBuild) filterFreq = 1000 + ((loopPos - 128) / 128) * 4000; else if (isDrop) filterFreq = 5000; else if (isBreak) filterFreq = 800;
+        if (currentSeq[step] > 0) playBass(nextNoteTime, currentSeq[step], filterFreq);
+
+        if (isBuild || isDrop || isBreak) {
+          const arpNotes = [60, 63, 67, 72, 67, 63]; let arpNote = arpNotes[step % arpNotes.length];
+          if (isDrop) arpNote += 12; if (isDrop || step % 2 === 0) playArp(nextNoteTime, arpNote);
+        }
+        nextNoteTime += 0.25 * (60.0 / tempo); current16thNote++;
+      }
+    }
+
+    // ==========================================
+    // 🎮 GAME ENGINE CORE 
+    // ==========================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const GRID_SIZE = 40, GROUND_HEIGHT = 100, PLAYER_SIZE = 30, GRAVITY = 0.85, JUMP_FORCE = -12.5, PAD_FORCE = -17, BASE_MOVE_SPEED = 6, WAVE_SPEED = 8, SHIP_GRAVITY = 0.35, SHIP_THRUST = -0.65;
+    let groundY = 0;
+    const DEFAULT_BG = [26, 26, 36], C_BLOCK = '#1a5f7a', C_BLOCK_OUTLINE = '#22d3ee', C_SPIKE = '#ff2a6d', C_PLAYER = '#00f0ff', C_PLAYER_TRAIL = 'rgba(0, 240, 255, 0.3)';
+
+    let state = { mode: 'menu', cameraX: 0, cameraY: 0, attempts: 1, particles: [], trail: [], currentPath: [], savedPath: [], bgColor: [...DEFAULT_BG], targetBgColor: [...DEFAULT_BG], win: false };
+    let bgParticles = Array.from({length: 60}, () => ({ x: Math.random() * 2000, y: Math.random() * 2000, s: Math.random() * 4 + 2, spd: Math.random() * 0.4 + 0.1, op: Math.random() * 0.3 + 0.1 }));
+    let player = { x: 0, y: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, dead: false };
+    let level = [], editor = { tool: 0, rot: 0, isDragging: false }, input = { jumpHeld: false };
+
+    const BLANK_LEVEL_DATA = (() => { let str = ""; for(let i=-5; i<=60; i++) str += `${i},-1,0,0;${i},-2,0,0;${i},-3,0,0;`; return str; })();
+
+    function resize() {
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      groundY = canvas.height - GROUND_HEIGHT;
+      if(state.mode === 'edit' && player.y === 0) player.y = groundY - PLAYER_SIZE;
+    }
+    window.addEventListener('resize', resize); resize();
+
+    function resetPlayer() {
+      player.x = 0; player.y = groundY - PLAYER_SIZE; player.vy = 0; player.rotation = 0; player.grounded = true; player.gravityDir = 1; player.gamemode = 0; player.speedMultiplier = 1.0; player.dead = false;
+      state.cameraX = 0; state.cameraY = 0; state.particles = []; state.trail = []; state.currentPath = []; state.bgColor = [...DEFAULT_BG]; state.targetBgColor = [...DEFAULT_BG]; state.win = false;
+      document.getElementById('winOverlay').classList.add('hide');
+    }
+
+    function die() {
+      if (player.dead) return; player.dead = true; state.savedPath = [...state.currentPath]; 
+      for(let i=0; i<30; i++) state.particles.push({ x: player.x + PLAYER_SIZE/2, y: player.y + PLAYER_SIZE/2, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 1.0, color: Math.random() > 0.5 ? C_PLAYER : '#ffffff' });
+      setTimeout(() => { state.attempts++; document.getElementById('stats').innerText = `Attempt ${state.attempts}`; resetPlayer(); }, 500);
+    }
+
+    function winGame() {
+      if (state.win || player.dead) return; state.win = true;
+      document.getElementById('winAttempts').innerText = `Attempts: ${state.attempts}`;
+      document.getElementById('winOverlay').classList.remove('hide');
+      for(let i=0; i<50; i++) state.particles.push({ x: player.x + PLAYER_SIZE/2, y: player.y + PLAYER_SIZE/2, vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20, life: 2.0, color: '#facc15' });
+    }
+
+    function jump() { if (state.mode === 'play' && player.grounded && !player.dead && player.gamemode === 0) { player.vy = JUMP_FORCE * player.gravityDir; player.grounded = false; } }
+
+    function triggerAction() {
+      if (state.mode === 'play' && !player.dead) {
+        input.jumpHeld = true; let hitOrb = false;
+        for (let obj of level) {
+          if (obj.type === 5 && (player.gamemode === 0 || player.gamemode === 3)) {
+            let ox = obj.gx * GRID_SIZE + GRID_SIZE/2, oy = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE/2;
+            if (Math.hypot((player.x + PLAYER_SIZE/2) - ox, (player.y + PLAYER_SIZE/2) - oy) < GRID_SIZE * 1.5) {
+              player.vy = JUMP_FORCE * player.gravityDir; player.grounded = false; hitOrb = true;
+              for(let i=0; i<8; i++) state.particles.push({ x: ox, y: oy, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 1.0, color: '#facc15' });
+              break; 
+            }
+          }
+        }
+        if (!hitOrb) { if (player.gamemode === 0) jump(); else if (player.gamemode === 3) { player.vy = JUMP_FORCE * 0.8 * player.gravityDir; player.grounded = false; } }
+      }
+    }
+
+    function checkRectCollision(r1, r2) { return r1.x < r2.x + r2.w && r1.x + r1.w > r2.x && r1.y < r2.y + r2.h && r1.y + r1.h > r2.y; }
+
+    function update() {
+      state.bgColor[0] += (state.targetBgColor[0] - state.bgColor[0]) * 0.05; state.bgColor[1] += (state.targetBgColor[1] - state.bgColor[1]) * 0.05; state.bgColor[2] += (state.targetBgColor[2] - state.bgColor[2]) * 0.05;
+      bgParticles.forEach(p => { p.y -= 0.5; if (p.y < -50) p.y = 2050; });
+
+      if (state.mode === 'menu') { state.cameraX += 3; return; }
+
+      if (state.mode === 'play' && !player.dead && !state.win) {
+        if (state.currentPath.length === 0 || Math.abs(player.x - state.currentPath[state.currentPath.length-1].x) > 5) state.currentPath.push({x: player.x + PLAYER_SIZE/2, y: player.y + PLAYER_SIZE/2});
+
+        player.x += BASE_MOVE_SPEED * player.speedMultiplier;
+        
+        if (player.gamemode === 0) player.vy += GRAVITY * player.gravityDir; 
+        else if (player.gamemode === 1) player.vy = (input.jumpHeld ? -WAVE_SPEED : WAVE_SPEED) * player.gravityDir; 
+        else if (player.gamemode === 2) { player.vy += (input.jumpHeld ? SHIP_THRUST : SHIP_GRAVITY) * player.gravityDir; player.vy = Math.max(-12, Math.min(12, player.vy)); }
+        else if (player.gamemode === 3) player.vy += GRAVITY * player.gravityDir; 
+        
+        if (state.trail.length > 10) state.trail.shift();
+        state.trail.push({x: player.x, y: player.y, rot: player.rotation, gDir: player.gravityDir, mode: player.gamemode});
+
+        let nextY = player.y + player.vy; player.grounded = false;
+
+        if (player.gamemode === 0 && !player.grounded) player.rotation += 6 * player.gravityDir; 
+        else if (player.gamemode === 1) player.rotation = (input.jumpHeld ? -45 : 45) * player.gravityDir;
+        else if (player.gamemode === 2) player.rotation = player.vy * 3 * player.gravityDir;
+        else if (player.gamemode === 3) player.rotation = 0; 
+
+        let pBox = { x: player.x, y: nextY, w: PLAYER_SIZE, h: PLAYER_SIZE };
+        if (player.gamemode === 1) pBox = { x: player.x + 5, y: nextY + 5, w: PLAYER_SIZE - 10, h: PLAYER_SIZE - 10 };
+
+        let hitDeath = false;
+        if (player.y > groundY + 3000 || player.y < groundY - 3000) hitDeath = true; 
+
+        for (let obj of level) {
+          let objX = obj.gx * GRID_SIZE, objY = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE;
+          if (objX < player.x - 200 || objX > player.x + 800) continue;
+
+          let oBox = { x: objX, y: objY, w: GRID_SIZE, h: GRID_SIZE };
+
+          if (obj.type === 13) continue; 
+          else if (obj.type === 18) { if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE*20, w: GRID_SIZE, h: GRID_SIZE*40 })) winGame(); }
+          else if (obj.type >= 14 && obj.type <= 17) {
+            if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE*10, w: GRID_SIZE, h: GRID_SIZE*20 })) {
+              if (obj.type === 14) state.targetBgColor = [90, 20, 20]; if (obj.type === 15) state.targetBgColor = [20, 30, 90];
+              if (obj.type === 16) state.targetBgColor = [20, 80, 30]; if (obj.type === 17) state.targetBgColor = [...DEFAULT_BG]; 
+            }
+          }
+          else if (obj.type >= 10 && obj.type <= 12) {
+            if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE, w: GRID_SIZE, h: GRID_SIZE * 3 })) {
+              if (obj.type === 10) player.speedMultiplier = 0.75; if (obj.type === 11) player.speedMultiplier = 1.0; if (obj.type === 12) player.speedMultiplier = 1.35;
+            }
+          }
+          else if (obj.type === 1) { 
+            let sBox = { x: objX + 10, y: objY + 10, w: GRID_SIZE - 20, h: GRID_SIZE - 20 };
+            if (obj.rot === 0 || !obj.rot) sBox = { x: objX + 8, y: objY + 16, w: GRID_SIZE - 16, h: GRID_SIZE - 16 };
+            if (checkRectCollision(pBox, sBox)) hitDeath = true;
+          } 
+          else if (obj.type === 2) { 
+            let padBox = { x: objX, y: objY + GRID_SIZE - 10, w: GRID_SIZE, h: 10 };
+            if (obj.rot === 90) padBox = { x: objX, y: objY, w: 10, h: GRID_SIZE }; if (obj.rot === 180) padBox = { x: objX, y: objY, w: GRID_SIZE, h: 10 }; if (obj.rot === 270) padBox = { x: objX + GRID_SIZE - 10, y: objY, w: 10, h: GRID_SIZE };
+            if (checkRectCollision(pBox, padBox)) {
+              if (obj.rot === 0 || !obj.rot) { player.vy = PAD_FORCE; player.gravityDir = 1; } else if (obj.rot === 180) { player.vy = -PAD_FORCE; player.gravityDir = -1; }
+              player.grounded = false;
+              for(let i=0; i<5; i++) state.particles.push({ x: objX + GRID_SIZE/2, y: objY + GRID_SIZE/2, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, life: 1.0, color: '#fcd34d' });
+            }
+          }
+          else if ([3, 4, 6, 7, 8, 9].includes(obj.type)) { 
+            if (checkRectCollision(pBox, { x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 })) {
+              if (obj.type === 3) player.gravityDir = 1; if (obj.type === 4) player.gravityDir = -1;
+              if (obj.type === 6) player.gamemode = 1; if (obj.type === 7) player.gamemode = 0; if (obj.type === 8) player.gamemode = 2; if (obj.type === 9) player.gamemode = 3;
+            }
+          }
+          else if (obj.type === 0) { 
+            if (checkRectCollision(pBox, oBox)) {
+              if (player.gamemode === 1) hitDeath = true;
+              else {
+                let prevY = player.y, prevBottom = player.y + PLAYER_SIZE, prevRight = player.x - (BASE_MOVE_SPEED * player.speedMultiplier) + PLAYER_SIZE;
+                if (player.gravityDir === 1) {
+                  if (prevBottom <= objY + 8 && player.vy >= 0) { nextY = objY - PLAYER_SIZE; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
+                  else if (prevRight <= objX + 8) hitDeath = true; else if (prevY >= objY + GRID_SIZE - 8 && player.vy < 0) { nextY = objY + GRID_SIZE; player.vy = 0; pBox.y = nextY; } else hitDeath = true;
+                } else {
+                  if (prevY >= objY + GRID_SIZE - 8 && player.vy <= 0) { nextY = objY + GRID_SIZE; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
+                  else if (prevRight <= objX + 8) hitDeath = true; else if (prevBottom <= objY + 8 && player.vy > 0) { nextY = objY - PLAYER_SIZE; player.vy = 0; pBox.y = nextY; } else hitDeath = true;
+                }
+              }
+            }
+          }
+        }
+        player.y = nextY;
+        if (player.gamemode === 0 && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; if (input.jumpHeld) jump(); }
+        if (hitDeath) die();
+        state.cameraX = player.x - 150; 
+        state.cameraY += ((player.y - canvas.height / 1.6) - state.cameraY) * 0.08;
+      }
+
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        let p = state.particles[i]; p.x += p.vx; p.y += p.vy; p.vy += GRAVITY * 0.5; p.life -= 0.03; if (p.life <= 0) state.particles.splice(i, 1);
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = `rgb(${Math.round(state.bgColor[0])}, ${Math.round(state.bgColor[1])}, ${Math.round(state.bgColor[2])})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.save();
+      bgParticles.forEach(p => {
+        ctx.fillStyle = `rgba(255,255,255,${p.op})`;
+        let drawX = (p.x - state.cameraX * p.spd) % canvas.width; if (drawX < 0) drawX += canvas.width;
+        let drawY = (p.y - state.cameraY * p.spd) % canvas.height; if (drawY < 0) drawY += canvas.height;
+        ctx.fillRect(drawX, drawY, p.s, p.s);
+      });
+      ctx.restore();
+
+      ctx.save(); ctx.translate(-state.cameraX, -state.cameraY);
+
+      if (state.mode === 'edit') {
+        ctx.strokeStyle = '#313144'; ctx.lineWidth = 1;
+        let topY = state.cameraY, bottomY = state.cameraY + canvas.height;
+        let startX = Math.floor(state.cameraX / GRID_SIZE) * GRID_SIZE, firstLineY = Math.floor(topY / GRID_SIZE) * GRID_SIZE;
+        for (let x = startX; x < startX + canvas.width + GRID_SIZE; x += GRID_SIZE) { ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY); ctx.stroke(); }
+        for (let y = firstLineY; y <= bottomY; y += GRID_SIZE) { ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(startX + canvas.width + GRID_SIZE, y); ctx.stroke(); }
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 2; ctx.setLineDash([10, 10]);
+        ctx.beginPath(); ctx.moveTo(state.cameraX, groundY); ctx.lineTo(state.cameraX + canvas.width + GRID_SIZE, groundY); ctx.stroke(); ctx.setLineDash([]);
+        
+        if (state.savedPath.length > 0) {
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.6)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.moveTo(state.savedPath[0].x, state.savedPath[0].y);
+          for (let i = 1; i < state.savedPath.length; i++) ctx.lineTo(state.savedPath[i].x, state.savedPath[i].y);
+          ctx.stroke(); ctx.setLineDash([]);
+          let lastP = state.savedPath[state.savedPath.length-1];
+          ctx.fillStyle = '#ff2a6d'; ctx.fillRect(lastP.x - 5, lastP.y - 5, 10, 10); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(lastP.x - 5, lastP.y - 5, 10, 10);
+        }
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; ctx.fillRect(0, 0, GRID_SIZE, groundY);
+      }
+
+      for (let obj of level) {
+        let px = obj.gx * GRID_SIZE, py = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE;
+        if (px + GRID_SIZE < state.cameraX || px > state.cameraX + canvas.width) continue;
+
+        ctx.save(); ctx.translate(px + GRID_SIZE/2, py + GRID_SIZE/2); if (obj.rot) ctx.rotate(obj.rot * Math.PI / 180);
+        let s2 = GRID_SIZE / 2;
+
+        if (obj.type === 0) { ctx.fillStyle = C_BLOCK; ctx.fillRect(-s2, -s2, GRID_SIZE, GRID_SIZE); ctx.strokeStyle = C_BLOCK_OUTLINE; ctx.lineWidth = 2; ctx.strokeRect(-s2 + 1, -s2 + 1, GRID_SIZE - 2, GRID_SIZE - 2); } 
+        else if (obj.type === 13) { ctx.fillStyle = 'rgba(26, 95, 122, 0.3)'; ctx.fillRect(-s2, -s2, GRID_SIZE, GRID_SIZE); ctx.strokeStyle = 'rgba(34, 211, 238, 0.2)'; ctx.lineWidth = 1; ctx.strokeRect(-s2 + 1, -s2 + 1, GRID_SIZE - 2, GRID_SIZE - 2); } 
+        else if (obj.type >= 14 && obj.type <= 17) { ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI*2); ctx.fillStyle = obj.type === 14 ? 'rgba(239, 68, 68, 0.3)' : (obj.type === 15 ? 'rgba(59, 130, 246, 0.3)' : (obj.type === 16 ? 'rgba(34, 197, 94, 0.3)' : 'rgba(100, 100, 100, 0.3)')); ctx.fill(); ctx.strokeStyle = obj.type === 14 ? '#ef4444' : (obj.type === 15 ? '#3b82f6' : (obj.type === 16 ? '#22c55e' : '#9ca3af')); ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('BG', 0, 0); } 
+        else if (obj.type >= 10 && obj.type <= 12) { ctx.fillStyle = obj.type === 10 ? 'rgba(249, 115, 22, 0.3)' : (obj.type === 11 ? 'rgba(74, 222, 128, 0.3)' : 'rgba(236, 72, 153, 0.3)'); ctx.strokeStyle = obj.type === 10 ? '#f97316' : (obj.type === 11 ? '#4ade80' : '#ec4899'); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, -GRID_SIZE); ctx.lineTo(15, 0); ctx.lineTo(0, GRID_SIZE); ctx.lineTo(-15, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = ctx.strokeStyle; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(obj.type === 10 ? '<' : (obj.type === 11 ? '>>' : '>>>'), 0, 0); } 
+        else if (obj.type === 18) { ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; ctx.fillRect(-s2, -GRID_SIZE*10, GRID_SIZE, GRID_SIZE*20); ctx.fillStyle = 'rgba(250, 204, 21, 0.3)'; ctx.fillRect(-s2 - 10, -GRID_SIZE*10, GRID_SIZE + 20, GRID_SIZE*20); ctx.strokeStyle = '#facc15'; ctx.lineWidth = 4; ctx.strokeRect(-s2, -GRID_SIZE*10, GRID_SIZE, GRID_SIZE*20); } 
+        else if (obj.type === 1) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, -s2); ctx.lineTo(s2, s2); ctx.lineTo(-s2, s2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#ff7b9f'; ctx.beginPath(); ctx.moveTo(0, -s2 + 8); ctx.lineTo(s2 - 6, s2 - 2); ctx.lineTo(-s2 + 6, s2 - 2); ctx.closePath(); ctx.fill(); } 
+        else if (obj.type === 2) { ctx.fillStyle = '#b45309'; ctx.fillRect(-s2, s2 - 10, GRID_SIZE, 10); ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.ellipse(0, s2 - 10, s2 - 2, 4, 0, 0, Math.PI * 2); ctx.fill(); } 
+        else if (obj.type === 5) { ctx.strokeStyle = '#facc15'; ctx.fillStyle = 'rgba(250, 204, 21, 0.3)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill(); } 
+        else if ([3, 4, 6, 7, 8, 9].includes(obj.type)) {
+          let pColorStr = '#eab308', pFillStr = 'rgba(234, 179, 8, 0.3)';
+          if (obj.type === 3) { pColorStr = '#3b82f6'; pFillStr = 'rgba(59, 130, 246, 0.3)'; } if (obj.type === 6) { pColorStr = '#f97316'; pFillStr = 'rgba(249, 115, 22, 0.3)'; } if (obj.type === 7) { pColorStr = '#4ade80'; pFillStr = 'rgba(74, 222, 128, 0.3)'; } if (obj.type === 8) { pColorStr = '#ec4899'; pFillStr = 'rgba(236, 72, 153, 0.3)'; } if (obj.type === 9) { pColorStr = '#a855f7'; pFillStr = 'rgba(168, 85, 247, 0.3)'; } 
+          ctx.strokeStyle = pColorStr; ctx.fillStyle = pFillStr; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(0, 0, 12, GRID_SIZE, 0, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 6, GRID_SIZE - 8, 0, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      if (state.mode === 'play' && !player.dead) {
+        if (player.gamemode === 1) { 
+          ctx.strokeStyle = C_PLAYER_TRAIL; ctx.lineWidth = PLAYER_SIZE - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+          for (let i = 0; i < state.trail.length; i++) { let t = state.trail[i]; if (i === 0) ctx.moveTo(t.x + PLAYER_SIZE/2, t.y + PLAYER_SIZE/2); else ctx.lineTo(t.x + PLAYER_SIZE/2, t.y + PLAYER_SIZE/2); }
+          ctx.lineTo(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2); ctx.stroke();
+        } else {
+          state.trail.forEach((t, i) => { ctx.save(); ctx.translate(t.x + PLAYER_SIZE/2, t.y + PLAYER_SIZE/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); ctx.fillStyle = `rgba(0, 240, 255, ${i / 15})`; ctx.fillRect(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE, PLAYER_SIZE); ctx.restore(); });
+        }
+      }
+
+      if (!player.dead) {
+        ctx.save(); ctx.translate(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2); ctx.rotate(player.rotation * Math.PI / 180); ctx.scale(1, player.gravityDir); 
+        const drawFace = () => { ctx.fillStyle = '#111'; ctx.fillRect(-8, -6, 4, 4); ctx.fillRect(4, -6, 4, 4); ctx.fillRect(-6, 2, 12, 3); };
+        if (player.gamemode === 1) { ctx.fillStyle = C_PLAYER; ctx.beginPath(); ctx.moveTo(PLAYER_SIZE/2, 0); ctx.lineTo(-PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.lineTo(-PLAYER_SIZE/4, 0); ctx.lineTo(-PLAYER_SIZE/2, -PLAYER_SIZE/2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke(); } 
+        else if (player.gamemode === 2) { ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.moveTo(PLAYER_SIZE/2 + 5, 0); ctx.lineTo(-PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.lineTo(-PLAYER_SIZE/2, -PLAYER_SIZE/2); ctx.closePath(); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-PLAYER_SIZE/4, -PLAYER_SIZE/4, PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(-PLAYER_SIZE/4, -PLAYER_SIZE/4, PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.save(); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
+        else if (player.gamemode === 3) { ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.ellipse(0, 0, PLAYER_SIZE/1.2, PLAYER_SIZE/3, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(0, -PLAYER_SIZE/6, PLAYER_SIZE/2.5, Math.PI, 0); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-PLAYER_SIZE/4, -PLAYER_SIZE/4, PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
+        else { ctx.fillStyle = C_PLAYER; ctx.fillRect(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE, PLAYER_SIZE); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE, PLAYER_SIZE); drawFace(); }
+        ctx.restore();
+      }
+
+      state.particles.forEach(p => { ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life); ctx.fillRect(p.x, p.y, 6, 6); ctx.globalAlpha = 1.0; });
+      ctx.restore();
+    }
+
+    function loop() { scheduleAudio(); update(); draw(); requestAnimationFrame(loop); }
+
+    function parseLevelString(str) {
+      let newLvl = []; let parts = str.split(';');
+      for(let p of parts) { if(!p.trim()) continue; let [x, y, t, r] = p.split(','); if(x !== undefined && y !== undefined && t !== undefined) newLvl.push({ gx: parseInt(x), gy: parseInt(y), type: parseInt(t), rot: parseInt(r) || 0 }); }
+      return newLvl;
+    }
+    function generateLevelString() { return level.map(b => `${b.gx},${b.gy},${b.type},${b.rot || 0}`).join(';'); }
+
+    function handleGridClick(clientX, clientY) {
+      if (state.mode !== 'edit') return; const rect = canvas.getBoundingClientRect();
+      let gx = Math.floor((clientX - rect.left + state.cameraX) / GRID_SIZE), gy = Math.floor((groundY - (clientY - rect.top + state.cameraY)) / GRID_SIZE);
+      if (gx < 0) return; level = level.filter(b => !(b.gx === gx && b.gy === gy));
+      if (editor.tool !== -1) level.push({ gx, gy, type: editor.tool, rot: editor.rot });
+    }
+
+    canvas.addEventListener('mousedown', (e) => { if (state.mode === 'play') triggerAction(); else if (state.mode === 'edit') { editor.isDragging = true; handleGridClick(e.clientX, e.clientY); } });
+    canvas.addEventListener('mousemove', (e) => { if (state.mode === 'edit' && editor.isDragging) handleGridClick(e.clientX, e.clientY); });
+    window.addEventListener('mouseup', () => { editor.isDragging = false; input.jumpHeld = false; });
+    canvas.addEventListener('mouseleave', () => editor.isDragging = false);
+    canvas.addEventListener('touchstart', (e) => { if (state.mode === 'play') triggerAction(); else if (state.mode === 'edit') { editor.isDragging = true; handleGridClick(e.touches[0].clientX, e.touches[0].clientY); } });
+    canvas.addEventListener('touchmove', (e) => { if (state.mode === 'edit' && editor.isDragging) handleGridClick(e.touches[0].clientX, e.touches[0].clientY); });
+    window.addEventListener('touchend', () => { editor.isDragging = false; input.jumpHeld = false; });
+
+    document.addEventListener('keydown', (e) => {
+      if (state.mode === 'play') { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') triggerAction(); } 
+      else if (state.mode === 'edit') {
+        if(e.code === 'ArrowRight' || e.code === 'KeyD') state.cameraX += GRID_SIZE; if(e.code === 'ArrowLeft' || e.code === 'KeyA') state.cameraX -= GRID_SIZE;
+        if(e.code === 'ArrowUp' || e.code === 'KeyW') state.cameraY -= GRID_SIZE; if(e.code === 'ArrowDown' || e.code === 'KeyS') state.cameraY += GRID_SIZE;
+        state.cameraX = Math.max(0, state.cameraX);
+      }
+    });
+    document.addEventListener('keyup', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') input.jumpHeld = false; });
+
+    // ==========================================
+    // 🌐 APP STATE & FIREBASE INTEGRATION
+    // ==========================================
+    
+    // Auth Forms Elements
+    const hubUI = document.getElementById('hubUI'), joinSection = document.getElementById('joinSection'), playerSection = document.getElementById('playerSection'), emailAuthForm = document.getElementById('emailAuthForm');
+    const tabLogin = document.getElementById('tabLogin'), tabSignup = document.getElementById('tabSignup'), usernameGroup = document.getElementById('usernameGroup'), displayScore = document.getElementById('displayScore'), levelBrowserList = document.getElementById('levelBrowserList');
+    const adminPanelModal = document.getElementById('adminPanelModal'), adminCommandForm = document.getElementById('adminCommandForm');
+
+    // Hub UI Auth Tabs
+    tabLogin.addEventListener('click', () => { isSignupMode = false; usernameGroup.classList.add('hidden'); document.getElementById('usernameInput').removeAttribute('required'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
+    tabSignup.addEventListener('click', () => { isSignupMode = true; usernameGroup.classList.remove('hidden'); document.getElementById('usernameInput').setAttribute('required', 'true'); document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; });
+
+    emailAuthForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); const email = document.getElementById('emailInput').value.trim(), password = document.getElementById('passwordInput').value;
+      try {
+        if (isSignupMode) { pendingUsername = document.getElementById('usernameInput').value.trim(); await createUserWithEmailAndPassword(auth, email, password); } 
+        else await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) { alert("Error: " + error.message); } 
+    });
+
+    document.getElementById('googleLoginBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch (error) { alert("Failed Google Sign-in."); } });
+    document.getElementById('logoutBtn').addEventListener('click', () => { if (confirm("Log out?")) signOut(auth); });
+
+    // -------------------------------------------------------------
+    // INIT & LISTENERS
+    // -------------------------------------------------------------
+    async function initAuthApp() {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+        else if (typeof __firebase_config !== 'undefined') await signInAnonymously(auth); 
+      } catch (e) { console.error("Auth init failed", e); }
     }
     
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       if (user) {
-        await checkAndCreateProfile(user);
+        const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid);
+        try {
+          const uSnap = await getDoc(uRef);
+          if (!uSnap.exists()) {
+            const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
+            await setDoc(uRef, { username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now() });
+          }
+          pendingUsername = null; setupDatabaseListener();
+        } catch(e) { console.error(e); }
       } else {
-        if (dbUnsubscribe) dbUnsubscribe();
-        if (settingsUnsubscribe) settingsUnsubscribe();
-        myProfile = null;
-        clearTrollEffects();
-        bannedScreen.classList.add('hidden');
-        warningScreen.classList.add('hidden');
-        adminPanelModal.classList.add('hidden');
-        loadingScreen.classList.add('hidden');
-        appContent.classList.remove('hidden');
-        joinSection.classList.remove('hidden');
-        playerSection.classList.add('hidden');
+        if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
+        myProfile = null; clearTrollEffects();
+        document.getElementById('bannedScreen').classList.add('hidden'); document.getElementById('warningScreen').classList.add('hidden');
+        hubUI.classList.remove('hidden'); joinSection.classList.remove('hidden'); playerSection.classList.add('hidden');
+        document.getElementById('loadingScreen').classList.add('hidden');
       }
     });
 
-    initAuth();
+    initAuthApp();
+    function getDefaultAvatar(username) { return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`; }
 
-    function getDefaultAvatar(username) {
-      return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`;
-    }
-
-    async function checkAndCreateProfile(user) {
-      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', user.uid);
-      try {
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) {
-          const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
-          const newProfile = {
-            username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '',
-            photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), lastActive: Date.now()
-          };
-          await setDoc(userRef, newProfile);
-        }
-        pendingUsername = null; 
-        setupDatabaseListener();
-      } catch (error) {
-        console.error("Error creating profile:", error);
-      }
-    }
-
-    // ==========================================
-    // DATABASE LISTENERS
-    // ==========================================
     function setupDatabaseListener() {
       if (!currentUser) return;
-      if (dbUnsubscribe) dbUnsubscribe();
-      if (settingsUnsubscribe) settingsUnsubscribe();
+      if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
 
-      // Listen for Global Settings (Messages, Trolls, KingCode)
-      const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
-      settingsUnsubscribe = onSnapshot(settingsRef, (snap) => {
-        if (snap.exists()) {
-          globalSettings = snap.data();
-          
-          // Handle Global Banner Broadcast
-          if (globalSettings.broadcastMsg && globalSettings.broadcastMsg.trim() !== '') {
-            globalBannerText.textContent = globalSettings.broadcastMsg;
-            globalBanner.classList.remove('-translate-y-full');
-          } else {
-            globalBanner.classList.add('-translate-y-full');
-          }
-
-          // Handle Global Troll Events
-          if (globalSettings.globalTroll && globalSettings.globalTroll !== '') {
-            applyTrollEffect(globalSettings.globalTroll);
-          }
-        } else {
-          globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
-        }
-      });
-
-      // Listen for Leaderboard & Profile changes
-      const leaderboardCollection = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
-      dbUnsubscribe = onSnapshot(leaderboardCollection, (snapshot) => {
-        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        docs.sort((a, b) => (b.score || 0) - (a.score || 0));
-        leaderboardData = docs;
-        
-        const existingProfile = docs.find(d => d.id === currentUser.uid);
+      // Users 
+      dbUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'users'), (snapshot) => {
+        usersData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        const existingProfile = usersData.find(d => d.id === currentUser.uid);
         if (existingProfile) {
           myProfile = existingProfile;
+          if (myProfile.banned) { document.getElementById('bannedScreen').classList.remove('hidden'); document.getElementById('bannedScreen').classList.add('flex'); hubUI.classList.add('hidden'); return; } 
+          else { document.getElementById('bannedScreen').classList.add('hidden'); document.getElementById('bannedScreen').classList.remove('flex'); }
+
+          if (myProfile.warning && myProfile.warning.trim() !== "") { document.getElementById('warningMessageText').textContent = myProfile.warning; document.getElementById('warningScreen').classList.remove('hidden'); document.getElementById('warningScreen').classList.add('flex'); } 
+          else { document.getElementById('warningScreen').classList.add('hidden'); document.getElementById('warningScreen').classList.remove('flex'); }
           
-          if (myProfile.banned) {
-            bannedScreen.classList.remove('hidden'); bannedScreen.classList.add('flex');
-            appContent.classList.add('hidden'); return;
-          } else {
-            bannedScreen.classList.add('hidden'); bannedScreen.classList.remove('flex');
-            appContent.classList.remove('hidden');
-          }
-
-          if (myProfile.warning && myProfile.warning.trim() !== "") {
-            warningMessageText.textContent = myProfile.warning;
-            warningScreen.classList.remove('hidden'); warningScreen.classList.add('flex');
-          } else {
-            warningScreen.classList.add('hidden'); warningScreen.classList.remove('flex');
-          }
-
-          // Handle Targeted Troll Events
-          if (myProfile.trollEvent && myProfile.trollEvent !== '') {
-            applyTrollEffect(myProfile.trollEvent);
-          }
-
-          updateUIForActivePlayer();
+          if (myProfile.trollEvent) applyTrollEffect(myProfile.trollEvent);
+          updateHubUI();
         }
-
-        const kingExists = docs.some(d => d.role === 'king');
-        if (!kingExists && myProfile && myProfile.role !== 'king') {
-          redeemCodeBtn.classList.remove('hidden');
-        } else {
-          redeemCodeBtn.classList.add('hidden');
-        }
-
-        renderLeaderboard();
+        
+        if (!usersData.some(d => d.role === 'king') && myProfile && myProfile.role !== 'king') document.getElementById('redeemCodeBtn').classList.remove('hidden');
+        else document.getElementById('redeemCodeBtn').classList.add('hidden');
         if (!adminPanelModal.classList.contains('hidden')) renderAdminPanel();
-        loadingScreen.classList.add('hidden');
-      }, (error) => console.error("Failed to fetch leaderboard:", error));
-    }
-
-    // ==========================================
-    // TROLL EVENT SYSTEM
-    // ==========================================
-    function applyTrollEffect(trollType) {
-      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin')) return; // Immune!
-      
-      clearTrollEffects();
-      if (trollType === 'troll_earthquake') mainBody.classList.add('troll-earthquake');
-      else if (trollType === 'troll_spin') mainBody.classList.add('troll-spin');
-      else if (trollType === 'troll_tiny') mainBody.classList.add('troll-tiny');
-      else if (trollType === 'troll_invert') mainBody.classList.add('troll-invert');
-      
-      // Auto clear targeted troll from database after 10s (only for local user to save writes)
-      if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
-      activeTrollTimeout = setTimeout(async () => {
-        clearTrollEffects();
-        if (myProfile.trollEvent) {
-           try {
-             const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-             await setDoc(userRef, { trollEvent: '' }, { merge: true });
-           } catch(e){}
-        }
-      }, 10000);
-    }
-
-    function clearTrollEffects() {
-      mainBody.classList.remove('troll-earthquake', 'troll-spin', 'troll-tiny', 'troll-invert');
-    }
-
-    // Global Banner Dismiss
-    closeBannerBtn.addEventListener('click', () => {
-      globalBanner.classList.add('-translate-y-full');
-    });
-
-    dismissWarningBtn.addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return;
-      try {
-        const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-        await setDoc(userRef, { warning: "" }, { merge: true }); 
-      } catch (error) { console.error(error); }
-    });
-
-    // ==========================================
-    // COMMAND CENTER (ADMIN PANEL)
-    // ==========================================
-    openAdminBtn.addEventListener('click', () => {
-      adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex');
-      renderAdminPanel();
-    });
-
-    closeAdminBtn.addEventListener('click', () => {
-      adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex');
-    });
-
-    // Handle dynamic inputs based on selected action
-    cmdAction.addEventListener('change', () => {
-      const act = cmdAction.value;
-      cmdParamNumber.classList.add('hidden');
-      cmdParamText.classList.add('hidden');
-      cmdParamRole.classList.add('hidden');
-      cmdParamContainer.classList.remove('hidden');
-      
-      if (act.includes('Score')) {
-        cmdParamNumber.classList.remove('hidden');
-        cmdParamNumber.required = true;
-        cmdParamText.required = false;
-        cmdParamLabel.textContent = "Amount (Number)";
-      } else if (act === 'warn' || act === 'globalMsg') {
-        cmdParamText.classList.remove('hidden');
-        cmdParamText.required = true;
-        cmdParamNumber.required = false;
-        cmdParamLabel.textContent = "Message Text";
-      } else if (act === 'role') {
-        cmdParamRole.classList.remove('hidden');
-        cmdParamLabel.textContent = "Select New Role";
-      } else {
-        // Bans, unbans, and trolls require no param
-        cmdParamContainer.classList.add('hidden');
-        cmdParamNumber.required = false;
-        cmdParamText.required = false;
-      }
-    });
-
-    // Render Admin Dropdowns & Directory
-    function renderAdminPanel() {
-      if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
-
-      // Preserve current target selection
-      const currentTarget = cmdTarget.value;
-      
-      // Build Target Dropdown
-      let options = `<option value="GLOBAL" class="font-bold">🌐 EVERYONE (GLOBAL)</option>`;
-      leaderboardData.forEach(p => {
-        let prefix = p.role === 'king' ? '👑 ' : p.role === 'admin' ? '🛡️ ' : p.role === 'mod' ? '⚔️ ' : '';
-        let bnd = p.banned ? ' [BANNED]' : '';
-        options += `<option value="${p.id}">${prefix}${escapeHtml(p.username)} (${(p.score||0).toLocaleString()} pts)${bnd}</option>`;
+        document.getElementById('loadingScreen').classList.add('hidden');
       });
-      cmdTarget.innerHTML = options;
-      if (currentTarget && [...cmdTarget.options].some(o => o.value === currentTarget)) {
-        cmdTarget.value = currentTarget;
-      }
 
-      // Build Mini Directory
-      adminPlayerCount.textContent = `${leaderboardData.length} Players`;
-      adminDirectoryList.innerHTML = leaderboardData.map(p => {
-        let badge = p.role === 'king' ? `<span class="text-yellow-400 text-xs"><i data-lucide="crown" class="w-3 h-3 inline"></i> King</span>` :
-                    p.role === 'admin' ? `<span class="text-indigo-400 text-xs"><i data-lucide="shield" class="w-3 h-3 inline"></i> Admin</span>` :
-                    p.role === 'mod' ? `<span class="text-green-400 text-xs"><i data-lucide="shield-half" class="w-3 h-3 inline"></i> Mod</span>` : 
-                    `<span class="text-slate-500 text-xs">User</span>`;
-        let bnd = p.banned ? `<span class="text-red-500 text-[10px] font-bold ml-1 bg-red-500/20 px-1 rounded">BANNED</span>` : '';
+      // Settings
+      settingsUnsubscribe = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), (snap) => {
+        if (snap.exists()) {
+          globalSettings = snap.data();
+          if (globalSettings.broadcastMsg) { document.getElementById('globalBannerText').textContent = globalSettings.broadcastMsg; document.getElementById('globalBanner').classList.remove('-translate-y-full'); } 
+          else document.getElementById('globalBanner').classList.add('-translate-y-full');
+          if (globalSettings.globalTroll) applyTrollEffect(globalSettings.globalTroll);
+        } else globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
+      });
+
+      // Levels 
+      levelsUnsubscribe = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'levels')), (snapshot) => {
+        levelsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderLevelBrowser();
+      });
+    }
+
+    // -------------------------------------------------------------
+    // UI UPDATES & HUB ACTIONS
+    // -------------------------------------------------------------
+    function updateHubUI() {
+      joinSection.classList.add('hidden'); playerSection.classList.remove('hidden');
+      if (state.mode === 'menu') hubUI.classList.remove('hide');
+      document.getElementById('displayUsername').textContent = myProfile.username;
+      displayScore.textContent = (myProfile.score || 0).toLocaleString();
+      document.getElementById('displayPfp').src = myProfile.photoURL ? myProfile.photoURL : getDefaultAvatar(myProfile.username);
+      
+      const rb = document.getElementById('myRoleBadge');
+      if (myProfile.role === 'king') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/50">👑 King</span>`;
+      else if (myProfile.role === 'admin') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/50">🛡️ Admin</span>`;
+      else if (myProfile.role === 'mod') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-green-500/20 text-green-400 border border-green-500/50">⚔️ Mod</span>`;
+      else rb.innerHTML = '';
+
+      if (['king', 'admin', 'mod'].includes(myProfile.role)) { document.getElementById('openAdminBtn').classList.remove('hidden'); document.getElementById('openAdminBtn').classList.add('flex'); } 
+      else { document.getElementById('openAdminBtn').classList.add('hidden'); document.getElementById('openAdminBtn').classList.remove('flex'); }
+      
+      if (myProfile.role === 'king') document.getElementById('changeCodeBtn').classList.remove('hidden');
+      else document.getElementById('changeCodeBtn').classList.add('hidden');
+      lucide.createIcons();
+    }
+
+    function renderLevelBrowser() {
+      document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
+      if (levelsList.length === 0) { levelBrowserList.innerHTML = `<div class="p-8 text-center text-gray-500">No community levels yet. Be the first to build one!</div>`; return; }
+      
+      levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
+      levelBrowserList.innerHTML = levelsList.map(lvl => {
         return `
-          <div class="flex justify-between items-center bg-slate-800/50 p-2 rounded border border-slate-700/50">
-            <div class="flex items-center gap-2 truncate">
-              <img src="${escapeHtml(p.photoURL || getDefaultAvatar(p.username))}" class="w-6 h-6 rounded-full border border-slate-600">
-              <span class="text-sm font-semibold text-slate-200 truncate">${escapeHtml(p.username)}</span>
-              ${bnd}
+          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
+            <div>
+              <h4 class="text-lg font-bold text-white">${escapeHtml(lvl.name)}</h4>
+              <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
             </div>
-            <div class="text-right flex flex-col items-end">
-              <span class="font-mono text-sm text-slate-300">${(p.score||0).toLocaleString()}</span>
-              ${badge}
+            <div class="flex items-center gap-4">
+              <span class="text-xs text-gray-400 font-mono flex items-center gap-1 bg-gray-900 px-2 py-1 rounded"><i data-lucide="play" class="w-3 h-3 text-green-400"></i> ${lvl.plays || 0}</span>
+              <button data-play-lvl="${lvl.id}" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 flex items-center gap-2"><i data-lucide="play" class="w-4 h-4"></i> Play</button>
             </div>
           </div>
         `;
@@ -675,223 +827,82 @@
       lucide.createIcons();
     }
 
-    // Process Admin Command
-    adminCommandForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!myProfile) return;
-      
-      const targetId = cmdTarget.value;
-      const act = cmdAction.value;
-      const valNum = Number(cmdParamNumber.value);
-      const valText = cmdParamText.value.trim();
-      const valRole = cmdParamRole.value;
-
-      // 1. Process GLOBAL Commands
-      if (targetId === 'GLOBAL') {
-        if (myProfile.role !== 'king' && myProfile.role !== 'admin') {
-          alert("Only Admins and the King can execute GLOBAL commands."); return;
+    // Play Level from Browser
+    levelBrowserList.addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-play-lvl]');
+      if (btn) {
+        const lvlId = btn.dataset.playLvl; const lvlObj = levelsList.find(l => l.id === lvlId);
+        if (lvlObj) {
+          try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (lvlObj.plays||0) + 1 }, { merge: true }); } catch(err){}
+          launchGame(lvlObj.data, 'play');
         }
-
-        const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
-        
-        try {
-          if (act === 'globalMsg') {
-             await setDoc(settingsRef, { broadcastMsg: valText }, { merge: true });
-             alert("Global message broadcasted.");
-             cmdParamText.value = '';
-          } 
-          else if (act.startsWith('troll_')) {
-             if (act === 'troll_clear') {
-               await setDoc(settingsRef, { globalTroll: '' }, { merge: true });
-               alert("Global trolls cleared.");
-             } else {
-               await setDoc(settingsRef, { globalTroll: act }, { merge: true });
-               alert(`Global Troll '${act}' activated for 10s.`);
-               setTimeout(async () => { await setDoc(settingsRef, { globalTroll: '' }, { merge: true }); }, 10000);
-             }
-          }
-          else {
-            alert("This specific command cannot be used globally yet.");
-          }
-        } catch(err) { console.error(err); alert("Failed global command."); }
-        return;
       }
+    });
 
-      // 2. Process TARGETED Commands
-      const targetUser = leaderboardData.find(p => p.id === targetId);
-      if (!targetUser) return alert("Target not found.");
-      
-      // Hierarchy Checks
-      if (targetUser.role === 'king' && myProfile.role !== 'king') return alert("Action Denied: You cannot target the King.");
-      if (targetUser.role === 'admin' && myProfile.role === 'mod') return alert("Action Denied: Moderators cannot target Admins.");
-      if ((act === 'ban' || act === 'unban') && myProfile.role === 'mod') return alert("Action Denied: Moderators cannot ban players.");
-      if (act === 'role' && myProfile.role !== 'king') return alert("Action Denied: Only the King can change roles.");
+    // Create New Level
+    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
 
-      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', targetId);
+    function launchGame(dataStr, mode) {
+      hubUI.classList.add('hide');
+      document.getElementById('gameUI').classList.remove('hide');
+      level = parseLevelString(dataStr);
+      resetPlayer(); resize(); state.mode = mode;
+      if (mode === 'edit') { document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); } 
+      else { document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); uiStats.innerText = `Attempt 1`; }
+    }
+
+    // Exit Game / Engine Controls
+    document.getElementById('btnExitGame').addEventListener('click', () => {
+      state.mode = 'menu';
+      document.getElementById('gameUI').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide');
+      hubUI.classList.remove('hide');
+    });
+
+    // Publish Level
+    document.getElementById('btnPublish').addEventListener('click', async () => {
+      if(!currentUser || !myProfile) return;
+      const lvlName = prompt("Enter a name for your level:");
+      if (!lvlName || lvlName.trim() === "") return;
       
+      const lStr = generateLevelString();
       try {
-        let newScore = targetUser.score || 0;
-        
-        if (act === 'addScore') newScore += valNum;
-        else if (act === 'subScore') newScore = Math.max(0, newScore - valNum);
-        else if (act === 'multScore') newScore = newScore * valNum;
-        else if (act === 'divScore') newScore = valNum !== 0 ? Math.ceil(newScore / valNum) : newScore;
-        else if (act === 'setScore') newScore = Math.max(0, valNum);
-        
-        if (act.includes('Score')) {
-           await setDoc(userRef, { score: newScore }, { merge: true });
-           cmdParamNumber.value = '';
-        } 
-        else if (act === 'warn') {
-           await setDoc(userRef, { warning: valText }, { merge: true });
-           cmdParamText.value = '';
-           alert(`Warning sent to ${targetUser.username}`);
-        }
-        else if (act === 'ban') {
-           await setDoc(userRef, { banned: true }, { merge: true });
-           alert(`${targetUser.username} has been banned.`);
-        }
-        else if (act === 'unban') {
-           await setDoc(userRef, { banned: false }, { merge: true });
-           alert(`${targetUser.username} has been unbanned.`);
-        }
-        else if (act.startsWith('troll_')) {
-           if (act === 'troll_clear') await setDoc(userRef, { trollEvent: '' }, { merge: true });
-           else {
-             await setDoc(userRef, { trollEvent: act }, { merge: true });
-             alert(`Sent troll '${act}' to ${targetUser.username}.`);
-           }
-        }
-        else if (act === 'role') {
-           if (valRole === 'king') {
-             if(!confirm(`WARNING: Transfer crown to ${targetUser.username}? You will become an Admin.`)) return;
-             await setDoc(userRef, { role: 'king' }, { merge: true });
-             const myRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-             await setDoc(myRef, { role: 'admin' }, { merge: true });
-             alert("Crown transferred.");
-           } else {
-             await setDoc(userRef, { role: valRole }, { merge: true });
-           }
-        }
-      } catch (err) {
-        console.error("Command Error:", err); alert("Command failed.");
-      }
+        const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
+        await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, createdAt: Date.now() });
+        alert("Level published successfully!");
+        document.getElementById('btnExitGame').click(); 
+      } catch(e) { alert("Failed to publish."); console.error(e); }
     });
 
-    // ==========================================
-    // SECRET CODES
-    // ==========================================
-    redeemCodeBtn.addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return;
-      if (leaderboardData.some(d => d.role === 'king')) return alert("Someone is already the King!");
-      const code = prompt("Enter the secret code to claim the Crown:");
-      if (!code) return;
-      if (code === globalSettings.kingCode) {
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid), { role: 'king' }, { merge: true });
-        alert("Code accepted! All Hail the King!");
-      } else alert("Incorrect secret code.");
-    });
-
-    changeCodeBtn.addEventListener('click', async () => {
-      if (!myProfile || myProfile.role !== 'king') return;
-      const newCode = prompt("Enter new King Code:", globalSettings.kingCode);
-      if (newCode && newCode.trim() !== '') {
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: newCode.trim() }, { merge: true });
-        alert("Secret code updated.");
-      }
-    });
-
-    // ==========================================
-    // STANDARD UI & AUTH LOGIC
-    // ==========================================
-    tabLogin.addEventListener('click', () => {
-      isSignupMode = false;
-      tabLogin.classList.replace('border-slate-700', 'border-blue-500'); tabLogin.classList.replace('text-slate-400', 'text-white');
-      tabSignup.classList.replace('border-blue-500', 'border-slate-700'); tabSignup.classList.replace('text-white', 'text-slate-400');
-      usernameGroup.classList.add('hidden'); usernameInput.removeAttribute('required');
-      emailSubmitBtn.innerHTML = `Log In <i data-lucide="arrow-right" class="w-5 h-5"></i>`; lucide.createIcons();
-    });
-
-    tabSignup.addEventListener('click', () => {
-      isSignupMode = true;
-      tabSignup.classList.replace('border-slate-700', 'border-blue-500'); tabSignup.classList.replace('text-slate-400', 'text-white');
-      tabLogin.classList.replace('border-blue-500', 'border-slate-700'); tabLogin.classList.replace('text-white', 'text-slate-400');
-      usernameGroup.classList.remove('hidden'); usernameInput.setAttribute('required', 'true');
-      emailSubmitBtn.innerHTML = `Sign Up <i data-lucide="user-plus" class="w-5 h-5"></i>`; lucide.createIcons();
-    });
-
-    emailAuthForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim(); const password = passwordInput.value;
-      emailSubmitBtn.disabled = true; emailSubmitBtn.innerHTML = `<i data-lucide="activity" class="w-5 h-5 animate-spin"></i>`;
-      try {
-        if (isSignupMode) {
-          pendingUsername = usernameInput.value.trim();
-          await createUserWithEmailAndPassword(auth, email, password);
-        } else await signInWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        if (error.code === 'auth/email-already-in-use') alert("Email already exists!");
-        else if (error.code === 'auth/invalid-credential') alert("Incorrect credentials.");
-        else alert("Error: " + error.message);
-      } finally {
-        emailSubmitBtn.disabled = false;
-        emailSubmitBtn.innerHTML = isSignupMode ? `Sign Up <i data-lucide="user-plus" class="w-5 h-5"></i>` : `Log In <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
-        lucide.createIcons();
-      }
-    });
-
-    googleLoginBtn.addEventListener('click', async () => {
-      googleLoginBtn.disabled = true; googleLoginBtn.innerHTML = `<i data-lucide="activity" class="w-5 h-5 animate-spin"></i>`;
-      try { await signInWithPopup(auth, googleProvider); } catch (error) { alert("Failed Google Sign-in."); } 
-      finally {
-        googleLoginBtn.disabled = false;
-        googleLoginBtn.innerHTML = `<svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google`;
-      }
-    });
-
-    pfpContainer.addEventListener('click', () => { pfpUpload.click(); });
-    pfpUpload.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file || !currentUser || !myProfile) return;
+    // -------------------------------------------------------------
+    // PROFILE PICTURE / SETTINGS
+    // -------------------------------------------------------------
+    document.getElementById('pfpContainer').addEventListener('click', () => { document.getElementById('pfpUpload').click(); });
+    document.getElementById('pfpUpload').addEventListener('change', async (e) => {
+      const file = e.target.files[0]; if (!file || !currentUser || !myProfile) return;
       if (!file.type.startsWith('image/')) return alert("Images only.");
-      displayPfp.style.opacity = '0.5';
+      document.getElementById('displayPfp').style.opacity = '0.5';
       try {
-        const compressedBase64 = await compressImage(file, 150);
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid), { photoURL: compressedBase64 }, { merge: true });
-      } catch (error) { alert("Failed to upload."); } 
-      finally { displayPfp.style.opacity = '1'; pfpUpload.value = ''; }
-    });
-
-    function compressImage(file, maxSize) {
-      return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (event) => {
           const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width; let height = img.height;
-            if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } } 
-            else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
-            canvas.width = width; canvas.height = height;
-            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', 0.8));
-          };
-          img.onerror = reject; img.src = event.target.result;
-        };
-        reader.onerror = reject; reader.readAsDataURL(file);
-      });
-    }
-
-    logoutBtn.addEventListener('click', async () => {
-      if (confirm("Log out?")) { await signOut(auth); passwordInput.value = ''; }
+          img.onload = async () => {
+            const canvas = document.createElement('canvas'); let width = img.width, height = img.height;
+            if (width > height) { if (width > 150) { height *= 150 / width; width = 150; } } else { if (height > 150) { width *= 150 / height; height = 150; } }
+            canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.8);
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { photoURL: compressed }, { merge: true });
+            document.getElementById('displayPfp').style.opacity = '1'; document.getElementById('pfpUpload').value = '';
+          }; img.src = event.target.result;
+        }; reader.readAsDataURL(file);
+      } catch (error) { alert("Failed to upload."); document.getElementById('displayPfp').style.opacity = '1'; } 
     });
 
-    deleteAccountBtn.addEventListener('click', async () => {
+    // Delete Account
+    document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
       if (confirm("Delete your account permanently?")) {
         try {
-          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid));
-          await deleteUser(currentUser);
-          alert("Account deleted.");
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid));
+          await deleteUser(currentUser); alert("Account deleted.");
         } catch (error) {
           if (error.code === 'auth/requires-recent-login') alert("Please log out and log back in to verify identity before deleting.");
           else alert("Failed to delete account.");
@@ -899,83 +910,125 @@
       }
     });
 
-    clickButton.addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return;
-      const newScore = (myProfile.score || 0) + 1;
-      myProfile.score = newScore;
-      displayScore.textContent = newScore.toLocaleString();
-      try {
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid), { score: newScore, lastActive: Date.now() }, { merge: true });
-      } catch (error) { console.error(error); }
+    // -------------------------------------------------------------
+    // TROLL EVENTS & MODERATION (Overlay Triggers)
+    // -------------------------------------------------------------
+    function applyTrollEffect(trollType) {
+      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin')) return; 
+      clearTrollEffects();
+      if (trollType === 'troll_earthquake') mainBody.classList.add('troll-earthquake');
+      else if (trollType === 'troll_spin') mainBody.classList.add('troll-spin');
+      else if (trollType === 'troll_tiny') mainBody.classList.add('troll-tiny');
+      else if (trollType === 'troll_invert') mainBody.classList.add('troll-invert');
+      if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
+      activeTrollTimeout = setTimeout(async () => {
+        clearTrollEffects();
+        if (myProfile.trollEvent) { try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { trollEvent: '' }, { merge: true }); } catch(e){} }
+      }, 10000);
+    }
+    function clearTrollEffects() { mainBody.classList.remove('troll-earthquake', 'troll-spin', 'troll-tiny', 'troll-invert'); }
+    document.getElementById('closeBannerBtn').addEventListener('click', () => document.getElementById('globalBanner').classList.add('-translate-y-full'));
+    document.getElementById('dismissWarningBtn').addEventListener('click', async () => { if (currentUser) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warning: "" }, { merge: true }); });
+
+    // -------------------------------------------------------------
+    // COMMAND CENTER (ADMIN PANEL)
+    // -------------------------------------------------------------
+    const cmdAction = document.getElementById('cmdAction'), cmdParamContainer = document.getElementById('cmdParamContainer'), cmdParamNumber = document.getElementById('cmdParamNumber'), cmdParamText = document.getElementById('cmdParamText'), cmdParamRole = document.getElementById('cmdParamRole'), cmdParamLabel = document.getElementById('cmdParamLabel'), cmdTarget = document.getElementById('cmdTarget');
+    document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
+    document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
+
+    cmdAction.addEventListener('change', () => {
+      const act = cmdAction.value; cmdParamNumber.classList.add('hidden'); cmdParamText.classList.add('hidden'); cmdParamRole.classList.add('hidden'); cmdParamContainer.classList.remove('hidden');
+      if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
+      else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
+      else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
+      else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
     });
 
-    function updateUIForActivePlayer() {
-      joinSection.classList.add('hidden'); joinSection.classList.remove('block');
-      playerSection.classList.remove('hidden');
-      displayUsername.textContent = myProfile.username;
-      displayScore.textContent = myProfile.score.toLocaleString();
-      displayPfp.src = myProfile.photoURL ? myProfile.photoURL : getDefaultAvatar(myProfile.username);
-      
-      if (myProfile.role === 'king') myRoleBadge.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 flex items-center gap-1"><i data-lucide="crown" class="w-3 h-3"></i> King</span>`;
-      else if (myProfile.role === 'admin') myRoleBadge.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> Admin</span>`;
-      else if (myProfile.role === 'mod') myRoleBadge.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-green-500/20 text-green-400 border border-green-500/50 flex items-center gap-1"><i data-lucide="shield-half" class="w-3 h-3"></i> Mod</span>`;
-      else myRoleBadge.innerHTML = '';
+    function renderAdminPanel() {
+      if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
+      const currentTarget = cmdTarget.value;
+      let options = `<option value="GLOBAL" class="font-bold">🌐 EVERYONE (GLOBAL)</option>`;
+      usersData.forEach(p => {
+        let prefix = p.role === 'king' ? '👑 ' : p.role === 'admin' ? '🛡️ ' : p.role === 'mod' ? '⚔️ ' : '';
+        options += `<option value="${p.id}">${prefix}${escapeHtml(p.username)} (${p.score||0}⭐)${p.banned ? ' [BANNED]' : ''}</option>`;
+      });
+      cmdTarget.innerHTML = options; if (currentTarget && [...cmdTarget.options].some(o => o.value === currentTarget)) cmdTarget.value = currentTarget;
 
-      if (myProfile.role === 'king') changeCodeBtn.classList.remove('hidden');
-      else changeCodeBtn.classList.add('hidden');
-
-      if (['king', 'admin', 'mod'].includes(myProfile.role)) {
-        openAdminBtn.classList.remove('hidden'); openAdminBtn.classList.add('flex');
-      } else {
-        openAdminBtn.classList.add('hidden'); openAdminBtn.classList.remove('flex');
-      }
-      lucide.createIcons();
-    }
-
-    function renderLeaderboard() {
-      const visiblePlayers = leaderboardData.filter(p => !p.banned);
-      playerCount.textContent = `${visiblePlayers.length} Players Online`;
-      
-      if (visiblePlayers.length === 0) {
-        leaderboardList.innerHTML = `<div class="p-8 text-center text-slate-500">No players yet. Be the first to join!</div>`;
-        return;
-      }
-
-      leaderboardList.innerHTML = visiblePlayers.map((player, index) => {
-        const isMe = currentUser && player.id === currentUser.uid;
-        const rankClass = index === 0 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50' : 
-                          index === 1 ? 'bg-slate-300/20 text-slate-300 border border-slate-300/50' :
-                          index === 2 ? 'bg-amber-700/20 text-amber-500 border border-amber-700/50' :
-                          'bg-slate-800 text-slate-400';
-        const iconHtml = index === 0 ? `<i data-lucide="crown" class="w-4 h-4"></i>` : index + 1;
-        const highlightClass = isMe ? 'bg-blue-500/10' : 'hover:bg-slate-700/20';
-        let nameClass = isMe ? 'text-blue-400' : 'text-slate-200';
-        if (player.role === 'king') nameClass = 'text-yellow-400 font-black';
-        else if (player.role === 'admin') nameClass = 'text-indigo-300';
-        else if (player.role === 'mod') nameClass = 'text-green-300';
-        const youTag = isMe ? `<span class="ml-2 text-xs bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded-full">You</span>` : '';
-
-        return `
-          <div class="p-4 flex items-center justify-between transition-colors ${highlightClass}">
-            <div class="flex items-center gap-4">
-              <div class="w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm ${rankClass}">
-                ${iconHtml}
-              </div>
-              <img src="${escapeHtml(player.photoURL || getDefaultAvatar(player.username))}" class="w-10 h-10 flex-shrink-0 rounded-full object-cover border border-slate-600 bg-slate-800">
-              <div class="flex flex-col truncate max-w-[120px] sm:max-w-[200px]">
-                <span class="${nameClass} truncate text-lg">${escapeHtml(player.username)} ${youTag}</span>
-              </div>
-            </div>
-            <div class="font-mono text-xl font-bold text-slate-300 pl-4">${(player.score || 0).toLocaleString()}</div>
-          </div>
-        `;
+      document.getElementById('adminPlayerCount').textContent = `${usersData.length} Players`;
+      document.getElementById('adminDirectoryList').innerHTML = usersData.map(p => {
+        let badge = p.role === 'king' ? `<span class="text-yellow-400 text-xs"><i data-lucide="crown" class="w-3 h-3 inline"></i> King</span>` : p.role === 'admin' ? `<span class="text-indigo-400 text-xs"><i data-lucide="shield" class="w-3 h-3 inline"></i> Admin</span>` : p.role === 'mod' ? `<span class="text-green-400 text-xs"><i data-lucide="shield-half" class="w-3 h-3 inline"></i> Mod</span>` : `<span class="text-gray-500 text-xs">User</span>`;
+        return `<div class="flex justify-between items-center bg-gray-800/50 p-2 rounded border border-gray-700/50">
+          <div class="flex items-center gap-2 truncate"><img src="${escapeHtml(p.photoURL || getDefaultAvatar(p.username))}" class="w-6 h-6 rounded-full border border-gray-600"><span class="text-sm font-semibold text-gray-200 truncate">${escapeHtml(p.username)}</span>${p.banned ? `<span class="text-red-500 text-[10px] font-bold ml-1 bg-red-500/20 px-1 rounded">BANNED</span>` : ''}</div>
+          <div class="text-right flex flex-col items-end"><span class="font-mono text-sm text-yellow-400">${(p.score||0).toLocaleString()}⭐</span>${badge}</div>
+        </div>`;
       }).join('');
       lucide.createIcons();
     }
 
-    function escapeHtml(unsafe) {
-        return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-    }
+    adminCommandForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); if (!myProfile) return;
+      const targetId = cmdTarget.value, act = cmdAction.value, valNum = Number(cmdParamNumber.value), valText = cmdParamText.value.trim(), valRole = cmdParamRole.value;
+
+      if (targetId === 'GLOBAL') {
+        if (myProfile.role !== 'king' && myProfile.role !== 'admin') return alert("Only Admins/King can use GLOBAL commands.");
+        const setRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
+        try {
+          if (act === 'globalMsg') { await setDoc(setRef, { broadcastMsg: valText }, { merge: true }); alert("Message broadcasted."); cmdParamText.value = ''; } 
+          else if (act.startsWith('troll_')) {
+            if (act === 'troll_clear') { await setDoc(setRef, { globalTroll: '' }, { merge: true }); alert("Global trolls cleared."); } 
+            else { await setDoc(setRef, { globalTroll: act }, { merge: true }); alert(`Global Troll activated.`); setTimeout(async () => { await setDoc(setRef, { globalTroll: '' }, { merge: true }); }, 10000); }
+          } else alert("Cannot use this command globally yet.");
+        } catch(err) { alert("Failed global command."); } return;
+      }
+
+      const tUser = usersData.find(p => p.id === targetId); if (!tUser) return alert("Target not found.");
+      if (tUser.role === 'king' && myProfile.role !== 'king') return alert("Action Denied: Cannot target King.");
+      if (tUser.role === 'admin' && myProfile.role === 'mod') return alert("Action Denied: Mods cannot target Admins.");
+      if ((act === 'ban' || act === 'unban') && myProfile.role === 'mod') return alert("Action Denied: Mods cannot ban.");
+      if (act === 'role' && myProfile.role !== 'king') return alert("Action Denied: Only King can change roles.");
+
+      const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', targetId);
+      try {
+        let nScore = tUser.score || 0;
+        if (act === 'addScore') nScore += valNum; else if (act === 'subScore') nScore = Math.max(0, nScore - valNum); else if (act === 'setScore') nScore = Math.max(0, valNum);
+        
+        if (act.includes('Score')) { await setDoc(uRef, { score: nScore }, { merge: true }); cmdParamNumber.value = ''; alert("Stars updated.");} 
+        else if (act === 'warn') { await setDoc(uRef, { warning: valText }, { merge: true }); cmdParamText.value = ''; alert(`Warning sent.`); }
+        else if (act === 'ban') { await setDoc(uRef, { banned: true }, { merge: true }); alert("Player banned."); }
+        else if (act === 'unban') { await setDoc(uRef, { banned: false }, { merge: true }); alert("Player unbanned."); }
+        else if (act.startsWith('troll_')) {
+          if (act === 'troll_clear') await setDoc(uRef, { trollEvent: '' }, { merge: true });
+          else { await setDoc(uRef, { trollEvent: act }, { merge: true }); alert(`Troll sent.`); }
+        }
+        else if (act === 'role') {
+          if (valRole === 'king') {
+            if(!confirm(`WARNING: Transfer crown?`)) return;
+            await setDoc(uRef, { role: 'king' }, { merge: true });
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true });
+          } else await setDoc(uRef, { role: valRole }, { merge: true });
+        }
+      } catch (err) { alert("Command failed."); }
+    });
+
+    document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
+      if (!currentUser || !myProfile) return;
+      if (usersData.some(d => d.role === 'king')) return alert("Crown is taken!");
+      const c = prompt("Enter secret code:"); if (!c) return;
+      if (c === globalSettings.kingCode) { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true }); alert("Crown claimed!"); } else alert("Incorrect code.");
+    });
+    
+    document.getElementById('changeCodeBtn').addEventListener('click', async () => {
+      if (!myProfile || myProfile.role !== 'king') return;
+      const n = prompt("Enter new King Code:", globalSettings.kingCode);
+      if (n && n.trim() !== '') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: n.trim() }, { merge: true }); alert("Code updated."); }
+    });
+
+    function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+
+    // Start background canvas animation
+    level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
+
   </script>
 </body>
 </html>
