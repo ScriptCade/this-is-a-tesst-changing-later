@@ -10,12 +10,41 @@
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Fun Custom Animations for Troll Events -->
+  <style>
+    @keyframes earthquake {
+      0% { transform: translate(2px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(0px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(2px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(2px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+    .troll-earthquake { animation: earthquake 0.3s infinite; overflow: hidden; }
+    .troll-invert { filter: invert(100%) hue-rotate(180deg); }
+    .troll-tiny { transform: scale(0.2); transition: transform 1s ease-in-out; }
+    .troll-spin { animation: spin 2s linear infinite; }
+    .troll-barrel-roll { animation: spin 1s ease-in-out 1; }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8 transition-all duration-500" id="mainBody">
 
   <!-- Loading State -->
-  <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-slate-900 z-50">
+  <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-slate-900 z-[200]">
     <i data-lucide="activity" class="w-10 h-10 animate-spin text-blue-500"></i>
+  </div>
+
+  <!-- GLOBAL BROADCAST BANNER -->
+  <div id="globalBanner" class="fixed top-0 left-0 right-0 bg-indigo-600 text-white p-3 font-bold text-center z-[150] shadow-xl transform -translate-y-full transition-transform duration-500 flex justify-center items-center gap-3">
+    <i data-lucide="radio" class="w-5 h-5 animate-pulse"></i>
+    <span id="globalBannerText">System Message</span>
+    <button id="closeBannerBtn" class="absolute right-4 text-white/70 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
   </div>
 
   <!-- BANNED SCREEN OVERLAY -->
@@ -37,42 +66,104 @@
     </div>
   </div>
 
-  <!-- ADMIN PANEL MODAL -->
-  <div id="adminPanelModal" class="fixed inset-0 bg-black/80 z-[80] hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-slate-800 rounded-3xl shadow-2xl w-full max-w-4xl border border-slate-700 flex flex-col max-h-[90vh]">
+  <!-- ADMIN PANEL MODAL (COMMAND CENTER) -->
+  <div id="adminPanelModal" class="fixed inset-0 bg-black/80 z-[80] hidden flex-col items-center justify-center p-2 md:p-4 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-3xl shadow-2xl w-full max-w-5xl border border-slate-700 flex flex-col h-full max-h-[90vh]">
+      
       <!-- Admin Header -->
-      <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-3xl">
-        <h2 class="text-2xl font-bold flex items-center gap-3">
-          <i data-lucide="shield" class="w-6 h-6 text-indigo-400"></i>
-          Admin Control Panel
+      <div class="p-4 md:p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-3xl">
+        <h2 class="text-xl md:text-2xl font-black flex items-center gap-3 text-white">
+          <i data-lucide="terminal" class="w-6 h-6 text-indigo-400"></i>
+          Command Center
         </h2>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 md:gap-4">
           <button id="changeCodeBtn" class="hidden bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
-            <i data-lucide="key-round" class="w-4 h-4"></i> Edit Secret Code
+            <i data-lucide="key-round" class="w-4 h-4"></i> <span class="hidden sm:inline">Edit Code</span>
           </button>
-          <button id="closeAdminBtn" class="text-slate-400 hover:text-white transition-colors">
-            <i data-lucide="x" class="w-6 h-6"></i>
+          <button id="closeAdminBtn" class="bg-slate-700 hover:bg-red-500 text-white p-1.5 rounded-lg transition-colors">
+            <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
       </div>
       
-      <!-- Admin Body (User List) -->
-      <div class="p-4 overflow-y-auto flex-1">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="text-xs uppercase text-slate-400 border-b border-slate-700">
-                <th class="pb-3 px-2">Player</th>
-                <th class="pb-3 px-2">Role</th>
-                <th class="pb-3 px-2">Score</th>
-                <th class="pb-3 px-2 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adminUserList" class="divide-y divide-slate-700/50">
-              <!-- Admin rows injected here via JS -->
-            </tbody>
-          </table>
+      <!-- Admin Body (Split Layout) -->
+      <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
+        
+        <!-- Left Side: Execution Form -->
+        <div class="md:w-1/2 p-4 md:p-6 bg-slate-800/80 border-b md:border-b-0 md:border-r border-slate-700 overflow-y-auto">
+          <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Execute Command</h3>
+          
+          <form id="adminCommandForm" class="space-y-5">
+            <!-- Target Selection -->
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">Target Player</label>
+              <select id="cmdTarget" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none appearance-none font-semibold">
+                <option value="GLOBAL">🌐 EVERYONE (GLOBAL)</option>
+                <!-- Populated by JS -->
+              </select>
+            </div>
+
+            <!-- Action Selection -->
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">Command Action</label>
+              <select id="cmdAction" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none appearance-none font-semibold">
+                <optgroup label="Score Math">
+                  <option value="addScore">➕ Add to Score</option>
+                  <option value="subScore">➖ Subtract from Score</option>
+                  <option value="multScore">✖️ Multiply Score</option>
+                  <option value="divScore">➗ Divide Score (Rounds Up)</option>
+                  <option value="setScore">🎯 Set Exact Score</option>
+                </optgroup>
+                <optgroup label="Moderation">
+                  <option value="warn">⚠️ Send Warning Message</option>
+                  <option value="ban">🔨 Ban Player</option>
+                  <option value="unban">✨ Unban Player</option>
+                  <option value="role">👑 Change Role</option>
+                  <option value="globalMsg">📢 Broadcast Global Message</option>
+                </optgroup>
+                <optgroup label="Troll Events (10s duration)">
+                  <option value="troll_earthquake">🌋 Troll: Earthquake</option>
+                  <option value="troll_spin">🌀 Troll: Spin Screen</option>
+                  <option value="troll_tiny">🔬 Troll: Make Tiny</option>
+                  <option value="troll_invert">👽 Troll: Invert Colors</option>
+                  <option value="troll_clear">🧹 Clear Active Trolls</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Dynamic Parameter Input -->
+            <div id="cmdParamContainer">
+              <label id="cmdParamLabel" class="block text-sm font-medium text-slate-300 mb-1">Value / Amount</label>
+              <input type="number" id="cmdParamNumber" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Enter amount...">
+              <input type="text" id="cmdParamText" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none hidden" placeholder="Enter message...">
+              <select id="cmdParamRole" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none hidden">
+                <option value="user">User</option>
+                <option value="mod">Moderator</option>
+                <option value="admin">Admin</option>
+                <option value="king">King (Transfer Crown)</option>
+              </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-2 border border-indigo-500/50 mt-4">
+              <i data-lucide="zap" class="w-5 h-5"></i> Execute Command
+            </button>
+          </form>
         </div>
+
+        <!-- Right Side: Player Directory -->
+        <div class="md:w-1/2 p-0 flex flex-col bg-slate-900">
+          <div class="p-4 border-b border-slate-700 bg-slate-800 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Player Directory</h3>
+            <span id="adminPlayerCount" class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300 font-mono">0 Players</span>
+          </div>
+          <div class="overflow-y-auto flex-1 p-2">
+            <div id="adminDirectoryList" class="space-y-1">
+              <!-- Directory populated by JS -->
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -161,7 +252,7 @@
               <div class="text-xs font-medium text-blue-300 flex items-center gap-2 mb-0.5">
                 <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> Playing as
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                 <div id="displayUsername" class="font-bold text-white text-xl truncate max-w-[150px]"></div>
                 <!-- Role Badge injected here -->
                 <div id="myRoleBadge"></div>
@@ -169,7 +260,7 @@
             </div>
           </div>
           
-          <div id="displayScore" class="text-6xl font-black text-white mb-8 tracking-tighter">0</div>
+          <div id="displayScore" class="text-6xl font-black text-white mb-8 tracking-tighter transition-all">0</div>
           
           <button
             id="clickButton"
@@ -181,7 +272,7 @@
 
           <!-- Admin Panel Toggle (Hidden by default) -->
           <button id="openAdminBtn" class="mt-8 bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/50 text-indigo-300 w-full py-3 rounded-xl font-bold transition-all hidden items-center justify-center gap-2">
-            <i data-lucide="shield" class="w-5 h-5"></i> Open Admin Panel
+            <i data-lucide="terminal" class="w-5 h-5"></i> Open Command Center
           </button>
 
           <!-- Account Actions (Logout / Deactivate) -->
@@ -222,10 +313,9 @@
   </div>
 
   <script type="module">
-    // Import Firebase modules directly from CDN for standard HTML
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // =====================================================================
     // 🔥 GITHUB PAGES CONFIG 🔥
@@ -246,7 +336,6 @@
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-github-app-id';
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -260,16 +349,18 @@
     let pendingUsername = null;
     let dbUnsubscribe = null;
     let settingsUnsubscribe = null;
-    let globalSettings = { kingCode: 'KING2026' };
+    let activeTrollTimeout = null;
+    let globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
 
-    // DOM Elements
+    // DOM Elements - Core
+    const mainBody = document.getElementById('mainBody');
     const loadingScreen = document.getElementById('loadingScreen');
     const appContent = document.getElementById('appContent');
     const joinSection = document.getElementById('joinSection');
     const playerSection = document.getElementById('playerSection');
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
     
     // Auth Elements
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
     const tabLogin = document.getElementById('tabLogin');
     const tabSignup = document.getElementById('tabSignup');
     const emailAuthForm = document.getElementById('emailAuthForm');
@@ -292,24 +383,37 @@
     const logoutBtn = document.getElementById('logoutBtn');
     const deleteAccountBtn = document.getElementById('deleteAccountBtn');
 
-    // Admin Elements
-    const redeemCodeBtn = document.getElementById('redeemCodeBtn');
-    const changeCodeBtn = document.getElementById('changeCodeBtn');
+    // Command Center / Admin Elements
     const openAdminBtn = document.getElementById('openAdminBtn');
     const adminPanelModal = document.getElementById('adminPanelModal');
     const closeAdminBtn = document.getElementById('closeAdminBtn');
-    const adminUserList = document.getElementById('adminUserList');
+    const adminCommandForm = document.getElementById('adminCommandForm');
+    const cmdTarget = document.getElementById('cmdTarget');
+    const cmdAction = document.getElementById('cmdAction');
+    const cmdParamContainer = document.getElementById('cmdParamContainer');
+    const cmdParamLabel = document.getElementById('cmdParamLabel');
+    const cmdParamNumber = document.getElementById('cmdParamNumber');
+    const cmdParamText = document.getElementById('cmdParamText');
+    const cmdParamRole = document.getElementById('cmdParamRole');
+    const adminDirectoryList = document.getElementById('adminDirectoryList');
+    const adminPlayerCount = document.getElementById('adminPlayerCount');
+    const redeemCodeBtn = document.getElementById('redeemCodeBtn');
+    const changeCodeBtn = document.getElementById('changeCodeBtn');
     
-    // Overlay Elements
+    // Overlays & Banner
     const bannedScreen = document.getElementById('bannedScreen');
     const warningScreen = document.getElementById('warningScreen');
     const warningMessageText = document.getElementById('warningMessageText');
     const dismissWarningBtn = document.getElementById('dismissWarningBtn');
+    const globalBanner = document.getElementById('globalBanner');
+    const globalBannerText = document.getElementById('globalBannerText');
+    const closeBannerBtn = document.getElementById('closeBannerBtn');
 
-    // 1. Initialize Icons
     lucide.createIcons();
 
-    // 2. Authentication Initialization
+    // ==========================================
+    // INITIALIZATION & OBSERVERS
+    // ==========================================
     async function initAuth() {
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -322,22 +426,15 @@
       }
     }
     
-    // 3. Auth State Observer
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
-      
       if (user) {
         await checkAndCreateProfile(user);
       } else {
-        if (dbUnsubscribe) {
-          dbUnsubscribe();
-          dbUnsubscribe = null;
-        }
-        if (settingsUnsubscribe) {
-          settingsUnsubscribe();
-          settingsUnsubscribe = null;
-        }
+        if (dbUnsubscribe) dbUnsubscribe();
+        if (settingsUnsubscribe) settingsUnsubscribe();
         myProfile = null;
+        clearTrollEffects();
         bannedScreen.classList.add('hidden');
         warningScreen.classList.add('hidden');
         adminPanelModal.classList.add('hidden');
@@ -354,94 +451,90 @@
       return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`;
     }
 
-    // 4. Ensure Database Profile Exists
     async function checkAndCreateProfile(user) {
       const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', user.uid);
-      
       try {
         const userSnap = await getDoc(userRef);
-        
         if (!userSnap.exists()) {
           const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
-          
           const newProfile = {
-            username: uName,
-            score: 0,
-            role: 'user', // Roles: 'user', 'mod', 'admin', 'king'
-            banned: false,
-            warning: '',
-            photoURL: user.photoURL || getDefaultAvatar(uName),
-            joinedAt: Date.now(),
-            lastActive: Date.now()
+            username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '',
+            photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), lastActive: Date.now()
           };
           await setDoc(userRef, newProfile);
         }
-        
         pendingUsername = null; 
         setupDatabaseListener();
-        
       } catch (error) {
         console.error("Error creating profile:", error);
-        alert("Could not load player profile.");
       }
     }
 
-    // 5. Database Real-time Listener & Moderation Checks
+    // ==========================================
+    // DATABASE LISTENERS
+    // ==========================================
     function setupDatabaseListener() {
       if (!currentUser) return;
       if (dbUnsubscribe) dbUnsubscribe();
       if (settingsUnsubscribe) settingsUnsubscribe();
 
-      // Listen for Settings (King Code)
+      // Listen for Global Settings (Messages, Trolls, KingCode)
       const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
       settingsUnsubscribe = onSnapshot(settingsRef, (snap) => {
         if (snap.exists()) {
           globalSettings = snap.data();
+          
+          // Handle Global Banner Broadcast
+          if (globalSettings.broadcastMsg && globalSettings.broadcastMsg.trim() !== '') {
+            globalBannerText.textContent = globalSettings.broadcastMsg;
+            globalBanner.classList.remove('-translate-y-full');
+          } else {
+            globalBanner.classList.add('-translate-y-full');
+          }
+
+          // Handle Global Troll Events
+          if (globalSettings.globalTroll && globalSettings.globalTroll !== '') {
+            applyTrollEffect(globalSettings.globalTroll);
+          }
         } else {
-          globalSettings = { kingCode: 'KING2026' }; // Default fallback
+          globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
         }
       });
 
+      // Listen for Leaderboard & Profile changes
       const leaderboardCollection = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
-      
       dbUnsubscribe = onSnapshot(leaderboardCollection, (snapshot) => {
         const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        // Ensure accurate sorting
         docs.sort((a, b) => (b.score || 0) - (a.score || 0));
         leaderboardData = docs;
         
-        // Find My Profile
         const existingProfile = docs.find(d => d.id === currentUser.uid);
         if (existingProfile) {
           myProfile = existingProfile;
           
-          // CRITICAL ENFORCEMENT: Check Ban Status
           if (myProfile.banned) {
-            bannedScreen.classList.remove('hidden');
-            bannedScreen.classList.add('flex');
-            appContent.classList.add('hidden');
-            return; // Stop processing if banned
+            bannedScreen.classList.remove('hidden'); bannedScreen.classList.add('flex');
+            appContent.classList.add('hidden'); return;
           } else {
-            bannedScreen.classList.add('hidden');
-            bannedScreen.classList.remove('flex');
+            bannedScreen.classList.add('hidden'); bannedScreen.classList.remove('flex');
             appContent.classList.remove('hidden');
           }
 
-          // Check Warning Status
           if (myProfile.warning && myProfile.warning.trim() !== "") {
             warningMessageText.textContent = myProfile.warning;
-            warningScreen.classList.remove('hidden');
-            warningScreen.classList.add('flex');
+            warningScreen.classList.remove('hidden'); warningScreen.classList.add('flex');
           } else {
-            warningScreen.classList.add('hidden');
-            warningScreen.classList.remove('flex');
+            warningScreen.classList.add('hidden'); warningScreen.classList.remove('flex');
+          }
+
+          // Handle Targeted Troll Events
+          if (myProfile.trollEvent && myProfile.trollEvent !== '') {
+            applyTrollEffect(myProfile.trollEvent);
           }
 
           updateUIForActivePlayer();
         }
 
-        // Check if there is NO King yet
         const kingExists = docs.some(d => d.role === 'king');
         if (!kingExists && myProfile && myProfile.role !== 'king') {
           redeemCodeBtn.classList.remove('hidden');
@@ -450,323 +543,295 @@
         }
 
         renderLeaderboard();
-        
-        // If admin modal is open, refresh it live
-        if (!adminPanelModal.classList.contains('hidden')) {
-          renderAdminPanel();
-        }
-        
+        if (!adminPanelModal.classList.contains('hidden')) renderAdminPanel();
         loadingScreen.classList.add('hidden');
-      }, (error) => {
-        console.error("Failed to fetch leaderboard:", error);
-      });
+      }, (error) => console.error("Failed to fetch leaderboard:", error));
     }
 
-    // Dismiss Warning Action
+    // ==========================================
+    // TROLL EVENT SYSTEM
+    // ==========================================
+    function applyTrollEffect(trollType) {
+      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin')) return; // Immune!
+      
+      clearTrollEffects();
+      if (trollType === 'troll_earthquake') mainBody.classList.add('troll-earthquake');
+      else if (trollType === 'troll_spin') mainBody.classList.add('troll-spin');
+      else if (trollType === 'troll_tiny') mainBody.classList.add('troll-tiny');
+      else if (trollType === 'troll_invert') mainBody.classList.add('troll-invert');
+      
+      // Auto clear targeted troll from database after 10s (only for local user to save writes)
+      if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
+      activeTrollTimeout = setTimeout(async () => {
+        clearTrollEffects();
+        if (myProfile.trollEvent) {
+           try {
+             const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
+             await setDoc(userRef, { trollEvent: '' }, { merge: true });
+           } catch(e){}
+        }
+      }, 10000);
+    }
+
+    function clearTrollEffects() {
+      mainBody.classList.remove('troll-earthquake', 'troll-spin', 'troll-tiny', 'troll-invert');
+    }
+
+    // Global Banner Dismiss
+    closeBannerBtn.addEventListener('click', () => {
+      globalBanner.classList.add('-translate-y-full');
+    });
+
     dismissWarningBtn.addEventListener('click', async () => {
       if (!currentUser || !myProfile) return;
       try {
         const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-        await setDoc(userRef, { warning: "" }, { merge: true }); // Clear warning
-      } catch (error) {
-        console.error("Failed to dismiss warning", error);
-      }
+        await setDoc(userRef, { warning: "" }, { merge: true }); 
+      } catch (error) { console.error(error); }
     });
 
-    // Redeem Secret Code (Claim Crown)
-    redeemCodeBtn.addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return;
-      
-      const kingExists = leaderboardData.some(d => d.role === 'king');
-      if (kingExists) {
-        alert("Someone is already the King! The crown is taken.");
-        redeemCodeBtn.classList.add('hidden');
-        return;
-      }
-
-      const code = prompt("Enter the secret code to claim the Crown:");
-      if (!code) return;
-
-      if (code === globalSettings.kingCode) {
-        try {
-          const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-          await setDoc(userRef, { role: 'king' }, { merge: true });
-          alert("Code accepted! All Hail the King! You now have full admin controls.");
-        } catch(e) {
-          console.error(e);
-        }
-      } else {
-        alert("Incorrect secret code.");
-      }
-    });
-
-    // Change Secret Code (King Only)
-    changeCodeBtn.addEventListener('click', async () => {
-      if (!myProfile || myProfile.role !== 'king') return;
-      const newCode = prompt("Enter the new secret code for claiming the King role (in case you step down):", globalSettings.kingCode);
-      if (newCode && newCode.trim() !== '') {
-        try {
-          const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
-          await setDoc(settingsRef, { kingCode: newCode.trim() }, { merge: true });
-          alert("Secret code updated successfully.");
-        } catch(e) {
-          console.error(e);
-          alert("Failed to update secret code.");
-        }
-      }
-    });
-
-    // -------------------------------------------------------------
-    // 🛡️ ADMIN PANEL LOGIC
-    // -------------------------------------------------------------
-
-    // Toggle Admin Panel
+    // ==========================================
+    // COMMAND CENTER (ADMIN PANEL)
+    // ==========================================
     openAdminBtn.addEventListener('click', () => {
-      adminPanelModal.classList.remove('hidden');
-      adminPanelModal.classList.add('flex');
+      adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex');
       renderAdminPanel();
     });
 
     closeAdminBtn.addEventListener('click', () => {
-      adminPanelModal.classList.add('hidden');
-      adminPanelModal.classList.remove('flex');
+      adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex');
     });
 
-    // Render Admin Table
+    // Handle dynamic inputs based on selected action
+    cmdAction.addEventListener('change', () => {
+      const act = cmdAction.value;
+      cmdParamNumber.classList.add('hidden');
+      cmdParamText.classList.add('hidden');
+      cmdParamRole.classList.add('hidden');
+      cmdParamContainer.classList.remove('hidden');
+      
+      if (act.includes('Score')) {
+        cmdParamNumber.classList.remove('hidden');
+        cmdParamNumber.required = true;
+        cmdParamText.required = false;
+        cmdParamLabel.textContent = "Amount (Number)";
+      } else if (act === 'warn' || act === 'globalMsg') {
+        cmdParamText.classList.remove('hidden');
+        cmdParamText.required = true;
+        cmdParamNumber.required = false;
+        cmdParamLabel.textContent = "Message Text";
+      } else if (act === 'role') {
+        cmdParamRole.classList.remove('hidden');
+        cmdParamLabel.textContent = "Select New Role";
+      } else {
+        // Bans, unbans, and trolls require no param
+        cmdParamContainer.classList.add('hidden');
+        cmdParamNumber.required = false;
+        cmdParamText.required = false;
+      }
+    });
+
+    // Render Admin Dropdowns & Directory
     function renderAdminPanel() {
-      if (!myProfile || (myProfile.role !== 'king' && myProfile.role !== 'admin' && myProfile.role !== 'mod')) return;
+      if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
 
-      adminUserList.innerHTML = leaderboardData.map(player => {
-        const isMe = player.id === currentUser.uid;
-        
-        // Define what current user can do to THIS player
-        let canEditScore = true;
-        let canWarn = true;
-        let canBan = false;
-        let canChangeRole = false;
+      // Preserve current target selection
+      const currentTarget = cmdTarget.value;
+      
+      // Build Target Dropdown
+      let options = `<option value="GLOBAL" class="font-bold">🌐 EVERYONE (GLOBAL)</option>`;
+      leaderboardData.forEach(p => {
+        let prefix = p.role === 'king' ? '👑 ' : p.role === 'admin' ? '🛡️ ' : p.role === 'mod' ? '⚔️ ' : '';
+        let bnd = p.banned ? ' [BANNED]' : '';
+        options += `<option value="${p.id}">${prefix}${escapeHtml(p.username)} (${(p.score||0).toLocaleString()} pts)${bnd}</option>`;
+      });
+      cmdTarget.innerHTML = options;
+      if (currentTarget && [...cmdTarget.options].some(o => o.value === currentTarget)) {
+        cmdTarget.value = currentTarget;
+      }
 
-        // Mod logic
-        if (myProfile.role === 'mod') {
-          if (player.role === 'king' || player.role === 'admin') {
-            canEditScore = false; canWarn = false; // Mods can't touch superiors
-          }
-        }
-        // Admin logic
-        else if (myProfile.role === 'admin') {
-          canBan = true;
-          if (player.role === 'king') {
-            canEditScore = false; canWarn = false; canBan = false; // Admins can't touch King
-          }
-        }
-        // King logic
-        else if (myProfile.role === 'king') {
-          canBan = true;
-          canChangeRole = true;
-        }
-
-        // Format role badge
-        let roleBadge = `<span class="px-2 py-0.5 rounded text-xs bg-slate-700 text-slate-300">User</span>`;
-        if (player.role === 'king') roleBadge = `<span class="px-2 py-0.5 rounded text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 flex items-center gap-1 w-fit"><i data-lucide="crown" class="w-3 h-3"></i> King</span>`;
-        else if (player.role === 'admin') roleBadge = `<span class="px-2 py-0.5 rounded text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 flex items-center gap-1 w-fit"><i data-lucide="shield" class="w-3 h-3"></i> Admin</span>`;
-        else if (player.role === 'mod') roleBadge = `<span class="px-2 py-0.5 rounded text-xs bg-green-500/20 text-green-400 border border-green-500/50 flex items-center gap-1 w-fit"><i data-lucide="shield-half" class="w-3 h-3"></i> Mod</span>`;
-
-        let statusText = player.banned ? `<span class="text-red-400 text-xs ml-2 font-bold">[BANNED]</span>` : '';
-
-        // Generate Buttons based on permissions
-        const btnClass = "px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs font-semibold text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed";
-        
-        let scoreBtns = canEditScore ? `
-          <button data-action="addScore" data-uid="${player.id}" class="${btnClass} bg-blue-600 hover:bg-blue-500">+100</button>
-          <button data-action="subScore" data-uid="${player.id}" class="${btnClass} bg-slate-600">-100</button>
-        ` : '';
-
-        let warnBtn = canWarn ? `<button data-action="warn" data-uid="${player.id}" class="${btnClass} bg-amber-600 hover:bg-amber-500">Warn</button>` : '';
-        
-        let banBtn = '';
-        if (canBan && !isMe) {
-          if (player.banned) {
-             banBtn = `<button data-action="unban" data-uid="${player.id}" class="${btnClass} bg-emerald-600 hover:bg-emerald-500">Unban</button>`;
-          } else {
-             banBtn = `<button data-action="ban" data-uid="${player.id}" class="${btnClass} bg-red-600 hover:bg-red-500">Ban</button>`;
-          }
-        }
-
-        let roleSelect = '';
-        if (canChangeRole && !isMe) {
-           roleSelect = `
-             <select data-action="changeRole" data-uid="${player.id}" class="bg-slate-900 border border-slate-600 text-xs rounded px-1 py-1 outline-none">
-                <option value="user" ${(!player.role || player.role==='user') ? 'selected':''}>User</option>
-                <option value="mod" ${player.role==='mod' ? 'selected':''}>Mod</option>
-                <option value="admin" ${player.role==='admin' ? 'selected':''}>Admin</option>
-             </select>
-           `;
-        }
-
+      // Build Mini Directory
+      adminPlayerCount.textContent = `${leaderboardData.length} Players`;
+      adminDirectoryList.innerHTML = leaderboardData.map(p => {
+        let badge = p.role === 'king' ? `<span class="text-yellow-400 text-xs"><i data-lucide="crown" class="w-3 h-3 inline"></i> King</span>` :
+                    p.role === 'admin' ? `<span class="text-indigo-400 text-xs"><i data-lucide="shield" class="w-3 h-3 inline"></i> Admin</span>` :
+                    p.role === 'mod' ? `<span class="text-green-400 text-xs"><i data-lucide="shield-half" class="w-3 h-3 inline"></i> Mod</span>` : 
+                    `<span class="text-slate-500 text-xs">User</span>`;
+        let bnd = p.banned ? `<span class="text-red-500 text-[10px] font-bold ml-1 bg-red-500/20 px-1 rounded">BANNED</span>` : '';
         return `
-          <tr class="border-b border-slate-700/50 hover:bg-slate-700/20 transition-colors">
-            <td class="py-3 px-2">
-              <div class="flex items-center gap-2">
-                <img src="${escapeHtml(player.photoURL || getDefaultAvatar(player.username))}" class="w-6 h-6 rounded-full">
-                <span class="font-semibold text-sm">${escapeHtml(player.username)}${statusText}</span>
-                ${isMe ? '<span class="text-[10px] bg-slate-700 px-1 rounded text-slate-300">You</span>' : ''}
-              </div>
-            </td>
-            <td class="py-3 px-2">${roleBadge}</td>
-            <td class="py-3 px-2 font-mono text-sm">${(player.score || 0).toLocaleString()}</td>
-            <td class="py-3 px-2 text-right">
-              <div class="flex items-center justify-end gap-1 flex-wrap">
-                ${scoreBtns}
-                ${warnBtn}
-                ${banBtn}
-                ${roleSelect}
-              </div>
-            </td>
-          </tr>
+          <div class="flex justify-between items-center bg-slate-800/50 p-2 rounded border border-slate-700/50">
+            <div class="flex items-center gap-2 truncate">
+              <img src="${escapeHtml(p.photoURL || getDefaultAvatar(p.username))}" class="w-6 h-6 rounded-full border border-slate-600">
+              <span class="text-sm font-semibold text-slate-200 truncate">${escapeHtml(p.username)}</span>
+              ${bnd}
+            </div>
+            <div class="text-right flex flex-col items-end">
+              <span class="font-mono text-sm text-slate-300">${(p.score||0).toLocaleString()}</span>
+              ${badge}
+            </div>
+          </div>
         `;
       }).join('');
-      
       lucide.createIcons();
     }
 
-    // Admin Action Event Delegation Listener
-    adminUserList.addEventListener('click', async (e) => {
-      // Handle button clicks
-      const btn = e.target.closest('button[data-action]');
-      if (btn) {
-        const action = btn.dataset.action;
-        const uid = btn.dataset.uid;
-        await executeAdminAction(uid, action);
+    // Process Admin Command
+    adminCommandForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!myProfile) return;
+      
+      const targetId = cmdTarget.value;
+      const act = cmdAction.value;
+      const valNum = Number(cmdParamNumber.value);
+      const valText = cmdParamText.value.trim();
+      const valRole = cmdParamRole.value;
+
+      // 1. Process GLOBAL Commands
+      if (targetId === 'GLOBAL') {
+        if (myProfile.role !== 'king' && myProfile.role !== 'admin') {
+          alert("Only Admins and the King can execute GLOBAL commands."); return;
+        }
+
+        const settingsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
+        
+        try {
+          if (act === 'globalMsg') {
+             await setDoc(settingsRef, { broadcastMsg: valText }, { merge: true });
+             alert("Global message broadcasted.");
+             cmdParamText.value = '';
+          } 
+          else if (act.startsWith('troll_')) {
+             if (act === 'troll_clear') {
+               await setDoc(settingsRef, { globalTroll: '' }, { merge: true });
+               alert("Global trolls cleared.");
+             } else {
+               await setDoc(settingsRef, { globalTroll: act }, { merge: true });
+               alert(`Global Troll '${act}' activated for 10s.`);
+               setTimeout(async () => { await setDoc(settingsRef, { globalTroll: '' }, { merge: true }); }, 10000);
+             }
+          }
+          else {
+            alert("This specific command cannot be used globally yet.");
+          }
+        } catch(err) { console.error(err); alert("Failed global command."); }
         return;
       }
-    });
 
-    adminUserList.addEventListener('change', async (e) => {
-      // Handle role select dropdowns
-      const select = e.target.closest('select[data-action="changeRole"]');
-      if (select) {
-        const newRole = select.value;
-        const uid = select.dataset.uid;
-        await executeAdminAction(uid, 'setRole', newRole);
-      }
-    });
+      // 2. Process TARGETED Commands
+      const targetUser = leaderboardData.find(p => p.id === targetId);
+      if (!targetUser) return alert("Target not found.");
+      
+      // Hierarchy Checks
+      if (targetUser.role === 'king' && myProfile.role !== 'king') return alert("Action Denied: You cannot target the King.");
+      if (targetUser.role === 'admin' && myProfile.role === 'mod') return alert("Action Denied: Moderators cannot target Admins.");
+      if ((act === 'ban' || act === 'unban') && myProfile.role === 'mod') return alert("Action Denied: Moderators cannot ban players.");
+      if (act === 'role' && myProfile.role !== 'king') return alert("Action Denied: Only the King can change roles.");
 
-    async function executeAdminAction(targetUid, action, extraValue = null) {
-      const target = leaderboardData.find(p => p.id === targetUid);
-      if (!target || !myProfile) return;
-
-      // Hard Server-Side/Client-Side logic verification
-      if (target.role === 'king' && myProfile.role !== 'king') {
-        alert("Action Denied: You cannot target the King.");
-        return;
-      }
-      if (target.role === 'admin' && myProfile.role === 'mod') {
-        alert("Action Denied: Moderators cannot target Admins.");
-        return;
-      }
-
-      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', targetUid);
-
+      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', targetId);
+      
       try {
-        if (action === 'addScore') {
-          await setDoc(userRef, { score: (target.score || 0) + 100 }, { merge: true });
+        let newScore = targetUser.score || 0;
+        
+        if (act === 'addScore') newScore += valNum;
+        else if (act === 'subScore') newScore = Math.max(0, newScore - valNum);
+        else if (act === 'multScore') newScore = newScore * valNum;
+        else if (act === 'divScore') newScore = valNum !== 0 ? Math.ceil(newScore / valNum) : newScore;
+        else if (act === 'setScore') newScore = Math.max(0, valNum);
+        
+        if (act.includes('Score')) {
+           await setDoc(userRef, { score: newScore }, { merge: true });
+           cmdParamNumber.value = '';
         } 
-        else if (action === 'subScore') {
-          await setDoc(userRef, { score: Math.max(0, (target.score || 0) - 100) }, { merge: true });
-        } 
-        else if (action === 'warn') {
-          const msg = prompt(`Enter warning message for ${target.username}:`);
-          if (msg !== null && msg.trim() !== '') {
-            await setDoc(userRef, { warning: msg.trim() }, { merge: true });
-            alert(`Warning sent to ${target.username}`);
-          }
-        } 
-        else if (action === 'ban') {
-          if (confirm(`Are you sure you want to BAN ${target.username}?`)) {
-            await setDoc(userRef, { banned: true }, { merge: true });
-          }
-        } 
-        else if (action === 'unban') {
-          await setDoc(userRef, { banned: false }, { merge: true });
-        } 
-        else if (action === 'setRole') {
-          if (myProfile.role === 'king') {
-            if (extraValue === 'king') {
-              if (!confirm(`Are you SURE you want to transfer the King role to ${target.username}? You will lose your King status and become an Admin.`)) return;
-              
-              // Transfer logic
-              await setDoc(userRef, { role: 'king' }, { merge: true });
-              
-              // Update Self
-              const myRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-              await setDoc(myRef, { role: 'admin' }, { merge: true });
-              
-              alert(`Crown transferred to ${target.username}. You are now an Admin.`);
-            } else {
-              await setDoc(userRef, { role: extraValue }, { merge: true });
-            }
-          } else {
-            alert("Only the King can change roles.");
-          }
+        else if (act === 'warn') {
+           await setDoc(userRef, { warning: valText }, { merge: true });
+           cmdParamText.value = '';
+           alert(`Warning sent to ${targetUser.username}`);
+        }
+        else if (act === 'ban') {
+           await setDoc(userRef, { banned: true }, { merge: true });
+           alert(`${targetUser.username} has been banned.`);
+        }
+        else if (act === 'unban') {
+           await setDoc(userRef, { banned: false }, { merge: true });
+           alert(`${targetUser.username} has been unbanned.`);
+        }
+        else if (act.startsWith('troll_')) {
+           if (act === 'troll_clear') await setDoc(userRef, { trollEvent: '' }, { merge: true });
+           else {
+             await setDoc(userRef, { trollEvent: act }, { merge: true });
+             alert(`Sent troll '${act}' to ${targetUser.username}.`);
+           }
+        }
+        else if (act === 'role') {
+           if (valRole === 'king') {
+             if(!confirm(`WARNING: Transfer crown to ${targetUser.username}? You will become an Admin.`)) return;
+             await setDoc(userRef, { role: 'king' }, { merge: true });
+             const myRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
+             await setDoc(myRef, { role: 'admin' }, { merge: true });
+             alert("Crown transferred.");
+           } else {
+             await setDoc(userRef, { role: valRole }, { merge: true });
+           }
         }
       } catch (err) {
-        console.error("Admin Action Failed:", err);
-        alert("Failed to perform action.");
+        console.error("Command Error:", err); alert("Command failed.");
       }
-    }
+    });
 
+    // ==========================================
+    // SECRET CODES
+    // ==========================================
+    redeemCodeBtn.addEventListener('click', async () => {
+      if (!currentUser || !myProfile) return;
+      if (leaderboardData.some(d => d.role === 'king')) return alert("Someone is already the King!");
+      const code = prompt("Enter the secret code to claim the Crown:");
+      if (!code) return;
+      if (code === globalSettings.kingCode) {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid), { role: 'king' }, { merge: true });
+        alert("Code accepted! All Hail the King!");
+      } else alert("Incorrect secret code.");
+    });
 
-    // -------------------------------------------------------------
-    // STANDARD UI LOGIC
-    // -------------------------------------------------------------
+    changeCodeBtn.addEventListener('click', async () => {
+      if (!myProfile || myProfile.role !== 'king') return;
+      const newCode = prompt("Enter new King Code:", globalSettings.kingCode);
+      if (newCode && newCode.trim() !== '') {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: newCode.trim() }, { merge: true });
+        alert("Secret code updated.");
+      }
+    });
 
-    // TABS: Switch between Login and Signup
+    // ==========================================
+    // STANDARD UI & AUTH LOGIC
+    // ==========================================
     tabLogin.addEventListener('click', () => {
       isSignupMode = false;
-      tabLogin.classList.replace('border-slate-700', 'border-blue-500');
-      tabLogin.classList.replace('text-slate-400', 'text-white');
-      tabSignup.classList.replace('border-blue-500', 'border-slate-700');
-      tabSignup.classList.replace('text-white', 'text-slate-400');
-      
-      usernameGroup.classList.add('hidden');
-      usernameInput.removeAttribute('required');
-      emailSubmitBtn.innerHTML = `Log In <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
-      lucide.createIcons();
+      tabLogin.classList.replace('border-slate-700', 'border-blue-500'); tabLogin.classList.replace('text-slate-400', 'text-white');
+      tabSignup.classList.replace('border-blue-500', 'border-slate-700'); tabSignup.classList.replace('text-white', 'text-slate-400');
+      usernameGroup.classList.add('hidden'); usernameInput.removeAttribute('required');
+      emailSubmitBtn.innerHTML = `Log In <i data-lucide="arrow-right" class="w-5 h-5"></i>`; lucide.createIcons();
     });
 
     tabSignup.addEventListener('click', () => {
       isSignupMode = true;
-      tabSignup.classList.replace('border-slate-700', 'border-blue-500');
-      tabSignup.classList.replace('text-slate-400', 'text-white');
-      tabLogin.classList.replace('border-blue-500', 'border-slate-700');
-      tabLogin.classList.replace('text-white', 'text-slate-400');
-      
-      usernameGroup.classList.remove('hidden');
-      usernameInput.setAttribute('required', 'true');
-      emailSubmitBtn.innerHTML = `Sign Up <i data-lucide="user-plus" class="w-5 h-5"></i>`;
-      lucide.createIcons();
+      tabSignup.classList.replace('border-slate-700', 'border-blue-500'); tabSignup.classList.replace('text-slate-400', 'text-white');
+      tabLogin.classList.replace('border-blue-500', 'border-slate-700'); tabLogin.classList.replace('text-white', 'text-slate-400');
+      usernameGroup.classList.remove('hidden'); usernameInput.setAttribute('required', 'true');
+      emailSubmitBtn.innerHTML = `Sign Up <i data-lucide="user-plus" class="w-5 h-5"></i>`; lucide.createIcons();
     });
 
-    // Manual Email/Password Submit
     emailAuthForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-      
-      emailSubmitBtn.disabled = true;
-      emailSubmitBtn.innerHTML = `<i data-lucide="activity" class="w-5 h-5 animate-spin"></i> Processing...`;
-      lucide.createIcons();
-
+      const email = emailInput.value.trim(); const password = passwordInput.value;
+      emailSubmitBtn.disabled = true; emailSubmitBtn.innerHTML = `<i data-lucide="activity" class="w-5 h-5 animate-spin"></i>`;
       try {
         if (isSignupMode) {
           pendingUsername = usernameInput.value.trim();
           await createUserWithEmailAndPassword(auth, email, password);
-        } else {
-          await signInWithEmailAndPassword(auth, email, password);
-        }
+        } else await signInWithEmailAndPassword(auth, email, password);
       } catch (error) {
-        console.error("Auth error:", error);
-        if (error.code === 'auth/email-already-in-use') alert("An account with this email already exists!");
-        else if (error.code === 'auth/invalid-credential') alert("Incorrect email or password.");
+        if (error.code === 'auth/email-already-in-use') alert("Email already exists!");
+        else if (error.code === 'auth/invalid-credential') alert("Incorrect credentials.");
         else alert("Error: " + error.message);
       } finally {
         emailSubmitBtn.disabled = false;
@@ -775,45 +840,26 @@
       }
     });
 
-    // Google Login
     googleLoginBtn.addEventListener('click', async () => {
-      googleLoginBtn.disabled = true;
-      googleLoginBtn.innerHTML = `<i data-lucide="activity" class="w-5 h-5 animate-spin"></i> Signing in...`;
-      lucide.createIcons();
-
-      try {
-        await signInWithPopup(auth, googleProvider);
-      } catch (error) {
-        console.error("Google Sign-In Error:", error);
-        alert("Failed to sign in with Google.");
-      } finally {
+      googleLoginBtn.disabled = true; googleLoginBtn.innerHTML = `<i data-lucide="activity" class="w-5 h-5 animate-spin"></i>`;
+      try { await signInWithPopup(auth, googleProvider); } catch (error) { alert("Failed Google Sign-in."); } 
+      finally {
         googleLoginBtn.disabled = false;
         googleLoginBtn.innerHTML = `<svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google`;
       }
     });
 
-    // Change Profile Picture Setup
     pfpContainer.addEventListener('click', () => { pfpUpload.click(); });
-
     pfpUpload.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file || !currentUser || !myProfile) return;
-
-      if (!file.type.startsWith('image/')) { alert("Please select an image file."); return; }
-
+      if (!file.type.startsWith('image/')) return alert("Images only.");
       displayPfp.style.opacity = '0.5';
-
       try {
         const compressedBase64 = await compressImage(file, 150);
-        const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-        await setDoc(userRef, { ...myProfile, photoURL: compressedBase64 }, { merge: true });
-      } catch (error) {
-        console.error("Error updating profile picture:", error);
-        alert("Failed to upload image. Please try a smaller file.");
-      } finally {
-        displayPfp.style.opacity = '1';
-        pfpUpload.value = ''; 
-      }
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid), { photoURL: compressedBase64 }, { merge: true });
+      } catch (error) { alert("Failed to upload."); } 
+      finally { displayPfp.style.opacity = '1'; pfpUpload.value = ''; }
     });
 
     function compressImage(file, maxSize) {
@@ -824,14 +870,10 @@
           img.onload = () => {
             const canvas = document.createElement('canvas');
             let width = img.width; let height = img.height;
-            if (width > height) {
-              if (width > maxSize) { height *= maxSize / width; width = maxSize; }
-            } else {
-              if (height > maxSize) { width *= maxSize / height; height = maxSize; }
-            }
+            if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } } 
+            else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
             canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
             resolve(canvas.toDataURL('image/jpeg', 0.8));
           };
           img.onerror = reject; img.src = event.target.result;
@@ -840,83 +882,57 @@
       });
     }
 
-    // Logout / Delete Account
     logoutBtn.addEventListener('click', async () => {
-      if (confirm("Are you sure you want to log out?")) {
-        await signOut(auth);
-        passwordInput.value = ''; 
-      }
+      if (confirm("Log out?")) { await signOut(auth); passwordInput.value = ''; }
     });
 
     deleteAccountBtn.addEventListener('click', async () => {
-      if (confirm("WARNING: This will permanently delete your account and your score from the leaderboard. Are you absolutely sure?")) {
+      if (confirm("Delete your account permanently?")) {
         try {
-          const uid = currentUser.uid;
-          const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', uid);
-          await deleteDoc(userRef);
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid));
           await deleteUser(currentUser);
-          alert("Your account has been deleted.");
+          alert("Account deleted.");
         } catch (error) {
-          console.error("Delete account error:", error);
-          if (error.code === 'auth/requires-recent-login') alert("For security reasons, you need to log out and log back in before you can delete your account.");
-          else alert("Failed to delete account: " + error.message);
+          if (error.code === 'auth/requires-recent-login') alert("Please log out and log back in to verify identity before deleting.");
+          else alert("Failed to delete account.");
         }
       }
     });
 
-    // Click Action
     clickButton.addEventListener('click', async () => {
       if (!currentUser || !myProfile) return;
       const newScore = (myProfile.score || 0) + 1;
-      
       myProfile.score = newScore;
       displayScore.textContent = newScore.toLocaleString();
-
       try {
-        const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-        await setDoc(userRef, { ...myProfile, score: newScore, lastActive: Date.now() }, { merge: true });
-      } catch (error) {
-        console.error("Error saving score:", error);
-      }
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid), { score: newScore, lastActive: Date.now() }, { merge: true });
+      } catch (error) { console.error(error); }
     });
 
-    // UI Helpers
     function updateUIForActivePlayer() {
-      joinSection.classList.add('hidden');
-      joinSection.classList.remove('block');
+      joinSection.classList.add('hidden'); joinSection.classList.remove('block');
       playerSection.classList.remove('hidden');
-      
       displayUsername.textContent = myProfile.username;
       displayScore.textContent = myProfile.score.toLocaleString();
-      
       displayPfp.src = myProfile.photoURL ? myProfile.photoURL : getDefaultAvatar(myProfile.username);
       
-      // Update Role Badge on Dashboard
       if (myProfile.role === 'king') myRoleBadge.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 flex items-center gap-1"><i data-lucide="crown" class="w-3 h-3"></i> King</span>`;
       else if (myProfile.role === 'admin') myRoleBadge.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/50 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> Admin</span>`;
       else if (myProfile.role === 'mod') myRoleBadge.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-green-500/20 text-green-400 border border-green-500/50 flex items-center gap-1"><i data-lucide="shield-half" class="w-3 h-3"></i> Mod</span>`;
       else myRoleBadge.innerHTML = '';
 
-      // Show Admin/King Buttons if authorized
-      if (myProfile.role === 'king') {
-        changeCodeBtn.classList.remove('hidden');
-      } else {
-        changeCodeBtn.classList.add('hidden');
-      }
+      if (myProfile.role === 'king') changeCodeBtn.classList.remove('hidden');
+      else changeCodeBtn.classList.add('hidden');
 
-      if (myProfile.role === 'king' || myProfile.role === 'admin' || myProfile.role === 'mod') {
-        openAdminBtn.classList.remove('hidden');
-        openAdminBtn.classList.add('flex');
+      if (['king', 'admin', 'mod'].includes(myProfile.role)) {
+        openAdminBtn.classList.remove('hidden'); openAdminBtn.classList.add('flex');
       } else {
-        openAdminBtn.classList.add('hidden');
-        openAdminBtn.classList.remove('flex');
+        openAdminBtn.classList.add('hidden'); openAdminBtn.classList.remove('flex');
       }
-
       lucide.createIcons();
     }
 
     function renderLeaderboard() {
-      // Filter out banned players from public leaderboard
       const visiblePlayers = leaderboardData.filter(p => !p.banned);
       playerCount.textContent = `${visiblePlayers.length} Players Online`;
       
@@ -931,18 +947,13 @@
                           index === 1 ? 'bg-slate-300/20 text-slate-300 border border-slate-300/50' :
                           index === 2 ? 'bg-amber-700/20 text-amber-500 border border-amber-700/50' :
                           'bg-slate-800 text-slate-400';
-                          
         const iconHtml = index === 0 ? `<i data-lucide="crown" class="w-4 h-4"></i>` : index + 1;
         const highlightClass = isMe ? 'bg-blue-500/10' : 'hover:bg-slate-700/20';
-        
-        // Special color for King/Admin names
         let nameClass = isMe ? 'text-blue-400' : 'text-slate-200';
         if (player.role === 'king') nameClass = 'text-yellow-400 font-black';
         else if (player.role === 'admin') nameClass = 'text-indigo-300';
         else if (player.role === 'mod') nameClass = 'text-green-300';
-
         const youTag = isMe ? `<span class="ml-2 text-xs bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded-full">You</span>` : '';
-        const playerAvatar = player.photoURL || getDefaultAvatar(player.username);
 
         return `
           <div class="p-4 flex items-center justify-between transition-colors ${highlightClass}">
@@ -950,20 +961,15 @@
               <div class="w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm ${rankClass}">
                 ${iconHtml}
               </div>
-              <img src="${escapeHtml(playerAvatar)}" class="w-10 h-10 flex-shrink-0 rounded-full object-cover border border-slate-600 bg-slate-800" alt="Avatar">
+              <img src="${escapeHtml(player.photoURL || getDefaultAvatar(player.username))}" class="w-10 h-10 flex-shrink-0 rounded-full object-cover border border-slate-600 bg-slate-800">
               <div class="flex flex-col truncate max-w-[120px] sm:max-w-[200px]">
-                <span class="${nameClass} truncate text-lg">
-                  ${escapeHtml(player.username)} ${youTag}
-                </span>
+                <span class="${nameClass} truncate text-lg">${escapeHtml(player.username)} ${youTag}</span>
               </div>
             </div>
-            <div class="font-mono text-xl font-bold text-slate-300 pl-4">
-              ${(player.score || 0).toLocaleString()}
-            </div>
+            <div class="font-mono text-xl font-bold text-slate-300 pl-4">${(player.score || 0).toLocaleString()}</div>
           </div>
         `;
       }).join('');
-      
       lucide.createIcons();
     }
 
