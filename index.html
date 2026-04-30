@@ -87,9 +87,23 @@
 
         <!-- Active Player Dashboard (Shows when joined) -->
         <div id="playerSection" class="bg-gradient-to-b from-blue-900/40 to-slate-800/50 backdrop-blur border border-blue-500/20 p-6 rounded-2xl shadow-xl text-center flex flex-col items-center hidden">
-          <div class="bg-slate-900/50 px-4 py-1 rounded-full text-sm font-medium text-blue-300 mb-6 flex items-center gap-2 border border-blue-500/20">
-            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            Playing as <span id="displayUsername" class="font-bold text-white"></span>
+          
+          <!-- Profile Info with Picture -->
+          <div class="flex items-center justify-center gap-4 mb-6 bg-slate-900/50 w-full py-3 px-4 rounded-2xl border border-blue-500/20">
+            <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Click to change profile picture">
+              <img id="displayPfp" src="" class="w-16 h-16 rounded-full object-cover border-2 border-blue-500 shadow-lg bg-slate-800">
+              <div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+              </div>
+              <input type="file" id="pfpUpload" accept="image/*" class="hidden">
+            </div>
+            
+            <div class="text-left flex-1">
+              <div class="text-xs font-medium text-blue-300 flex items-center gap-2 mb-0.5">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> Playing as
+              </div>
+              <div id="displayUsername" class="font-bold text-white text-xl truncate max-w-[150px]"></div>
+            </div>
           </div>
           
           <div id="displayScore" class="text-6xl font-black text-white mb-8 tracking-tighter">0</div>
@@ -127,7 +141,7 @@
             </span>
           </div>
           
-          <div id="leaderboardList" class="divide-y divide-slate-700/30 max-h-[500px] overflow-y-auto">
+          <div id="leaderboardList" class="divide-y divide-slate-700/30 max-h-[600px] overflow-y-auto">
             <!-- Leaderboard items will be injected here -->
           </div>
         </div>
@@ -143,14 +157,12 @@
     import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // =====================================================================
-    // 🔥 IMPORTANT FOR GITHUB PAGES 🔥
+    // 🔥 GITHUB PAGES CONFIG 🔥
     // =====================================================================
-    
     let firebaseConfig;
     if (typeof __firebase_config !== 'undefined') {
       firebaseConfig = JSON.parse(__firebase_config);
     } else {
-      // YOUR GITHUB PAGES CONFIG:
       firebaseConfig = {
         apiKey: "AIzaSyBBMqL7mb5j0ZLm4WhcB09LmA8CJRGXHfI",
         authDomain: "testing-c7477.firebaseapp.com",
@@ -174,7 +186,7 @@
     let myProfile = null;
     let leaderboardData = [];
     let isSignupMode = false;
-    let pendingUsername = null; // Used to pass username during email signup
+    let pendingUsername = null;
     let dbUnsubscribe = null;
 
     // DOM Elements
@@ -197,6 +209,9 @@
     // Dashboard Elements
     const displayUsername = document.getElementById('displayUsername');
     const displayScore = document.getElementById('displayScore');
+    const displayPfp = document.getElementById('displayPfp');
+    const pfpContainer = document.getElementById('pfpContainer');
+    const pfpUpload = document.getElementById('pfpUpload');
     const clickButton = document.getElementById('clickButton');
     const leaderboardList = document.getElementById('leaderboardList');
     const playerCount = document.getElementById('playerCount');
@@ -226,7 +241,6 @@
       if (user) {
         await checkAndCreateProfile(user);
       } else {
-        // Stop listening to database if logged out
         if (dbUnsubscribe) {
           dbUnsubscribe();
           dbUnsubscribe = null;
@@ -242,6 +256,11 @@
 
     initAuth();
 
+    // Helper: Generate default robot avatar URL based on username
+    function getDefaultAvatar(username) {
+      return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`;
+    }
+
     // 4. Ensure Database Profile Exists
     async function checkAndCreateProfile(user) {
       const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', user.uid);
@@ -250,16 +269,19 @@
         const userSnap = await getDoc(userRef);
         
         if (!userSnap.exists()) {
+          const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
+          
           const newProfile = {
-            username: pendingUsername || user.displayName || 'Anonymous Player',
+            username: uName,
             score: 0,
+            photoURL: user.photoURL || getDefaultAvatar(uName), // Google PFP or Robot PFP
             joinedAt: Date.now(),
             lastActive: Date.now()
           };
           await setDoc(userRef, newProfile);
         }
         
-        pendingUsername = null; // Clear out temporary username
+        pendingUsername = null; 
         setupDatabaseListener();
         
       } catch (error) {
@@ -271,8 +293,6 @@
     // 5. Database Real-time Listener
     function setupDatabaseListener() {
       if (!currentUser) return;
-      
-      // Clean up old listener if one exists
       if (dbUnsubscribe) dbUnsubscribe();
 
       const leaderboardCollection = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
@@ -371,27 +391,96 @@
       }
     });
 
-    // 9. Logout Logic
-    logoutBtn.addEventListener('click', async () => {
-      if (confirm("Are you sure you want to log out?")) {
-        await signOut(auth);
-        passwordInput.value = ''; // Clear password field for security
+    // 9. Change Profile Picture Setup
+    pfpContainer.addEventListener('click', () => {
+      pfpUpload.click();
+    });
+
+    pfpUpload.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file || !currentUser || !myProfile) return;
+
+      // Ensure it's an image
+      if (!file.type.startsWith('image/')) {
+        alert("Please select an image file.");
+        return;
+      }
+
+      // Show temporary loading UI
+      displayPfp.style.opacity = '0.5';
+
+      try {
+        // Compress image client-side to keep under Firestore limits
+        const compressedBase64 = await compressImage(file, 150); // Resize to max 150x150
+        
+        // Save directly to Firestore document
+        const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
+        await setDoc(userRef, { ...myProfile, photoURL: compressedBase64 }, { merge: true });
+        
+      } catch (error) {
+        console.error("Error updating profile picture:", error);
+        alert("Failed to upload image. Please try a smaller file.");
+      } finally {
+        displayPfp.style.opacity = '1';
+        pfpUpload.value = ''; // Reset input
       }
     });
 
-    // 10. Delete Account Logic
+    // Image Compressor to avoid hitting Firebase size limits
+    function compressImage(file, maxSize) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            // Calculate new dimensions preserving aspect ratio
+            if (width > height) {
+              if (width > maxSize) {
+                height *= maxSize / width;
+                width = maxSize;
+              }
+            } else {
+              if (height > maxSize) {
+                width *= maxSize / height;
+                height = maxSize;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convert to base64 jpeg string (compressed to 80% quality)
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+          };
+          img.onerror = reject;
+          img.src = event.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // 10. Logout / Delete Account
+    logoutBtn.addEventListener('click', async () => {
+      if (confirm("Are you sure you want to log out?")) {
+        await signOut(auth);
+        passwordInput.value = ''; 
+      }
+    });
+
     deleteAccountBtn.addEventListener('click', async () => {
       if (confirm("WARNING: This will permanently delete your account and your score from the leaderboard. Are you absolutely sure?")) {
         try {
           const uid = currentUser.uid;
-          
-          // 1. Delete score from database
           const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', uid);
           await deleteDoc(userRef);
-
-          // 2. Erase user from Firebase Authentication
           await deleteUser(currentUser);
-          
           alert("Your account has been deleted.");
         } catch (error) {
           console.error("Delete account error:", error);
@@ -425,8 +514,16 @@
       joinSection.classList.add('hidden');
       joinSection.classList.remove('block');
       playerSection.classList.remove('hidden');
+      
       displayUsername.textContent = myProfile.username;
       displayScore.textContent = myProfile.score.toLocaleString();
+      
+      // Update the profile picture
+      if (myProfile.photoURL) {
+        displayPfp.src = myProfile.photoURL;
+      } else {
+        displayPfp.src = getDefaultAvatar(myProfile.username);
+      }
     }
 
     function renderLeaderboard() {
@@ -448,20 +545,31 @@
         const highlightClass = isMe ? 'bg-blue-500/10' : 'hover:bg-slate-700/20';
         const nameClass = isMe ? 'text-blue-400' : 'text-slate-200';
         const youTag = isMe ? `<span class="ml-2 text-xs bg-blue-600/30 text-blue-300 px-2 py-0.5 rounded-full">You</span>` : '';
+        
+        // Make sure older accounts without pictures still get an avatar
+        const playerAvatar = player.photoURL || getDefaultAvatar(player.username);
 
         return `
           <div class="p-4 flex items-center justify-between transition-colors ${highlightClass}">
             <div class="flex items-center gap-4">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${rankClass}">
+              <!-- Rank -->
+              <div class="w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm ${rankClass}">
                 ${iconHtml}
               </div>
-              <div class="flex flex-col">
-                <span class="font-semibold ${nameClass}">
+              
+              <!-- Profile Picture -->
+              <img src="${escapeHtml(playerAvatar)}" class="w-10 h-10 flex-shrink-0 rounded-full object-cover border border-slate-600 bg-slate-800" alt="Avatar">
+              
+              <!-- Username -->
+              <div class="flex flex-col truncate max-w-[120px] sm:max-w-[200px]">
+                <span class="font-semibold ${nameClass} truncate">
                   ${escapeHtml(player.username)} ${youTag}
                 </span>
               </div>
             </div>
-            <div class="font-mono text-xl font-bold text-slate-300">
+            
+            <!-- Score -->
+            <div class="font-mono text-xl font-bold text-slate-300 pl-4">
               ${(player.score || 0).toLocaleString()}
             </div>
           </div>
