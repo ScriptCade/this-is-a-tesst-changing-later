@@ -41,31 +41,45 @@
         
         <!-- Join Form (Shows when no profile) -->
         <div id="joinSection" class="bg-slate-800/50 backdrop-blur border border-slate-700/50 p-6 rounded-2xl shadow-xl block">
-          <div class="flex items-center gap-3 mb-6">
-            <div class="bg-indigo-500/20 p-2 rounded-lg">
-              <i data-lucide="user" class="w-6 h-6 text-indigo-400"></i>
-            </div>
-            <h2 class="text-xl font-bold">Join the Game</h2>
+          
+          <button
+            id="googleLoginBtn"
+            class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 text-slate-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Sign in with Google
+          </button>
+
+          <div class="my-6 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-slate-700/50 after:mt-0.5 after:flex-1 after:border-t after:border-slate-700/50">
+            <p class="mx-4 mb-0 text-center font-semibold text-slate-500 text-sm">OR EMAIL</p>
+          </div>
+
+          <!-- Login/Signup Tabs -->
+          <div class="flex gap-2 mb-6">
+            <button id="tabLogin" class="flex-1 pb-2 border-b-2 border-blue-500 font-bold text-white transition-colors">Log In</button>
+            <button id="tabSignup" class="flex-1 pb-2 border-b-2 border-slate-700 font-bold text-slate-400 transition-colors hover:text-slate-200">Sign Up</button>
           </div>
           
-          <form id="joinForm" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-slate-400 mb-2">Choose your Username</label>
-              <input
-                type="text"
-                id="usernameInput"
-                placeholder="e.g. PlayerOne"
-                maxlength="15"
-                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                required
-              />
+          <form id="emailAuthForm" class="space-y-4">
+            <div id="usernameGroup" class="hidden">
+              <label class="block text-sm font-medium text-slate-400 mb-2">Username</label>
+              <input type="text" id="usernameInput" placeholder="e.g. PlayerOne" maxlength="15" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
             </div>
-            <button
-              type="submit"
-              id="joinButton"
-              class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
-            >
-              Start Playing
+            <div>
+              <label class="block text-sm font-medium text-slate-400 mb-2">Email</label>
+              <input type="email" id="emailInput" placeholder="you@email.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-400 mb-2">Password</label>
+              <input type="password" id="passwordInput" placeholder="••••••••" minlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" required />
+            </div>
+            <button type="submit" id="emailSubmitBtn" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all disabled:opacity-50 active:scale-[0.98]">
+              Log In
               <i data-lucide="arrow-right" class="w-5 h-5"></i>
             </button>
           </form>
@@ -87,6 +101,16 @@
             <i data-lucide="mouse-pointer-click" class="w-12 h-12 text-white mb-2 opacity-80 group-hover:scale-110 transition-transform"></i>
             <span class="text-xl font-bold text-white">CLICK ME</span>
           </button>
+
+          <!-- Account Actions (Logout / Deactivate) -->
+          <div class="mt-8 pt-6 border-t border-slate-700/50 w-full flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button id="logoutBtn" class="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-700/50">
+              <i data-lucide="log-out" class="w-4 h-4"></i> Log Out
+            </button>
+            <button id="deleteAccountBtn" class="text-sm font-medium text-red-400 hover:text-red-300 transition-colors flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-500/10">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Delete Account
+            </button>
+          </div>
         </div>
       </div>
 
@@ -115,22 +139,18 @@
   <script type="module">
     // Import Firebase modules directly from CDN for standard HTML
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // =====================================================================
     // 🔥 IMPORTANT FOR GITHUB PAGES 🔥
-    // When hosting on GitHub pages, you must replace the code inside the
-    // "else" block below with your OWN Firebase project configuration!
-    // Go to console.firebase.google.com to get your config keys.
     // =====================================================================
     
     let firebaseConfig;
     if (typeof __firebase_config !== 'undefined') {
-      // This runs when viewed in this chat platform (Canvas)
       firebaseConfig = JSON.parse(__firebase_config);
     } else {
-      // THIS RUNS ON GITHUB PAGES! Put your Firebase config here:
+      // YOUR GITHUB PAGES CONFIG:
       firebaseConfig = {
         apiKey: "AIzaSyBBMqL7mb5j0ZLm4WhcB09LmA8CJRGXHfI",
         authDomain: "testing-c7477.firebaseapp.com",
@@ -147,68 +167,122 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
 
     // App State
     let currentUser = null;
     let myProfile = null;
     let leaderboardData = [];
+    let isSignupMode = false;
+    let pendingUsername = null; // Used to pass username during email signup
+    let dbUnsubscribe = null;
 
     // DOM Elements
     const loadingScreen = document.getElementById('loadingScreen');
     const appContent = document.getElementById('appContent');
     const joinSection = document.getElementById('joinSection');
     const playerSection = document.getElementById('playerSection');
-    const joinForm = document.getElementById('joinForm');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    
+    // Email Auth Elements
+    const tabLogin = document.getElementById('tabLogin');
+    const tabSignup = document.getElementById('tabSignup');
+    const emailAuthForm = document.getElementById('emailAuthForm');
+    const usernameGroup = document.getElementById('usernameGroup');
     const usernameInput = document.getElementById('usernameInput');
-    const joinButton = document.getElementById('joinButton');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const emailSubmitBtn = document.getElementById('emailSubmitBtn');
+
+    // Dashboard Elements
     const displayUsername = document.getElementById('displayUsername');
     const displayScore = document.getElementById('displayScore');
     const clickButton = document.getElementById('clickButton');
     const leaderboardList = document.getElementById('leaderboardList');
     const playerCount = document.getElementById('playerCount');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
 
     // 1. Initialize Icons
     lucide.createIcons();
 
-    // 2. Authentication
+    // 2. Authentication Initialization
     async function initAuth() {
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
+        } else if (typeof __firebase_config !== 'undefined') {
+          await signInAnonymously(auth); 
         }
       } catch (error) {
         console.error("Authentication failed:", error);
       }
     }
     
-    onAuthStateChanged(auth, (user) => {
+    // 3. Auth State Observer
+    onAuthStateChanged(auth, async (user) => {
       currentUser = user;
+      
       if (user) {
-        setupDatabaseListener();
+        await checkAndCreateProfile(user);
       } else {
+        // Stop listening to database if logged out
+        if (dbUnsubscribe) {
+          dbUnsubscribe();
+          dbUnsubscribe = null;
+        }
+        myProfile = null;
+        
         loadingScreen.classList.add('hidden');
         appContent.classList.remove('hidden');
+        joinSection.classList.remove('hidden');
+        playerSection.classList.add('hidden');
       }
     });
 
     initAuth();
 
-    // 3. Database Real-time Listener
+    // 4. Ensure Database Profile Exists
+    async function checkAndCreateProfile(user) {
+      const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', user.uid);
+      
+      try {
+        const userSnap = await getDoc(userRef);
+        
+        if (!userSnap.exists()) {
+          const newProfile = {
+            username: pendingUsername || user.displayName || 'Anonymous Player',
+            score: 0,
+            joinedAt: Date.now(),
+            lastActive: Date.now()
+          };
+          await setDoc(userRef, newProfile);
+        }
+        
+        pendingUsername = null; // Clear out temporary username
+        setupDatabaseListener();
+        
+      } catch (error) {
+        console.error("Error creating profile:", error);
+        alert("Could not load player profile.");
+      }
+    }
+
+    // 5. Database Real-time Listener
     function setupDatabaseListener() {
       if (!currentUser) return;
+      
+      // Clean up old listener if one exists
+      if (dbUnsubscribe) dbUnsubscribe();
 
       const leaderboardCollection = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
       
-      onSnapshot(leaderboardCollection, (snapshot) => {
+      dbUnsubscribe = onSnapshot(leaderboardCollection, (snapshot) => {
         const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        // Sort by score
         docs.sort((a, b) => (b.score || 0) - (a.score || 0));
         leaderboardData = docs;
         
-        // Check if I have a profile
         const existingProfile = docs.find(d => d.id === currentUser.uid);
         if (existingProfile) {
           myProfile = existingProfile;
@@ -217,75 +291,140 @@
 
         renderLeaderboard();
         
-        // Hide loading screen
         loadingScreen.classList.add('hidden');
         appContent.classList.remove('hidden');
       }, (error) => {
         console.error("Failed to fetch leaderboard:", error);
-        loadingScreen.classList.add('hidden');
-        appContent.classList.remove('hidden');
       });
     }
 
-    // 4. Create Profile (Join)
-    joinForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = usernameInput.value.trim();
-      if (!username || !currentUser) return;
+    // 6. TABS: Switch between Login and Signup
+    tabLogin.addEventListener('click', () => {
+      isSignupMode = false;
+      tabLogin.classList.replace('border-slate-700', 'border-blue-500');
+      tabLogin.classList.replace('text-slate-400', 'text-white');
+      tabSignup.classList.replace('border-blue-500', 'border-slate-700');
+      tabSignup.classList.replace('text-white', 'text-slate-400');
       
-      joinButton.disabled = true;
-      joinButton.innerHTML = `Joining... <i data-lucide="activity" class="w-5 h-5 animate-spin"></i>`;
+      usernameGroup.classList.add('hidden');
+      usernameInput.removeAttribute('required');
+      emailSubmitBtn.innerHTML = `Log In <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
+      lucide.createIcons();
+    });
+
+    tabSignup.addEventListener('click', () => {
+      isSignupMode = true;
+      tabSignup.classList.replace('border-slate-700', 'border-blue-500');
+      tabSignup.classList.replace('text-slate-400', 'text-white');
+      tabLogin.classList.replace('border-blue-500', 'border-slate-700');
+      tabLogin.classList.replace('text-white', 'text-slate-400');
+      
+      usernameGroup.classList.remove('hidden');
+      usernameInput.setAttribute('required', 'true');
+      emailSubmitBtn.innerHTML = `Sign Up <i data-lucide="user-plus" class="w-5 h-5"></i>`;
+      lucide.createIcons();
+    });
+
+    // 7. Manual Email/Password Submit
+    emailAuthForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      
+      emailSubmitBtn.disabled = true;
+      emailSubmitBtn.innerHTML = `<i data-lucide="activity" class="w-5 h-5 animate-spin"></i> Processing...`;
       lucide.createIcons();
 
       try {
-        const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-        const newProfile = {
-          username: username,
-          score: 0,
-          joinedAt: Date.now(),
-          lastActive: Date.now()
-        };
-        await setDoc(userRef, newProfile);
-        myProfile = { id: currentUser.uid, ...newProfile };
-        updateUIForActivePlayer();
+        if (isSignupMode) {
+          pendingUsername = usernameInput.value.trim();
+          await createUserWithEmailAndPassword(auth, email, password);
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+        }
       } catch (error) {
-        console.error("Error creating profile:", error);
-        alert("Make sure you added your Firebase config in the code!");
+        console.error("Auth error:", error);
+        if (error.code === 'auth/email-already-in-use') alert("An account with this email already exists!");
+        else if (error.code === 'auth/invalid-credential') alert("Incorrect email or password.");
+        else alert("Error: " + error.message);
       } finally {
-        joinButton.disabled = false;
-        joinButton.innerHTML = `Start Playing <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
+        emailSubmitBtn.disabled = false;
+        emailSubmitBtn.innerHTML = isSignupMode ? `Sign Up <i data-lucide="user-plus" class="w-5 h-5"></i>` : `Log In <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
         lucide.createIcons();
       }
     });
 
-    // 5. Click Action
+    // 8. Google Login
+    googleLoginBtn.addEventListener('click', async () => {
+      googleLoginBtn.disabled = true;
+      googleLoginBtn.innerHTML = `<i data-lucide="activity" class="w-5 h-5 animate-spin"></i> Signing in...`;
+      lucide.createIcons();
+
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (error) {
+        console.error("Google Sign-In Error:", error);
+        alert("Failed to sign in with Google.");
+      } finally {
+        googleLoginBtn.disabled = false;
+        googleLoginBtn.innerHTML = `<svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google`;
+      }
+    });
+
+    // 9. Logout Logic
+    logoutBtn.addEventListener('click', async () => {
+      if (confirm("Are you sure you want to log out?")) {
+        await signOut(auth);
+        passwordInput.value = ''; // Clear password field for security
+      }
+    });
+
+    // 10. Delete Account Logic
+    deleteAccountBtn.addEventListener('click', async () => {
+      if (confirm("WARNING: This will permanently delete your account and your score from the leaderboard. Are you absolutely sure?")) {
+        try {
+          const uid = currentUser.uid;
+          
+          // 1. Delete score from database
+          const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', uid);
+          await deleteDoc(userRef);
+
+          // 2. Erase user from Firebase Authentication
+          await deleteUser(currentUser);
+          
+          alert("Your account has been deleted.");
+        } catch (error) {
+          console.error("Delete account error:", error);
+          if (error.code === 'auth/requires-recent-login') {
+            alert("For security reasons, you need to log out and log back in before you can delete your account.");
+          } else {
+            alert("Failed to delete account: " + error.message);
+          }
+        }
+      }
+    });
+
+    // 11. Click Action
     clickButton.addEventListener('click', async () => {
       if (!currentUser || !myProfile) return;
-
       const newScore = (myProfile.score || 0) + 1;
       
-      // Optimistic update
       myProfile.score = newScore;
       displayScore.textContent = newScore.toLocaleString();
 
       try {
         const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUser.uid);
-        await setDoc(userRef, { 
-          ...myProfile, 
-          score: newScore,
-          lastActive: Date.now()
-        });
+        await setDoc(userRef, { ...myProfile, score: newScore, lastActive: Date.now() });
       } catch (error) {
         console.error("Error saving score:", error);
       }
     });
 
-    // 6. UI Helpers
+    // 12. UI Helpers
     function updateUIForActivePlayer() {
       joinSection.classList.add('hidden');
       joinSection.classList.remove('block');
       playerSection.classList.remove('hidden');
-      
       displayUsername.textContent = myProfile.username;
       displayScore.textContent = myProfile.score.toLocaleString();
     }
@@ -329,18 +468,11 @@
         `;
       }).join('');
       
-      // Re-initialize icons inside the new HTML string
       lucide.createIcons();
     }
 
-    // Helper to prevent XSS in usernames
     function escapeHtml(unsafe) {
-        return unsafe
-             .replace(/&/g, "&amp;")
-             .replace(/</g, "&lt;")
-             .replace(/>/g, "&gt;")
-             .replace(/"/g, "&quot;")
-             .replace(/'/g, "&#039;");
+        return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
   </script>
 </body>
