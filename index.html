@@ -5,35 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Geometry Dash Maker Online</title>
   
-  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #1a1a24; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
-    canvas { display: block; position: absolute; top: 0; left: 0; z-index: 0; }
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #1a1a24; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; user-select: none; -webkit-user-select: none; }
+    canvas { display: block; position: absolute; top: 0; left: 0; z-index: 0; outline: none; }
     .hide { display: none !important; }
     
     /* Custom Scrollbars */
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #2d3748; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #718096; }
 
+    /* Editor UI Buttons */
+    .ed-btn { background: linear-gradient(180deg, #4ade80, #16a34a); border: 2px solid #000; border-radius: 6px; color: white; font-weight: 900; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2); transition: filter 0.1s; }
+    .ed-btn:active { filter: brightness(0.8); }
+    .ed-btn.active { background: linear-gradient(180deg, #60a5fa, #2563eb); }
+    .ed-btn.delete { background: linear-gradient(180deg, #f87171, #dc2626); }
+    .ed-btn.delete.active { background: linear-gradient(180deg, #60a5fa, #2563eb); }
+    
+    .tool-btn { background: #334; border: 2px solid #111; border-radius: 4px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background 0.1s; height: 40px; }
+    .tool-btn:hover { background: #445; }
+    .tool-btn.active { background: #556; border-color: #fff; }
+
+    .cat-btn { padding: 4px 12px; background: #223; border: 1px solid #111; border-bottom: none; color: #889; font-weight: bold; font-size: 12px; cursor: pointer; border-radius: 6px 6px 0 0; margin-right: 2px; }
+    .cat-btn.active { background: #445; color: #fff; }
+
     /* Troll Event Animations */
-    @keyframes earthquake {
-      0% { transform: translate(2px, 1px) rotate(0deg); }
-      10% { transform: translate(-1px, -2px) rotate(-1deg); }
-      20% { transform: translate(-3px, 0px) rotate(1deg); }
-      30% { transform: translate(0px, 2px) rotate(0deg); }
-      40% { transform: translate(1px, -1px) rotate(1deg); }
-      50% { transform: translate(-1px, 2px) rotate(-1deg); }
-      60% { transform: translate(-3px, 1px) rotate(0deg); }
-      70% { transform: translate(2px, 1px) rotate(-1deg); }
-      80% { transform: translate(-1px, -1px) rotate(1deg); }
-      90% { transform: translate(2px, 2px) rotate(0deg); }
-      100% { transform: translate(1px, -2px) rotate(-1deg); }
-    }
+    @keyframes earthquake { 0% { transform: translate(2px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
     .troll-earthquake { animation: earthquake 0.3s infinite; overflow: hidden; }
     .troll-invert { filter: invert(100%) hue-rotate(180deg); }
     .troll-tiny { transform: scale(0.2); transition: transform 1s ease-in-out; }
@@ -41,7 +42,7 @@
     @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
-<body class="text-white select-none transition-all duration-500" id="mainBody">
+<body id="mainBody">
 
   <!-- ========================================== -->
   <!-- 🎮 GAME CANVAS & UI ELEMENTS               -->
@@ -52,7 +53,7 @@
   <div id="gameUI" class="hide absolute top-0 left-0 w-full p-4 pointer-events-none flex justify-between items-start z-40">
     <div class="pointer-events-auto flex gap-2 bg-gray-900/80 p-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl">
       <button id="btnExitGame" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-white font-bold transition-colors shadow flex items-center gap-2">
-        <i data-lucide="log-out" class="w-4 h-4"></i> Exit
+        <i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>
       </button>
       <button id="btnMusic" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow">🎵 Music: OFF</button>
     </div>
@@ -61,53 +62,128 @@
     </div>
   </div>
 
-  <!-- Editor Toolbar -->
-  <div id="editorToolbar" class="hide absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-auto flex flex-col gap-2 bg-gray-900/90 p-3 rounded-xl backdrop-blur-md border border-gray-700 shadow-2xl transition-all z-40">
-    <div class="flex gap-2 justify-center items-center">
-      <!-- Camera Controls -->
-      <div class="grid grid-cols-3 gap-1">
-        <div></div><button id="btnCamUp" class="p-2 bg-gray-800 hover:bg-gray-700 rounded text-xs shadow">&uarr;</button><div></div>
-        <button id="btnCamLeft" class="p-2 bg-gray-800 hover:bg-gray-700 rounded text-xs shadow">&larr;</button>
-        <button id="btnCamDown" class="p-2 bg-gray-800 hover:bg-gray-700 rounded text-xs shadow">&darr;</button>
-        <button id="btnCamRight" class="p-2 bg-gray-800 hover:bg-gray-700 rounded text-xs shadow">&rarr;</button>
-      </div>
-      <div class="w-px h-12 bg-gray-600 mx-1"></div>
-      
-      <button id="btnRotate" class="p-2 bg-purple-600 hover:bg-purple-500 rounded-lg shadow border-2 border-transparent font-bold text-xs h-full" title="Rotate Object">ROT<br><span id="rotLabel">0°</span></button>
-      
-      <div class="w-px h-12 bg-gray-600 mx-1"></div>
-      
-      <!-- Tools Palette -->
-      <div class="grid grid-cols-6 gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar w-[300px]">
-        <button id="toolBlock" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-white flex justify-center items-center h-10" title="Solid Block"><div class="w-5 h-5 border-2 border-white bg-blue-400"></div></button>
-        <button id="toolDeco" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Deco Block"><div class="w-5 h-5 border border-gray-500 bg-gray-700"></div></button>
-        <button id="toolSpike" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-red-500"></div></div></button>
-        <button id="toolPad" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex items-end justify-center h-10" title="Jump Pad"><div class="w-5 h-2 border-t-2 border-yellow-400 rounded-t-full bg-yellow-600/50"></div></button>
-        <button id="toolOrb" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex items-center justify-center h-10" title="Jump Orb"><div class="w-4 h-4 rounded-full border-4 border-yellow-400 bg-yellow-400/20"></div></button>
-        <button id="toolPortalCube" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Cube"><div class="w-3 h-5 border-2 border-green-400 rounded-full bg-green-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-green-200">C</span></div></button>
-        <button id="toolPortalShip" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Ship"><div class="w-3 h-5 border-2 border-pink-400 rounded-full bg-pink-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-pink-200">S</span></div></button>
-        <button id="toolPortalUFO" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="UFO"><div class="w-3 h-5 border-2 border-purple-400 rounded-full bg-purple-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-purple-200">U</span></div></button>
-        <button id="toolPortalWave" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Wave"><div class="w-3 h-5 border-2 border-orange-500 rounded-full bg-orange-500/20 flex items-center justify-center"><span class="text-[8px] font-bold text-orange-200">W</span></div></button>
-        <button id="toolPortalUp" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Gravity Up"><div class="w-3 h-5 border-2 border-yellow-400 rounded-full bg-yellow-400/20"></div></button>
-        <button id="toolPortalDown" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10" title="Gravity Down"><div class="w-3 h-5 border-2 border-blue-400 rounded-full bg-blue-400/20"></div></button>
-        <button id="toolSpeedSlow" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10 text-orange-400 font-bold leading-none text-xs">&lt;</button>
-        <button id="toolSpeedNorm" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10 text-green-400 font-bold leading-none text-xs">&gt;&gt;</button>
-        <button id="toolSpeedFast" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10 text-pink-400 font-bold leading-none text-xs">&gt;&gt;&gt;</button>
-        <button id="toolBgRed" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-4 h-4 rounded-full bg-red-900 border-2 border-red-500"></div></button>
-        <button id="toolBgBlue" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-4 h-4 rounded-full bg-blue-900 border-2 border-blue-500"></div></button>
-        <button id="toolBgGreen" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-4 h-4 rounded-full bg-green-900 border-2 border-green-500"></div></button>
-        <button id="toolBgReset" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-gray-400"></div></button>
-        <button id="toolEnd" class="p-2 bg-gray-800 hover:bg-gray-700 rounded shadow border-2 border-transparent flex justify-center items-center h-10"><div class="w-3 h-6 border-2 border-white bg-white/50 flex flex-col justify-between items-center"><div class="w-full h-1 bg-black"></div><div class="w-full h-1 bg-black"></div></div></button>
-      </div>
-      <div class="w-px h-12 bg-gray-600 mx-1"></div>
-      <button id="toolEraser" class="p-3 bg-gray-800 hover:bg-gray-700 rounded-lg shadow border-2 border-transparent font-bold text-red-400 h-full" title="Eraser">DEL</button>
+  <!-- Editor Top Right Options (Playtest & Publish) -->
+  <div id="editorTopRight" class="hide absolute top-4 right-4 z-50 flex gap-2 pointer-events-auto">
+    <button id="btnPlaytest" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 border border-blue-400/30 transition-transform hover:scale-105">
+      <i data-lucide="play" class="w-5 h-5"></i> Test
+    </button>
+    <button id="btnPublish" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 border border-green-400/30 transition-transform hover:scale-105">
+      <i data-lucide="upload-cloud" class="w-5 h-5"></i> Publish
+    </button>
+  </div>
+
+  <!-- Advanced Editor Toolbar -->
+  <div id="editorToolbar" class="hide fixed bottom-0 left-0 w-full bg-black/90 border-t-2 border-gray-700 p-2 pointer-events-auto z-40 flex gap-4 h-36">
+    
+    <!-- Left: Main Tabs -->
+    <div class="flex flex-col gap-1 w-24 flex-shrink-0">
+      <button id="tabBuild" class="ed-btn active flex-1 text-sm tracking-wider">BUILD</button>
+      <button id="tabEditMode" class="ed-btn flex-1 text-sm tracking-wider">EDIT</button>
+      <button id="tabDelete" class="ed-btn delete flex-1 text-sm tracking-wider">DELETE</button>
     </div>
-    <div class="flex gap-2 mt-2 w-full">
-      <button id="btnClear" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-sm font-bold shadow transition-colors flex items-center gap-1"><i data-lucide="trash-2" class="w-4 h-4"></i> Clear</button>
-      <button id="btnPublish" class="flex-1 py-2 bg-green-600 hover:bg-green-500 rounded text-sm font-bold shadow transition-colors flex items-center justify-center gap-2">
-        <i data-lucide="upload-cloud" class="w-4 h-4"></i> Publish Level to Server
-      </button>
+
+    <!-- Center: Dynamic Content Panels -->
+    <div class="flex-1 bg-[#1a1a24] border-2 border-gray-800 rounded-lg flex flex-col overflow-hidden relative">
+      
+      <!-- BUILD PANEL -->
+      <div id="panelBuild" class="flex-1 flex flex-col h-full">
+        <!-- Top Categories -->
+        <div class="flex px-2 pt-2 border-b-2 border-[#111] bg-[#111]">
+          <button class="cat-btn active" data-cat="blocks">Blocks</button>
+          <button class="cat-btn" data-cat="hazards">Hazards</button>
+          <button class="cat-btn" data-cat="interact">Orbs/Pads</button>
+          <button class="cat-btn" data-cat="portals">Portals</button>
+          <button class="cat-btn" data-cat="triggers">Triggers</button>
+        </div>
+        <!-- Tool Grids (Categorized) -->
+        <div class="p-2 overflow-y-auto custom-scrollbar flex-1 bg-[#223]">
+          
+          <div id="cat-blocks" class="grid grid-cols-8 sm:grid-cols-12 gap-2">
+            <button class="tool-btn active" data-tool="0" title="Solid Block"><div class="w-5 h-5 border-2 border-white bg-blue-400"></div></button>
+            <button class="tool-btn" data-tool="13" title="Deco Block"><div class="w-5 h-5 border border-gray-500 bg-gray-700"></div></button>
+          </div>
+          
+          <div id="cat-hazards" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
+            <button class="tool-btn" data-tool="1" title="Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-red-500"></div></div></button>
+          </div>
+
+          <div id="cat-interact" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
+            <button class="tool-btn" data-tool="2" title="Jump Pad"><div class="w-5 h-2 border-t-2 border-yellow-400 rounded-t-full bg-yellow-600/50"></div></button>
+            <button class="tool-btn" data-tool="5" title="Jump Orb"><div class="w-4 h-4 rounded-full border-4 border-yellow-400 bg-yellow-400/20"></div></button>
+          </div>
+
+          <div id="cat-portals" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
+            <button class="tool-btn" data-tool="7" title="Cube Mode"><div class="w-3 h-5 border-2 border-green-400 rounded-full bg-green-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-green-200">C</span></div></button>
+            <button class="tool-btn" data-tool="8" title="Ship Mode"><div class="w-3 h-5 border-2 border-pink-400 rounded-full bg-pink-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-pink-200">S</span></div></button>
+            <button class="tool-btn" data-tool="9" title="UFO Mode"><div class="w-3 h-5 border-2 border-purple-400 rounded-full bg-purple-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-purple-200">U</span></div></button>
+            <button class="tool-btn" data-tool="6" title="Wave Mode"><div class="w-3 h-5 border-2 border-orange-500 rounded-full bg-orange-500/20 flex items-center justify-center"><span class="text-[8px] font-bold text-orange-200">W</span></div></button>
+            <button class="tool-btn" data-tool="4" title="Gravity Up"><div class="w-3 h-5 border-2 border-yellow-400 rounded-full bg-yellow-400/20"></div></button>
+            <button class="tool-btn" data-tool="3" title="Gravity Down"><div class="w-3 h-5 border-2 border-blue-400 rounded-full bg-blue-400/20"></div></button>
+          </div>
+
+          <div id="cat-triggers" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
+            <button class="tool-btn" data-tool="10" title="Slow Speed"><span class="text-orange-400 font-bold text-xs">&lt;</span></button>
+            <button class="tool-btn" data-tool="11" title="Normal Speed"><span class="text-green-400 font-bold text-xs">&gt;&gt;</span></button>
+            <button class="tool-btn" data-tool="12" title="Fast Speed"><span class="text-pink-400 font-bold text-xs">&gt;&gt;&gt;</span></button>
+            <button class="tool-btn" data-tool="14" title="BG Red"><div class="w-4 h-4 rounded-full bg-red-900 border-2 border-red-500"></div></button>
+            <button class="tool-btn" data-tool="15" title="BG Blue"><div class="w-4 h-4 rounded-full bg-blue-900 border-2 border-blue-500"></div></button>
+            <button class="tool-btn" data-tool="16" title="BG Green"><div class="w-4 h-4 rounded-full bg-green-900 border-2 border-green-500"></div></button>
+            <button class="tool-btn" data-tool="17" title="BG Reset"><div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-gray-400"></div></button>
+            <button class="tool-btn" data-tool="18" title="End Goal"><div class="w-3 h-6 border-2 border-white bg-white/50 flex flex-col justify-between items-center"><div class="w-full h-1 bg-black"></div><div class="w-full h-1 bg-black"></div></div></button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- EDIT PANEL -->
+      <div id="panelEdit" class="hide flex-1 bg-[#223] flex items-center justify-center gap-6 p-4">
+        <div id="editNoSelection" class="text-gray-400 font-bold">Select objects using SWIPE box to edit</div>
+        <div id="editControls" class="hide flex gap-6 items-center w-full justify-center">
+          <!-- Nudge Controls -->
+          <div class="grid grid-cols-3 gap-2">
+            <div></div><button id="btnNudgeUp" class="tool-btn"><i data-lucide="arrow-up" class="w-5 h-5 text-white"></i></button><div></div>
+            <button id="btnNudgeLeft" class="tool-btn"><i data-lucide="arrow-left" class="w-5 h-5 text-white"></i></button>
+            <button id="btnNudgeDown" class="tool-btn"><i data-lucide="arrow-down" class="w-5 h-5 text-white"></i></button>
+            <button id="btnNudgeRight" class="tool-btn"><i data-lucide="arrow-right" class="w-5 h-5 text-white"></i></button>
+          </div>
+          <div class="w-px h-16 bg-gray-600"></div>
+          <!-- Rotation Controls -->
+          <div class="flex gap-2">
+            <button id="btnEditRotLeft" class="tool-btn w-12 h-16 bg-purple-900 border-purple-500 hover:bg-purple-800 flex items-center justify-center shadow-lg">
+              <i data-lucide="rotate-ccw" class="w-6 h-6 text-white"></i>
+            </button>
+            <button id="btnEditRotRight" class="tool-btn w-12 h-16 bg-purple-900 border-purple-500 hover:bg-purple-800 flex items-center justify-center shadow-lg">
+              <i data-lucide="rotate-cw" class="w-6 h-6 text-white"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DELETE PANEL -->
+      <div id="panelDelete" class="hide flex-1 bg-[#223] flex items-center justify-center gap-6 p-4">
+        <p class="text-gray-400 font-bold text-sm">Swipe over objects to delete them.</p>
+        <div class="w-px h-12 bg-gray-600"></div>
+        <button id="btnDeleteAll" class="px-6 py-3 bg-red-900 border-2 border-red-500 hover:bg-red-800 text-white font-bold rounded-lg flex items-center gap-2 transition-colors">
+          <i data-lucide="trash-2" class="w-5 h-5"></i> CLEAR ALL
+        </button>
+      </div>
+
     </div>
+
+    <!-- Right: Toggles & Camera -->
+    <div class="flex flex-col gap-1 w-[120px] flex-shrink-0">
+      <button id="btnSwipeToggle" class="ed-btn active flex-1 text-xs tracking-wider border-green-900 shadow">SWIPE<br><span id="swipeStatus" class="text-[10px] text-green-200">ON</span></button>
+      
+      <!-- Build Rotation State -->
+      <div id="buildRotState" class="flex flex-col bg-slate-800 border border-slate-600 rounded pt-1 pb-1">
+        <div class="text-[10px] text-center text-yellow-200 font-bold mb-1" id="lblBuildRot">0°</div>
+        <div class="flex gap-1 px-1">
+           <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white text-xs flex items-center justify-center rounded py-1 border border-purple-900 shadow"><i data-lucide="rotate-ccw" class="w-3 h-3"></i></button>
+           <button id="btnBuildRotRight" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white text-xs flex items-center justify-center rounded py-1 border border-purple-900 shadow"><i data-lucide="rotate-cw" class="w-3 h-3"></i></button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Win Overlay -->
@@ -117,7 +193,7 @@
       <p id="winAttempts" class="text-2xl text-yellow-400 font-mono mb-8">Attempts: 1</p>
       <div class="flex gap-4">
         <button id="btnWinReplay" class="px-8 py-3 bg-green-500 hover:bg-green-600 rounded-lg text-white font-bold text-xl transition-transform hover:scale-105 shadow-lg">Replay</button>
-        <button id="btnWinExit" class="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-bold text-xl transition-transform hover:scale-105 shadow-lg">Back to Hub</button>
+        <button id="btnWinExit" class="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-bold text-xl transition-transform hover:scale-105 shadow-lg">Exit</button>
       </div>
     </div>
   </div>
@@ -125,8 +201,6 @@
   <!-- ========================================== -->
   <!-- 🌐 HUB UI & MODALS (OVERLAYS)              -->
   <!-- ========================================== -->
-
-  <!-- Hub Main Container -->
   <div id="hubUI" class="absolute inset-0 overflow-y-auto z-10 p-4 md:p-8 bg-black/40 backdrop-blur-sm">
     <div class="max-w-6xl mx-auto space-y-8 pb-12">
       <!-- Header -->
@@ -145,30 +219,25 @@
       <main class="grid lg:grid-cols-12 gap-8 items-start">
         <!-- Left Column: User Profile / Auth -->
         <div class="lg:col-span-4 space-y-6">
-          
-          <!-- Auth Form (Hidden when logged in) -->
+          <!-- Auth Form -->
           <div id="joinSection" class="bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl block">
             <button id="googleLoginBtn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]">
               <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google
             </button>
-            <div class="my-6 flex items-center before:flex-1 before:border-t before:border-gray-700 after:flex-1 after:border-t after:border-gray-700">
-              <p class="mx-4 text-center font-semibold text-gray-400 text-sm">OR</p>
-            </div>
+            <div class="my-6 flex items-center before:flex-1 before:border-t before:border-gray-700 after:flex-1 after:border-t after:border-gray-700"><p class="mx-4 text-center font-semibold text-gray-400 text-sm">OR</p></div>
             <div class="flex gap-2 mb-6">
               <button id="tabLogin" class="flex-1 pb-2 border-b-2 border-blue-500 font-bold text-white transition-colors">Log In</button>
               <button id="tabSignup" class="flex-1 pb-2 border-b-2 border-gray-700 font-bold text-gray-500 transition-colors hover:text-gray-300">Sign Up</button>
             </div>
             <form id="emailAuthForm" class="space-y-4">
-              <div id="usernameGroup" class="hidden">
-                <input type="text" id="usernameInput" placeholder="Username" maxlength="15" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
+              <div id="usernameGroup" class="hidden"><input type="text" id="usernameInput" placeholder="Username" maxlength="15" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" /></div>
               <input type="email" id="emailInput" placeholder="Email" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
               <input type="password" id="passwordInput" placeholder="Password" minlength="6" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
               <button type="submit" id="emailSubmitBtn" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all">Log In</button>
             </form>
           </div>
 
-          <!-- Player Dashboard (Visible when logged in) -->
+          <!-- Player Dashboard -->
           <div id="playerSection" class="bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl flex flex-col items-center hidden relative">
             <div class="flex items-center justify-center gap-4 mb-6 bg-gray-900/80 w-full py-3 px-4 rounded-2xl border border-gray-700">
               <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Change Profile Picture">
@@ -182,22 +251,16 @@
               </div>
             </div>
             
-            <!-- Creator Stars (Admin Awarded) -->
+            <!-- Creator Stars -->
             <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl w-full p-4 flex justify-between items-center mb-6">
               <span class="text-sm text-yellow-500 font-bold uppercase tracking-wider">Creator Stars</span>
-              <div class="text-3xl font-black text-yellow-400 flex items-center gap-2">
-                <span id="displayScore">0</span> <i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i>
-              </div>
+              <div class="text-3xl font-black text-yellow-400 flex items-center gap-2"><span id="displayScore">0</span> <i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i></div>
             </div>
             
-            <button id="btnCreateLevel" class="w-full py-4 bg-green-600 hover:bg-green-500 rounded-xl text-white font-black text-lg shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex justify-center items-center gap-2 mb-4">
-              <i data-lucide="hammer"></i> CREATE NEW LEVEL
-            </button>
+            <button id="btnCreateLevel" class="w-full py-4 bg-green-600 hover:bg-green-500 rounded-xl text-white font-black text-lg shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex justify-center items-center gap-2 mb-4"><i data-lucide="hammer"></i> CREATE NEW LEVEL</button>
 
             <!-- Admin Toggle -->
-            <button id="openAdminBtn" class="bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/50 text-indigo-300 w-full py-3 rounded-xl font-bold transition-all hidden items-center justify-center gap-2 mb-4">
-              <i data-lucide="terminal" class="w-5 h-5"></i> Command Center
-            </button>
+            <button id="openAdminBtn" class="bg-indigo-600/20 hover:bg-indigo-600/40 border border-indigo-500/50 text-indigo-300 w-full py-3 rounded-xl font-bold transition-all hidden items-center justify-center gap-2 mb-4"><i data-lucide="terminal" class="w-5 h-5"></i> Command Center</button>
 
             <div class="border-t border-gray-700/80 w-full pt-4 flex flex-wrap gap-2 justify-center items-center">
               <button id="redeemCodeBtn" class="text-xs font-medium text-yellow-500 hover:text-yellow-400 flex items-center gap-1 px-2 py-1 rounded hover:bg-yellow-500/10 hidden"><i data-lucide="key" class="w-3 h-3"></i> Redeem King</button>
@@ -211,22 +274,17 @@
         <div class="lg:col-span-8">
           <div class="bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[700px]">
             <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
-              <h3 class="text-xl font-bold flex items-center gap-2 text-white">
-                <i data-lucide="globe" class="w-6 h-6 text-blue-400"></i> Community Levels
-              </h3>
+              <h3 class="text-xl font-bold flex items-center gap-2 text-white"><i data-lucide="globe" class="w-6 h-6 text-blue-400"></i> Community Levels</h3>
               <span id="levelCount" class="text-xs font-bold text-gray-400 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700">0 Levels</span>
             </div>
-            
-            <div id="levelBrowserList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30">
-              <!-- Levels injected here -->
-            </div>
+            <div id="levelBrowserList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
           </div>
         </div>
       </main>
     </div>
   </div>
 
-  <!-- Loading & Admin Overlays (From Command Center System) -->
+  <!-- Loading & Admin Overlays -->
   <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-gray-900 z-[200]"><i data-lucide="activity" class="w-12 h-12 animate-spin text-blue-500"></i></div>
   <div id="globalBanner" class="fixed top-0 left-0 right-0 bg-indigo-600 text-white p-3 font-bold text-center z-[150] shadow-xl transform -translate-y-full transition-transform duration-500 flex justify-center items-center gap-3"><i data-lucide="radio" class="w-5 h-5 animate-pulse"></i><span id="globalBannerText">System Message</span><button id="closeBannerBtn" class="absolute right-4 text-white/70 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
   <div id="bannedScreen" class="fixed inset-0 bg-red-950 z-[100] hidden flex-col items-center justify-center p-4 text-center"><i data-lucide="shield-alert" class="w-24 h-24 text-red-500 mb-6"></i><h1 class="text-5xl font-black text-white mb-4">ACCOUNT BANNED</h1><p class="text-red-300">Your account has been permanently suspended.</p></div>
@@ -298,7 +356,7 @@
 
   <script type="module">
     // ==========================================
-    // 🔥 FIREBASE IMPORTS & SETUP
+    // 🔥 FIREBASE IMPORTS & SETUP (CLEAN SINGLE BLOCK)
     // ==========================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -315,11 +373,41 @@
     const googleProvider = new GoogleAuthProvider();
 
     // ==========================================
-    // 🌐 APP STATE
+    // 🌐 APP STATE (TOP LEVEL VARIABLES)
     // ==========================================
     let currentUser = null, myProfile = null;
-    let usersData = [], levelsList = [], isSignupMode = false, pendingUsername = null, dbUnsubscribe = null, levelsUnsubscribe = null, settingsUnsubscribe = null, activeTrollTimeout = null;
+    let usersData = [], levelsList = [], isSignupMode = false, pendingUsername = null;
+    let dbUnsubscribe = null, levelsUnsubscribe = null, settingsUnsubscribe = null, activeTrollTimeout = null;
     let globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
+
+    // ==========================================
+    // UTILS & TROLL EVENTS
+    // ==========================================
+    function getDefaultAvatar(username) { 
+      return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`; 
+    }
+
+    function applyTrollEffect(trollType) {
+      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin')) return; 
+      clearTrollEffects();
+      const b = document.getElementById('mainBody');
+      if (trollType === 'troll_earthquake') b.classList.add('troll-earthquake');
+      else if (trollType === 'troll_spin') b.classList.add('troll-spin');
+      else if (trollType === 'troll_tiny') b.classList.add('troll-tiny');
+      else if (trollType === 'troll_invert') b.classList.add('troll-invert');
+      
+      if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
+      activeTrollTimeout = setTimeout(async () => {
+        clearTrollEffects();
+        if (myProfile && myProfile.trollEvent) { 
+          try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { trollEvent: '' }, { merge: true }); } catch(e){} 
+        }
+      }, 10000);
+    }
+
+    function clearTrollEffects() { 
+      document.getElementById('mainBody').classList.remove('troll-earthquake', 'troll-spin', 'troll-tiny', 'troll-invert'); 
+    }
 
     // ==========================================
     // 🎵 AUDIO ENGINE
@@ -403,7 +491,7 @@
     }
 
     // ==========================================
-    // 🎮 GAME ENGINE CORE 
+    // 🎮 GAME ENGINE CORE & EDITOR STATE
     // ==========================================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -412,10 +500,25 @@
     let groundY = 0;
     const DEFAULT_BG = [26, 26, 36], C_BLOCK = '#1a5f7a', C_BLOCK_OUTLINE = '#22d3ee', C_SPIKE = '#ff2a6d', C_PLAYER = '#00f0ff', C_PLAYER_TRAIL = 'rgba(0, 240, 255, 0.3)';
 
-    let state = { mode: 'menu', cameraX: 0, cameraY: 0, attempts: 1, particles: [], trail: [], currentPath: [], savedPath: [], bgColor: [...DEFAULT_BG], targetBgColor: [...DEFAULT_BG], win: false };
+    let state = { mode: 'menu', isPlaytesting: false, cameraX: 0, cameraY: 0, attempts: 1, particles: [], trail: [], currentPath: [], savedPath: [], bgColor: [...DEFAULT_BG], targetBgColor: [...DEFAULT_BG], win: false };
     let bgParticles = Array.from({length: 60}, () => ({ x: Math.random() * 2000, y: Math.random() * 2000, s: Math.random() * 4 + 2, spd: Math.random() * 0.4 + 0.1, op: Math.random() * 0.3 + 0.1 }));
     let player = { x: 0, y: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, dead: false };
-    let level = [], editor = { tool: 0, rot: 0, isDragging: false }, input = { jumpHeld: false };
+    let level = [], input = { jumpHeld: false };
+
+    // Advanced Editor State
+    let editor = { 
+      mode: 'build', // build, edit, delete
+      tool: 0, rot: 0, 
+      isDragging: false, 
+      swipeEnabled: true,
+      lastGx: -1, lastGy: -1,
+      selectedObjs: [],
+      selBox: null, // {sx, sy, ex, ey}
+      camDragStartX: 0, camDragStartY: 0,
+      initialCamX: 0, initialCamY: 0,
+      isClick: true,
+      restoreState: { camX: 0, camY: 0 }
+    };
 
     const BLANK_LEVEL_DATA = (() => { let str = ""; for(let i=-5; i<=60; i++) str += `${i},-1,0,0;${i},-2,0,0;${i},-3,0,0;`; return str; })();
 
@@ -445,10 +548,10 @@
       for(let i=0; i<50; i++) state.particles.push({ x: player.x + PLAYER_SIZE/2, y: player.y + PLAYER_SIZE/2, vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20, life: 2.0, color: '#facc15' });
     }
 
-    function jump() { if (state.mode === 'play' && player.grounded && !player.dead && player.gamemode === 0) { player.vy = JUMP_FORCE * player.gravityDir; player.grounded = false; } }
+    function jump() { if ((state.mode === 'play' || state.isPlaytesting) && player.grounded && !player.dead && player.gamemode === 0) { player.vy = JUMP_FORCE * player.gravityDir; player.grounded = false; } }
 
     function triggerAction() {
-      if (state.mode === 'play' && !player.dead) {
+      if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
         input.jumpHeld = true; let hitOrb = false;
         for (let obj of level) {
           if (obj.type === 5 && (player.gamemode === 0 || player.gamemode === 3)) {
@@ -472,7 +575,7 @@
 
       if (state.mode === 'menu') { state.cameraX += 3; return; }
 
-      if (state.mode === 'play' && !player.dead && !state.win) {
+      if ((state.mode === 'play' || state.isPlaytesting) && !player.dead && !state.win) {
         if (state.currentPath.length === 0 || Math.abs(player.x - state.currentPath[state.currentPath.length-1].x) > 5) state.currentPath.push({x: player.x + PLAYER_SIZE/2, y: player.y + PLAYER_SIZE/2});
 
         player.x += BASE_MOVE_SPEED * player.speedMultiplier;
@@ -582,10 +685,15 @@
 
       if (state.mode === 'edit') {
         ctx.strokeStyle = '#313144'; ctx.lineWidth = 1;
-        let topY = state.cameraY, bottomY = state.cameraY + canvas.height;
-        let startX = Math.floor(state.cameraX / GRID_SIZE) * GRID_SIZE, firstLineY = Math.floor(topY / GRID_SIZE) * GRID_SIZE;
-        for (let x = startX; x < startX + canvas.width + GRID_SIZE; x += GRID_SIZE) { ctx.beginPath(); ctx.moveTo(x, topY); ctx.lineTo(x, bottomY); ctx.stroke(); }
-        for (let y = firstLineY; y <= bottomY; y += GRID_SIZE) { ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(startX + canvas.width + GRID_SIZE, y); ctx.stroke(); }
+        let startX = Math.floor(state.cameraX / GRID_SIZE) * GRID_SIZE;
+        // Perfect Grid Y alignment fix
+        let yOffset = groundY % GRID_SIZE;
+        let firstLineY = Math.floor(state.cameraY / GRID_SIZE) * GRID_SIZE + yOffset;
+        if (firstLineY < state.cameraY) firstLineY += GRID_SIZE;
+
+        for (let x = startX; x < startX + canvas.width + GRID_SIZE; x += GRID_SIZE) { ctx.beginPath(); ctx.moveTo(x, state.cameraY); ctx.lineTo(x, state.cameraY + canvas.height); ctx.stroke(); }
+        for (let y = firstLineY; y <= state.cameraY + canvas.height; y += GRID_SIZE) { ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(startX + canvas.width + GRID_SIZE, y); ctx.stroke(); }
+        
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 2; ctx.setLineDash([10, 10]);
         ctx.beginPath(); ctx.moveTo(state.cameraX, groundY); ctx.lineTo(state.cameraX + canvas.width + GRID_SIZE, groundY); ctx.stroke(); ctx.setLineDash([]);
         
@@ -596,7 +704,25 @@
           let lastP = state.savedPath[state.savedPath.length-1];
           ctx.fillStyle = '#ff2a6d'; ctx.fillRect(lastP.x - 5, lastP.y - 5, 10, 10); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(lastP.x - 5, lastP.y - 5, 10, 10);
         }
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; ctx.fillRect(0, 0, GRID_SIZE, groundY);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; ctx.fillRect(state.cameraX, 0, canvas.width + GRID_SIZE, groundY);
+
+        // Draw selection box
+        if (editor.mode === 'edit' && editor.selBox) {
+          ctx.strokeStyle = 'rgba(74, 222, 128, 0.8)'; ctx.fillStyle = 'rgba(74, 222, 128, 0.2)'; ctx.lineWidth = 2;
+          let x = Math.min(editor.selBox.sx, editor.selBox.ex), y = Math.min(editor.selBox.sy, editor.selBox.ey);
+          let w = Math.abs(editor.selBox.sx - editor.selBox.ex), h = Math.abs(editor.selBox.sy - editor.selBox.ey);
+          ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+        }
+
+        // Draw selection highlight
+        if (editor.mode === 'edit' && editor.selectedObjs.length > 0) {
+          ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 3; ctx.setLineDash([5, 5]);
+          editor.selectedObjs.forEach(obj => {
+            let px = obj.gx * GRID_SIZE, py = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE;
+            ctx.strokeRect(px - 4, py - 4, GRID_SIZE + 8, GRID_SIZE + 8);
+          });
+          ctx.setLineDash([]);
+        }
       }
 
       for (let obj of level) {
@@ -622,7 +748,7 @@
         ctx.restore();
       }
 
-      if (state.mode === 'play' && !player.dead) {
+      if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
         if (player.gamemode === 1) { 
           ctx.strokeStyle = C_PLAYER_TRAIL; ctx.lineWidth = PLAYER_SIZE - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
           for (let i = 0; i < state.trail.length; i++) { let t = state.trail[i]; if (i === 0) ctx.moveTo(t.x + PLAYER_SIZE/2, t.y + PLAYER_SIZE/2); else ctx.lineTo(t.x + PLAYER_SIZE/2, t.y + PLAYER_SIZE/2); }
@@ -655,23 +781,100 @@
     }
     function generateLevelString() { return level.map(b => `${b.gx},${b.gy},${b.type},${b.rot || 0}`).join(';'); }
 
-    function handleGridClick(clientX, clientY) {
-      if (state.mode !== 'edit') return; const rect = canvas.getBoundingClientRect();
-      let gx = Math.floor((clientX - rect.left + state.cameraX) / GRID_SIZE), gy = Math.floor((groundY - (clientY - rect.top + state.cameraY)) / GRID_SIZE);
-      if (gx < 0) return; level = level.filter(b => !(b.gx === gx && b.gy === gy));
-      if (editor.tool !== -1) level.push({ gx, gy, type: editor.tool, rot: editor.rot });
+    // ==========================================
+    // 🖱️ EDITOR INPUT HANDLING (SWIPE VS PAN VS BOX)
+    // ==========================================
+    function getGridPos(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      let gx = Math.floor((clientX - rect.left + state.cameraX) / GRID_SIZE);
+      let gy = Math.floor((groundY - (clientY - rect.top + state.cameraY)) / GRID_SIZE);
+      return {gx, gy, worldX: clientX - rect.left + state.cameraX, worldY: clientY - rect.top + state.cameraY};
     }
 
-    canvas.addEventListener('mousedown', (e) => { if (state.mode === 'play') triggerAction(); else if (state.mode === 'edit') { editor.isDragging = true; handleGridClick(e.clientX, e.clientY); } });
-    canvas.addEventListener('mousemove', (e) => { if (state.mode === 'edit' && editor.isDragging) handleGridClick(e.clientX, e.clientY); });
-    window.addEventListener('mouseup', () => { editor.isDragging = false; input.jumpHeld = false; });
-    canvas.addEventListener('mouseleave', () => editor.isDragging = false);
-    canvas.addEventListener('touchstart', (e) => { if (state.mode === 'play') triggerAction(); else if (state.mode === 'edit') { editor.isDragging = true; handleGridClick(e.touches[0].clientX, e.touches[0].clientY); } });
-    canvas.addEventListener('touchmove', (e) => { if (state.mode === 'edit' && editor.isDragging) handleGridClick(e.touches[0].clientX, e.touches[0].clientY); });
-    window.addEventListener('touchend', () => { editor.isDragging = false; input.jumpHeld = false; });
+    function handleEditorAction(clientX, clientY) {
+      const {gx, gy} = getGridPos(clientX, clientY);
+      if (gx < 0) return;
+
+      if (editor.isDragging && editor.lastGx === gx && editor.lastGy === gy) return;
+      editor.lastGx = gx; editor.lastGy = gy;
+
+      if (editor.mode === 'build') {
+        level = level.filter(b => !(b.gx === gx && b.gy === gy));
+        level.push({ gx, gy, type: editor.tool, rot: editor.rot });
+      } 
+      else if (editor.mode === 'delete') {
+        level = level.filter(b => !(b.gx === gx && b.gy === gy));
+      }
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      if (state.mode === 'play' || state.isPlaytesting) { triggerAction(); return; }
+      if (state.mode !== 'edit') return;
+      
+      editor.isDragging = true; editor.isClick = true;
+      editor.camDragStartX = e.clientX; editor.camDragStartY = e.clientY;
+      editor.initialCamX = state.cameraX; editor.initialCamY = state.cameraY;
+      
+      if (editor.swipeEnabled) {
+        if (editor.mode === 'edit') {
+          // Start selection box
+          editor.selectedObjs = []; updateEditPanelUI();
+          const p = getGridPos(e.clientX, e.clientY);
+          editor.selBox = { sx: p.worldX, sy: p.worldY, ex: p.worldX, ey: p.worldY };
+        } else {
+          handleEditorAction(e.clientX, e.clientY);
+        }
+      }
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (state.mode !== 'edit' || !editor.isDragging) return;
+
+      if (Math.abs(e.clientX - editor.camDragStartX) > 5 || Math.abs(e.clientY - editor.camDragStartY) > 5) editor.isClick = false;
+
+      if (editor.swipeEnabled) {
+        if (editor.mode === 'edit' && editor.selBox) {
+          const p = getGridPos(e.clientX, e.clientY);
+          editor.selBox.ex = p.worldX; editor.selBox.ey = p.worldY;
+        } else {
+          handleEditorAction(e.clientX, e.clientY);
+        }
+      } else {
+        // Camera Panning
+        state.cameraX = Math.max(0, editor.initialCamX - (e.clientX - editor.camDragStartX));
+        state.cameraY = editor.initialCamY - (e.clientY - editor.camDragStartY);
+      }
+    });
+
+    window.addEventListener('pointerup', (e) => {
+      input.jumpHeld = false;
+      if (state.mode !== 'edit') return;
+      
+      if (editor.mode === 'edit' && editor.selBox && editor.swipeEnabled) {
+        // Process Selection Box
+        if (editor.isClick) {
+           const {gx, gy} = getGridPos(e.clientX, e.clientY);
+           let obj = level.find(b => b.gx === gx && b.gy === gy);
+           if (obj) editor.selectedObjs = [obj];
+        } else {
+           let minX = Math.min(editor.selBox.sx, editor.selBox.ex), maxX = Math.max(editor.selBox.sx, editor.selBox.ex);
+           let minY = Math.min(editor.selBox.sy, editor.selBox.ey), maxY = Math.max(editor.selBox.sy, editor.selBox.ey);
+           editor.selectedObjs = level.filter(b => {
+             let px = b.gx * GRID_SIZE, py = groundY - (b.gy * GRID_SIZE) - GRID_SIZE;
+             return (px < maxX && px + GRID_SIZE > minX && py < maxY && py + GRID_SIZE > minY);
+           });
+        }
+        editor.selBox = null;
+        updateEditPanelUI();
+      } else if (!editor.swipeEnabled && editor.isClick && editor.mode !== 'edit') {
+        handleEditorAction(e.clientX, e.clientY);
+      }
+
+      editor.isDragging = false; editor.lastGx = -1; editor.lastGy = -1;
+    });
 
     document.addEventListener('keydown', (e) => {
-      if (state.mode === 'play') { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') triggerAction(); } 
+      if (state.mode === 'play' || state.isPlaytesting) { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') triggerAction(); } 
       else if (state.mode === 'edit') {
         if(e.code === 'ArrowRight' || e.code === 'KeyD') state.cameraX += GRID_SIZE; if(e.code === 'ArrowLeft' || e.code === 'KeyA') state.cameraX -= GRID_SIZE;
         if(e.code === 'ArrowUp' || e.code === 'KeyW') state.cameraY -= GRID_SIZE; if(e.code === 'ArrowDown' || e.code === 'KeyS') state.cameraY += GRID_SIZE;
@@ -681,15 +884,134 @@
     document.addEventListener('keyup', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') input.jumpHeld = false; });
 
     // ==========================================
+    // 🛠️ EDITOR UI LOGIC
+    // ==========================================
+    const tabBuild = document.getElementById('tabBuild'), tabEditMode = document.getElementById('tabEditMode'), tabDelete = document.getElementById('tabDelete');
+    const panelBuild = document.getElementById('panelBuild'), panelEdit = document.getElementById('panelEdit'), panelDelete = document.getElementById('panelDelete');
+    const btnSwipeToggle = document.getElementById('btnSwipeToggle'), swipeStatus = document.getElementById('swipeStatus');
+
+    function switchEditorMode(m) {
+      editor.mode = m; editor.selectedObjs = []; updateEditPanelUI();
+      
+      tabBuild.classList.remove('active'); tabEditMode.classList.remove('active'); tabDelete.classList.remove('active');
+      panelBuild.classList.add('hide'); panelEdit.classList.add('hide'); panelDelete.classList.add('hide');
+      document.getElementById('buildRotState').classList.add('hide');
+      
+      if(m === 'build') { tabBuild.classList.add('active'); panelBuild.classList.remove('hide'); document.getElementById('buildRotState').classList.remove('hide'); }
+      if(m === 'edit') { tabEditMode.classList.add('active'); panelEdit.classList.remove('hide'); panelEdit.classList.add('flex'); }
+      if(m === 'delete') { tabDelete.classList.add('active'); panelDelete.classList.remove('hide'); panelDelete.classList.add('flex'); }
+    }
+
+    tabBuild.addEventListener('click', () => switchEditorMode('build'));
+    tabEditMode.addEventListener('click', () => switchEditorMode('edit'));
+    tabDelete.addEventListener('click', () => switchEditorMode('delete'));
+
+    // Swipe Toggle
+    btnSwipeToggle.addEventListener('click', () => {
+      editor.swipeEnabled = !editor.swipeEnabled;
+      if (editor.swipeEnabled) { btnSwipeToggle.classList.add('active'); swipeStatus.textContent = 'ON'; swipeStatus.className = 'text-[10px] text-green-200'; } 
+      else { btnSwipeToggle.classList.remove('active'); swipeStatus.textContent = 'OFF'; swipeStatus.className = 'text-[10px] text-red-200'; }
+    });
+
+    // Build Sub-categories
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        const cat = e.currentTarget.dataset.cat;
+        document.getElementById('cat-blocks').classList.add('hide'); document.getElementById('cat-hazards').classList.add('hide'); document.getElementById('cat-interact').classList.add('hide'); document.getElementById('cat-portals').classList.add('hide'); document.getElementById('cat-triggers').classList.add('hide');
+        document.getElementById('cat-' + cat).classList.remove('hide');
+      });
+    });
+
+    // Tool Selection
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+      if(btn.dataset.tool) {
+        btn.addEventListener('click', (e) => {
+          editor.tool = parseInt(e.currentTarget.dataset.tool);
+          document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+          e.currentTarget.classList.add('active');
+        });
+      }
+    });
+
+    // Build Panel Rotation
+    document.getElementById('btnBuildRotLeft').addEventListener('click', () => { editor.rot = (editor.rot - 90 + 360) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
+    document.getElementById('btnBuildRotRight').addEventListener('click', () => { editor.rot = (editor.rot + 90) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
+
+
+    // Edit Panel Logic (Multi-select enabled)
+    const editNoSelection = document.getElementById('editNoSelection'), editControls = document.getElementById('editControls');
+    function updateEditPanelUI() {
+      if (editor.selectedObjs.length > 0) {
+        editNoSelection.classList.add('hide'); editControls.classList.remove('hide'); editControls.classList.add('flex');
+      } else {
+        editNoSelection.classList.remove('hide'); editControls.classList.add('hide'); editControls.classList.remove('flex');
+      }
+    }
+
+    document.getElementById('btnNudgeUp').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.gy++); });
+    document.getElementById('btnNudgeDown').addEventListener('click', () => { editor.selectedObjs.forEach(o => { if(o.gy > 0) o.gy--; }); });
+    document.getElementById('btnNudgeLeft').addEventListener('click', () => { editor.selectedObjs.forEach(o => { if(o.gx > 0) o.gx--; }); });
+    document.getElementById('btnNudgeRight').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.gx++); });
+    
+    document.getElementById('btnEditRotLeft').addEventListener('click', () => { editor.selectedObjs.forEach(o => { o.rot = ((o.rot||0) - 90 + 360) % 360; }); });
+    document.getElementById('btnEditRotRight').addEventListener('click', () => { editor.selectedObjs.forEach(o => { o.rot = ((o.rot||0) + 90) % 360; }); });
+
+    // Delete Panel Logic
+    document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear entire level?")) { level = []; editor.selectedObjs = []; updateEditPanelUI(); } });
+
+    // Playtesting Logic
+    document.getElementById('btnPlaytest').addEventListener('click', () => {
+      editor.restoreState = { camX: state.cameraX, camY: state.cameraY };
+      state.mode = 'play'; state.isPlaytesting = true; state.attempts = 1; resetPlayer();
+      document.getElementById('editorTopRight').classList.add('hide');
+      document.getElementById('editorToolbar').classList.add('hide');
+      document.getElementById('stats').classList.remove('hide');
+      document.getElementById('stats').innerText = `Test: Attempt 1`;
+      document.getElementById('lblExitGame').innerText = 'Stop Test';
+      document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'square'); lucide.createIcons();
+    });
+
+    // Exit Game / Engine Controls
+    document.getElementById('btnExitGame').addEventListener('click', () => {
+      if (state.isPlaytesting) {
+        state.isPlaytesting = false; state.mode = 'edit';
+        state.cameraX = editor.restoreState.camX; state.cameraY = editor.restoreState.camY;
+        document.getElementById('editorTopRight').classList.remove('hide');
+        document.getElementById('editorToolbar').classList.remove('hide');
+        document.getElementById('stats').classList.add('hide');
+        document.getElementById('lblExitGame').innerText = 'Exit';
+        document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out'); lucide.createIcons();
+        document.getElementById('winOverlay').classList.add('hide');
+      } else {
+        state.mode = 'menu';
+        document.getElementById('gameUI').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide');
+        hubUI.classList.remove('hide');
+      }
+    });
+
+    // Publish Level
+    document.getElementById('btnPublish').addEventListener('click', async () => {
+      if(!currentUser || !myProfile) return;
+      const lvlName = prompt("Enter a name for your level:");
+      if (!lvlName || lvlName.trim() === "") return;
+      const lStr = generateLevelString();
+      try {
+        const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
+        await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, createdAt: Date.now() });
+        alert("Level published successfully!"); document.getElementById('btnExitGame').click(); 
+      } catch(e) { alert("Failed to publish."); console.error(e); }
+    });
+
+    // ==========================================
     // 🌐 APP STATE & FIREBASE INTEGRATION
     // ==========================================
     
-    // Auth Forms Elements
     const hubUI = document.getElementById('hubUI'), joinSection = document.getElementById('joinSection'), playerSection = document.getElementById('playerSection'), emailAuthForm = document.getElementById('emailAuthForm');
     const tabLogin = document.getElementById('tabLogin'), tabSignup = document.getElementById('tabSignup'), usernameGroup = document.getElementById('usernameGroup'), displayScore = document.getElementById('displayScore'), levelBrowserList = document.getElementById('levelBrowserList');
     const adminPanelModal = document.getElementById('adminPanelModal'), adminCommandForm = document.getElementById('adminCommandForm');
 
-    // Hub UI Auth Tabs
     tabLogin.addEventListener('click', () => { isSignupMode = false; usernameGroup.classList.add('hidden'); document.getElementById('usernameInput').removeAttribute('required'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
     tabSignup.addEventListener('click', () => { isSignupMode = true; usernameGroup.classList.remove('hidden'); document.getElementById('usernameInput').setAttribute('required', 'true'); document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; });
 
@@ -704,9 +1026,6 @@
     document.getElementById('googleLoginBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch (error) { alert("Failed Google Sign-in."); } });
     document.getElementById('logoutBtn').addEventListener('click', () => { if (confirm("Log out?")) signOut(auth); });
 
-    // -------------------------------------------------------------
-    // INIT & LISTENERS
-    // -------------------------------------------------------------
     async function initAuthApp() {
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
@@ -736,7 +1055,6 @@
     });
 
     initAuthApp();
-    function getDefaultAvatar(username) { return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`; }
 
     function setupDatabaseListener() {
       if (!currentUser) return;
@@ -781,9 +1099,6 @@
       });
     }
 
-    // -------------------------------------------------------------
-    // UI UPDATES & HUB ACTIONS
-    // -------------------------------------------------------------
     function updateHubUI() {
       joinSection.classList.add('hidden'); playerSection.classList.remove('hidden');
       if (state.mode === 'menu') hubUI.classList.remove('hide');
@@ -827,7 +1142,6 @@
       lucide.createIcons();
     }
 
-    // Play Level from Browser
     levelBrowserList.addEventListener('click', async (e) => {
       const btn = e.target.closest('button[data-play-lvl]');
       if (btn) {
@@ -839,43 +1153,25 @@
       }
     });
 
-    // Create New Level
     document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
+    document.getElementById('btnWinReplay').addEventListener('click', () => { state.mode = 'play'; state.attempts = 1; resetPlayer(); });
+    document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
 
     function launchGame(dataStr, mode) {
-      hubUI.classList.add('hide');
-      document.getElementById('gameUI').classList.remove('hide');
-      level = parseLevelString(dataStr);
-      resetPlayer(); resize(); state.mode = mode;
-      if (mode === 'edit') { document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); } 
-      else { document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); uiStats.innerText = `Attempt 1`; }
+      hubUI.classList.add('hide'); document.getElementById('gameUI').classList.remove('hide');
+      level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
+      
+      if (mode === 'edit') { 
+        document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); 
+        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
+        switchEditorMode('build'); 
+      } else { 
+        document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
+        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
+      }
+      lucide.createIcons();
     }
 
-    // Exit Game / Engine Controls
-    document.getElementById('btnExitGame').addEventListener('click', () => {
-      state.mode = 'menu';
-      document.getElementById('gameUI').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide');
-      hubUI.classList.remove('hide');
-    });
-
-    // Publish Level
-    document.getElementById('btnPublish').addEventListener('click', async () => {
-      if(!currentUser || !myProfile) return;
-      const lvlName = prompt("Enter a name for your level:");
-      if (!lvlName || lvlName.trim() === "") return;
-      
-      const lStr = generateLevelString();
-      try {
-        const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
-        await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, createdAt: Date.now() });
-        alert("Level published successfully!");
-        document.getElementById('btnExitGame').click(); 
-      } catch(e) { alert("Failed to publish."); console.error(e); }
-    });
-
-    // -------------------------------------------------------------
-    // PROFILE PICTURE / SETTINGS
-    // -------------------------------------------------------------
     document.getElementById('pfpContainer').addEventListener('click', () => { document.getElementById('pfpUpload').click(); });
     document.getElementById('pfpUpload').addEventListener('change', async (e) => {
       const file = e.target.files[0]; if (!file || !currentUser || !myProfile) return;
@@ -897,7 +1193,6 @@
       } catch (error) { alert("Failed to upload."); document.getElementById('displayPfp').style.opacity = '1'; } 
     });
 
-    // Delete Account
     document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
       if (confirm("Delete your account permanently?")) {
         try {
@@ -910,30 +1205,9 @@
       }
     });
 
-    // -------------------------------------------------------------
-    // TROLL EVENTS & MODERATION (Overlay Triggers)
-    // -------------------------------------------------------------
-    function applyTrollEffect(trollType) {
-      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin')) return; 
-      clearTrollEffects();
-      if (trollType === 'troll_earthquake') mainBody.classList.add('troll-earthquake');
-      else if (trollType === 'troll_spin') mainBody.classList.add('troll-spin');
-      else if (trollType === 'troll_tiny') mainBody.classList.add('troll-tiny');
-      else if (trollType === 'troll_invert') mainBody.classList.add('troll-invert');
-      if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
-      activeTrollTimeout = setTimeout(async () => {
-        clearTrollEffects();
-        if (myProfile.trollEvent) { try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { trollEvent: '' }, { merge: true }); } catch(e){} }
-      }, 10000);
-    }
-    function clearTrollEffects() { mainBody.classList.remove('troll-earthquake', 'troll-spin', 'troll-tiny', 'troll-invert'); }
     document.getElementById('closeBannerBtn').addEventListener('click', () => document.getElementById('globalBanner').classList.add('-translate-y-full'));
     document.getElementById('dismissWarningBtn').addEventListener('click', async () => { if (currentUser) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warning: "" }, { merge: true }); });
 
-    // -------------------------------------------------------------
-    // COMMAND CENTER (ADMIN PANEL)
-    // -------------------------------------------------------------
-    const cmdAction = document.getElementById('cmdAction'), cmdParamContainer = document.getElementById('cmdParamContainer'), cmdParamNumber = document.getElementById('cmdParamNumber'), cmdParamText = document.getElementById('cmdParamText'), cmdParamRole = document.getElementById('cmdParamRole'), cmdParamLabel = document.getElementById('cmdParamLabel'), cmdTarget = document.getElementById('cmdTarget');
     document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
     document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
 
@@ -949,19 +1223,13 @@
       if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
       const currentTarget = cmdTarget.value;
       let options = `<option value="GLOBAL" class="font-bold">🌐 EVERYONE (GLOBAL)</option>`;
-      usersData.forEach(p => {
-        let prefix = p.role === 'king' ? '👑 ' : p.role === 'admin' ? '🛡️ ' : p.role === 'mod' ? '⚔️ ' : '';
-        options += `<option value="${p.id}">${prefix}${escapeHtml(p.username)} (${p.score||0}⭐)${p.banned ? ' [BANNED]' : ''}</option>`;
-      });
+      usersData.forEach(p => { let prefix = p.role === 'king' ? '👑 ' : p.role === 'admin' ? '🛡️ ' : p.role === 'mod' ? '⚔️ ' : ''; options += `<option value="${p.id}">${prefix}${escapeHtml(p.username)} (${p.score||0}⭐)${p.banned ? ' [BANNED]' : ''}</option>`; });
       cmdTarget.innerHTML = options; if (currentTarget && [...cmdTarget.options].some(o => o.value === currentTarget)) cmdTarget.value = currentTarget;
 
       document.getElementById('adminPlayerCount').textContent = `${usersData.length} Players`;
       document.getElementById('adminDirectoryList').innerHTML = usersData.map(p => {
         let badge = p.role === 'king' ? `<span class="text-yellow-400 text-xs"><i data-lucide="crown" class="w-3 h-3 inline"></i> King</span>` : p.role === 'admin' ? `<span class="text-indigo-400 text-xs"><i data-lucide="shield" class="w-3 h-3 inline"></i> Admin</span>` : p.role === 'mod' ? `<span class="text-green-400 text-xs"><i data-lucide="shield-half" class="w-3 h-3 inline"></i> Mod</span>` : `<span class="text-gray-500 text-xs">User</span>`;
-        return `<div class="flex justify-between items-center bg-gray-800/50 p-2 rounded border border-gray-700/50">
-          <div class="flex items-center gap-2 truncate"><img src="${escapeHtml(p.photoURL || getDefaultAvatar(p.username))}" class="w-6 h-6 rounded-full border border-gray-600"><span class="text-sm font-semibold text-gray-200 truncate">${escapeHtml(p.username)}</span>${p.banned ? `<span class="text-red-500 text-[10px] font-bold ml-1 bg-red-500/20 px-1 rounded">BANNED</span>` : ''}</div>
-          <div class="text-right flex flex-col items-end"><span class="font-mono text-sm text-yellow-400">${(p.score||0).toLocaleString()}⭐</span>${badge}</div>
-        </div>`;
+        return `<div class="flex justify-between items-center bg-gray-800/50 p-2 rounded border border-gray-700/50"><div class="flex items-center gap-2 truncate"><img src="${escapeHtml(p.photoURL || getDefaultAvatar(p.username))}" class="w-6 h-6 rounded-full border border-gray-600"><span class="text-sm font-semibold text-gray-200 truncate">${escapeHtml(p.username)}</span>${p.banned ? `<span class="text-red-500 text-[10px] font-bold ml-1 bg-red-500/20 px-1 rounded">BANNED</span>` : ''}</div><div class="text-right flex flex-col items-end"><span class="font-mono text-sm text-yellow-400">${(p.score||0).toLocaleString()}⭐</span>${badge}</div></div>`;
       }).join('');
       lucide.createIcons();
     }
@@ -975,10 +1243,7 @@
         const setRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
         try {
           if (act === 'globalMsg') { await setDoc(setRef, { broadcastMsg: valText }, { merge: true }); alert("Message broadcasted."); cmdParamText.value = ''; } 
-          else if (act.startsWith('troll_')) {
-            if (act === 'troll_clear') { await setDoc(setRef, { globalTroll: '' }, { merge: true }); alert("Global trolls cleared."); } 
-            else { await setDoc(setRef, { globalTroll: act }, { merge: true }); alert(`Global Troll activated.`); setTimeout(async () => { await setDoc(setRef, { globalTroll: '' }, { merge: true }); }, 10000); }
-          } else alert("Cannot use this command globally yet.");
+          else if (act.startsWith('troll_')) { if (act === 'troll_clear') { await setDoc(setRef, { globalTroll: '' }, { merge: true }); alert("Global trolls cleared."); } else { await setDoc(setRef, { globalTroll: act }, { merge: true }); alert(`Global Troll activated.`); setTimeout(async () => { await setDoc(setRef, { globalTroll: '' }, { merge: true }); }, 10000); } } else alert("Cannot use this command globally yet.");
         } catch(err) { alert("Failed global command."); } return;
       }
 
@@ -997,38 +1262,27 @@
         else if (act === 'warn') { await setDoc(uRef, { warning: valText }, { merge: true }); cmdParamText.value = ''; alert(`Warning sent.`); }
         else if (act === 'ban') { await setDoc(uRef, { banned: true }, { merge: true }); alert("Player banned."); }
         else if (act === 'unban') { await setDoc(uRef, { banned: false }, { merge: true }); alert("Player unbanned."); }
-        else if (act.startsWith('troll_')) {
-          if (act === 'troll_clear') await setDoc(uRef, { trollEvent: '' }, { merge: true });
-          else { await setDoc(uRef, { trollEvent: act }, { merge: true }); alert(`Troll sent.`); }
-        }
+        else if (act.startsWith('troll_')) { if (act === 'troll_clear') await setDoc(uRef, { trollEvent: '' }, { merge: true }); else { await setDoc(uRef, { trollEvent: act }, { merge: true }); alert(`Troll sent.`); } }
         else if (act === 'role') {
-          if (valRole === 'king') {
-            if(!confirm(`WARNING: Transfer crown?`)) return;
-            await setDoc(uRef, { role: 'king' }, { merge: true });
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true });
-          } else await setDoc(uRef, { role: valRole }, { merge: true });
+          if (valRole === 'king') { if(!confirm(`WARNING: Transfer crown?`)) return; await setDoc(uRef, { role: 'king' }, { merge: true }); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true }); } else await setDoc(uRef, { role: valRole }, { merge: true });
         }
       } catch (err) { alert("Command failed."); }
     });
 
     document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return;
-      if (usersData.some(d => d.role === 'king')) return alert("Crown is taken!");
+      if (!currentUser || !myProfile) return; if (usersData.some(d => d.role === 'king')) return alert("Crown is taken!");
       const c = prompt("Enter secret code:"); if (!c) return;
       if (c === globalSettings.kingCode) { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true }); alert("Crown claimed!"); } else alert("Incorrect code.");
     });
     
     document.getElementById('changeCodeBtn').addEventListener('click', async () => {
-      if (!myProfile || myProfile.role !== 'king') return;
-      const n = prompt("Enter new King Code:", globalSettings.kingCode);
+      if (!myProfile || myProfile.role !== 'king') return; const n = prompt("Enter new King Code:", globalSettings.kingCode);
       if (n && n.trim() !== '') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: n.trim() }, { merge: true }); alert("Code updated."); }
     });
 
     function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
-    // Start background canvas animation
     level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
-
   </script>
 </body>
 </html>
