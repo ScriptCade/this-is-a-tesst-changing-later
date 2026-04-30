@@ -797,7 +797,30 @@
       ctx.restore();
     }
 
-    function loop() { scheduleAudio(); update(); draw(); requestAnimationFrame(loop); }
+    let lastTime = 0;
+    let accumulator = 0;
+    const TIME_STEP = 1000 / 60; // 60 FPS Fixed Time Step for consistent physics on 120hz/144hz displays
+
+    function loop(timestamp) { 
+      if (!lastTime) lastTime = timestamp;
+      let dt = timestamp - lastTime;
+      lastTime = timestamp;
+      
+      // Prevent spiral of death if tab was inactive
+      if (dt > 100) dt = 100; 
+      accumulator += dt;
+
+      scheduleAudio(); 
+
+      // Fixed timestep update keeps game speed exactly the same regardless of screen refresh rate
+      while (accumulator >= TIME_STEP) {
+        update();
+        accumulator -= TIME_STEP;
+      }
+      
+      draw(); 
+      requestAnimationFrame(loop); 
+    }
 
     function parseLevelString(str) {
       let newLvl = []; let parts = str.split(';');
@@ -1027,7 +1050,7 @@
       const lStr = generateLevelString();
       try {
         const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
-        await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, createdAt: Date.now() });
+        await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, difficulty: 'NA', stars: 0, createdAt: Date.now() });
         alert("Level published successfully!"); document.getElementById('btnExitGame').click(); 
       } catch(e) { alert("Failed to publish."); console.error(e); }
     });
@@ -1224,15 +1247,33 @@
       if (levelsList.length === 0) { browserList.innerHTML = `<div class="p-8 text-center text-gray-500">No community levels yet. Be the first to build one!</div>`; return; }
       
       levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
+      
+      const canRate = myProfile && ['king', 'admin', 'mod'].includes(myProfile.role);
+      
       browserList.innerHTML = levelsList.map(lvl => {
+        let diffIcon = '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-500"></i>';
+        if (lvl.difficulty === 'Easy') diffIcon = '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
+        else if (lvl.difficulty === 'Medium') diffIcon = '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
+        else if (lvl.difficulty === 'Hard') diffIcon = '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
+        else if (lvl.difficulty === 'Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-600"></i>';
+
         return `
           <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
-            <div>
-              <h4 class="text-lg font-bold text-white">${escapeHtml(lvl.name)}</h4>
-              <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
-            </div>
             <div class="flex items-center gap-4">
+              <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
+                ${diffIcon}
+              </div>
+              <div>
+                <h4 class="text-lg font-bold text-white flex items-center gap-2">
+                  ${escapeHtml(lvl.name)}
+                  ${lvl.stars ? `<span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> ${lvl.stars}</span>` : ''}
+                </h4>
+                <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
               <span class="text-xs text-gray-400 font-mono flex items-center gap-1 bg-gray-900 px-2 py-1 rounded"><i data-lucide="play" class="w-3 h-3 text-green-400"></i> ${lvl.plays || 0}</span>
+              ${canRate ? `<button data-rate-lvl="${lvl.id}" class="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 flex items-center gap-1 text-sm"><i data-lucide="star" class="w-4 h-4"></i> Rate</button>` : ''}
               <button data-play-lvl="${lvl.id}" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 flex items-center gap-2"><i data-lucide="play" class="w-4 h-4"></i> Play</button>
             </div>
           </div>
@@ -1242,12 +1283,53 @@
     }
 
     document.getElementById('levelBrowserList').addEventListener('click', async (e) => {
-      const btn = e.target.closest('button[data-play-lvl]');
-      if (btn) {
-        const lvlId = btn.dataset.playLvl; const lvlObj = levelsList.find(l => l.id === lvlId);
+      const playBtn = e.target.closest('button[data-play-lvl]');
+      const rateBtn = e.target.closest('button[data-rate-lvl]');
+      
+      if (playBtn) {
+        const lvlId = playBtn.dataset.playLvl; const lvlObj = levelsList.find(l => l.id === lvlId);
         if (lvlObj) {
           try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (lvlObj.plays||0) + 1 }, { merge: true }); } catch(err){}
           launchGame(lvlObj.data, 'play');
+        }
+      }
+      
+      if (rateBtn) {
+        if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
+        const lvlId = rateBtn.dataset.rateLvl; 
+        const lvlObj = levelsList.find(l => l.id === lvlId);
+        if (lvlObj) {
+          const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)`, "0");
+          if (ratingInput === null) return;
+          
+          let newDiff = 'NA', newStars = 0;
+          if (ratingInput === "1") { newDiff = 'Easy'; newStars = 5; }
+          else if (ratingInput === "2") { newDiff = 'Medium'; newStars = 10; }
+          else if (ratingInput === "3") { newDiff = 'Hard'; newStars = 20; }
+          else if (ratingInput === "4") { newDiff = 'Demon'; newStars = 75; }
+          else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
+          
+          const oldStars = lvlObj.stars || 0;
+          const starDiff = newStars - oldStars;
+          
+          try {
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { difficulty: newDiff, stars: newStars }, { merge: true });
+            
+            // Increment the author's score if the stars changed
+            if (starDiff !== 0) {
+              const authorRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', lvlObj.authorId);
+              const authorSnap = await getDoc(authorRef);
+              if (authorSnap.exists()) {
+                 const authorData = authorSnap.data();
+                 const newScore = Math.max(0, (authorData.score || 0) + starDiff);
+                 await setDoc(authorRef, { score: newScore }, { merge: true });
+              }
+            }
+            alert(`Level successfully rated ${newDiff} (${newStars}⭐)!`);
+          } catch(err) {
+            alert("Failed to rate level.");
+            console.error(err);
+          }
         }
       }
     });
