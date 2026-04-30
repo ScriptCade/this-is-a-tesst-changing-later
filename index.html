@@ -19,6 +19,14 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #718096; }
 
+    /* UI Animations */
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+    .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes slideUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+    .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+    @keyframes pulse-play { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(74, 222, 128, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
+    .play-pulse { animation: pulse-play 2s infinite; }
+
     /* Editor UI Buttons */
     .ed-btn { background: linear-gradient(180deg, #4ade80, #16a34a); border: 2px solid #000; border-radius: 6px; color: white; font-weight: 900; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2); transition: filter 0.1s; }
     .ed-btn:active { filter: brightness(0.8); }
@@ -40,6 +48,10 @@
     .troll-tiny { transform: scale(0.2); transition: transform 1s ease-in-out; }
     .troll-spin { animation: spin 2s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Level Preview Specific Styles */
+    .gd-blue-bg { background: linear-gradient(to bottom, #0055ff, #0033aa); }
+    .gd-panel { background: #8B4513; border: 3px solid #000; border-radius: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.5); }
   </style>
 </head>
 <body id="mainBody">
@@ -57,6 +69,14 @@
       </button>
       <button id="btnMusic" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow">🎵 Music: OFF</button>
     </div>
+    
+    <!-- In-Game Progress Bar -->
+    <div id="gameProgressContainer" class="hide pointer-events-auto absolute top-6 left-1/2 -translate-x-1/2 w-64 bg-black/60 rounded-full border-2 border-white/20 p-1 backdrop-blur-md">
+      <div id="gameProgressBar" class="h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full w-0 transition-all duration-100 relative">
+        <span id="gameProgressText" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white text-shadow-sm">0%</span>
+      </div>
+    </div>
+
     <div id="stats" class="pointer-events-auto bg-gray-900/80 px-4 py-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl font-mono text-xl text-yellow-400">
       Attempt 1
     </div>
@@ -97,17 +117,31 @@
         </div>
         <!-- Tool Grids (Categorized) -->
         <div class="p-2 overflow-y-auto custom-scrollbar flex-1 bg-[#223]">
+          
           <div id="cat-blocks" class="grid grid-cols-8 sm:grid-cols-12 gap-2">
             <button class="tool-btn active" data-tool="0" title="Solid Block"><div class="w-5 h-5 border-2 border-white bg-blue-400"></div></button>
+            <button class="tool-btn" data-tool="19" title="Half Block"><div class="w-5 h-2.5 border-2 border-white bg-blue-400 mt-2.5"></div></button>
             <button class="tool-btn" data-tool="13" title="Deco Block"><div class="w-5 h-5 border border-gray-500 bg-gray-700"></div></button>
           </div>
+          
           <div id="cat-hazards" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
             <button class="tool-btn" data-tool="1" title="Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-red-500"></div></div></button>
+            <button class="tool-btn" data-tool="20" title="Small Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[8px] border-b-red-500"></div></div></button>
+            <button class="tool-btn" data-tool="21" title="Sawblade"><div class="w-5 h-5 rounded-full border-2 border-gray-400 bg-gray-600 flex items-center justify-center"><div class="w-1 h-1 bg-white rounded-full"></div></div></button>
           </div>
+          
           <div id="cat-interact" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
-            <button class="tool-btn" data-tool="2" title="Jump Pad"><div class="w-5 h-2 border-t-2 border-yellow-400 rounded-t-full bg-yellow-600/50"></div></button>
-            <button class="tool-btn" data-tool="5" title="Jump Orb"><div class="w-4 h-4 rounded-full border-4 border-yellow-400 bg-yellow-400/20"></div></button>
+            <button class="tool-btn" data-tool="5" title="Yellow Orb (Normal)"><div class="w-4 h-4 rounded-full border-2 border-yellow-200 bg-yellow-400 shadow-[0_0_8px_#facc15]"></div></button>
+            <button class="tool-btn" data-tool="23" title="Pink Orb (Low)"><div class="w-4 h-4 rounded-full border-2 border-pink-200 bg-pink-400 shadow-[0_0_8px_#f472b6]"></div></button>
+            <button class="tool-btn" data-tool="25" title="Red Orb (High)"><div class="w-4 h-4 rounded-full border-2 border-red-200 bg-red-500 shadow-[0_0_8px_#ef4444]"></div></button>
+            <button class="tool-btn" data-tool="27" title="Blue Orb (Gravity)"><div class="w-4 h-4 rounded-full border-2 border-blue-200 bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div></button>
+            
+            <button class="tool-btn" data-tool="2" title="Yellow Pad"><div class="w-5 h-2 border-t-2 border-yellow-200 rounded-t-full bg-yellow-400 mt-3 shadow-[0_0_8px_#facc15]"></div></button>
+            <button class="tool-btn" data-tool="22" title="Pink Pad"><div class="w-5 h-2 border-t-2 border-pink-200 rounded-t-full bg-pink-400 mt-3 shadow-[0_0_8px_#f472b6]"></div></button>
+            <button class="tool-btn" data-tool="24" title="Red Pad"><div class="w-5 h-2 border-t-2 border-red-200 rounded-t-full bg-red-500 mt-3 shadow-[0_0_8px_#ef4444]"></div></button>
+            <button class="tool-btn" data-tool="26" title="Blue Pad"><div class="w-5 h-2 border-t-2 border-blue-200 rounded-t-full bg-blue-500 mt-3 shadow-[0_0_8px_#3b82f6]"></div></button>
           </div>
+          
           <div id="cat-portals" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
             <button class="tool-btn" data-tool="7" title="Cube Mode"><div class="w-3 h-5 border-2 border-green-400 rounded-full bg-green-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-green-200">C</span></div></button>
             <button class="tool-btn" data-tool="8" title="Ship Mode"><div class="w-3 h-5 border-2 border-pink-400 rounded-full bg-pink-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-pink-200">S</span></div></button>
@@ -115,7 +149,10 @@
             <button class="tool-btn" data-tool="6" title="Wave Mode"><div class="w-3 h-5 border-2 border-orange-500 rounded-full bg-orange-500/20 flex items-center justify-center"><span class="text-[8px] font-bold text-orange-200">W</span></div></button>
             <button class="tool-btn" data-tool="4" title="Gravity Up"><div class="w-3 h-5 border-2 border-yellow-400 rounded-full bg-yellow-400/20"></div></button>
             <button class="tool-btn" data-tool="3" title="Gravity Down"><div class="w-3 h-5 border-2 border-blue-400 rounded-full bg-blue-400/20"></div></button>
+            <button class="tool-btn" data-tool="28" title="Mini Portal"><div class="w-3 h-4 border-2 border-fuchsia-400 rounded bg-fuchsia-400/30"></div></button>
+            <button class="tool-btn" data-tool="29" title="Normal Portal"><div class="w-4 h-6 border-2 border-emerald-400 rounded bg-emerald-400/30"></div></button>
           </div>
+          
           <div id="cat-triggers" class="grid grid-cols-8 sm:grid-cols-12 gap-2 hide">
             <button class="tool-btn" data-tool="10" title="Slow Speed"><span class="text-orange-400 font-bold text-xs">&lt;</span></button>
             <button class="tool-btn" data-tool="11" title="Normal Speed"><span class="text-green-400 font-bold text-xs">&gt;&gt;</span></button>
@@ -174,7 +211,7 @@
 
   <!-- Win Overlay -->
   <div id="winOverlay" class="hide absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex justify-center items-center">
-    <div class="bg-gray-900 border-2 border-yellow-400 p-10 rounded-2xl text-center shadow-[0_0_80px_rgba(250,204,21,0.4)] flex flex-col items-center">
+    <div class="bg-gray-900 border-2 border-yellow-400 p-10 rounded-2xl text-center shadow-[0_0_80px_rgba(250,204,21,0.4)] flex flex-col items-center animate-pop">
       <h1 class="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">LEVEL COMPLETE</h1>
       <p id="winAttempts" class="text-2xl text-yellow-400 font-mono mb-8">Attempts: 1</p>
       <div class="flex gap-4">
@@ -187,10 +224,10 @@
   <!-- ========================================== -->
   <!-- 🌐 HUB UI & MAIN MENU                      -->
   <!-- ========================================== -->
-  <div id="hubUI" class="absolute inset-0 overflow-y-auto z-10 p-4 md:p-8 bg-black/40 backdrop-blur-sm">
+  <div id="hubUI" class="absolute inset-0 overflow-y-auto z-10 p-4 md:p-8 bg-black/40 backdrop-blur-sm transition-opacity duration-300">
     <div class="max-w-6xl mx-auto space-y-6 pb-12">
       <!-- Header -->
-      <header class="text-center space-y-4 pt-4">
+      <header class="text-center space-y-4 pt-4 animate-slide-up">
         <div class="inline-flex items-center justify-center p-4 bg-purple-500/10 rounded-full mb-2 border border-purple-500/20 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
           <i data-lucide="boxes" class="w-12 h-12 text-purple-400"></i>
         </div>
@@ -203,7 +240,7 @@
       </header>
 
       <!-- UNLOGGED STATE (Auth) -->
-      <div id="joinSection" class="max-w-md mx-auto bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl block mt-8">
+      <div id="joinSection" class="max-w-md mx-auto bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl block mt-8 animate-pop">
         <button id="googleLoginBtn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]">
           <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google
         </button>
@@ -224,7 +261,7 @@
       <div id="loggedInSection" class="hidden w-full max-w-5xl mx-auto flex flex-col items-center gap-8 mt-8">
         
         <!-- Profile Banner -->
-        <div class="w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl shadow-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div class="w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl shadow-xl p-4 flex flex-wrap items-center justify-between gap-4 animate-slide-up">
           <div class="flex items-center gap-4">
             <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Change Profile Picture">
               <img id="displayPfp" src="" class="w-14 h-14 rounded-full object-cover border-2 border-purple-500 shadow-lg bg-gray-800">
@@ -249,28 +286,28 @@
         </div>
 
         <!-- MAIN MENU (3 Big Buttons) -->
-        <div id="viewMainMenu" class="w-full flex flex-col items-center gap-6">
+        <div id="viewMainMenu" class="w-full flex flex-col items-center gap-6 animate-pop">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             <button id="btnViewBrowser" class="p-8 bg-blue-600 hover:bg-blue-500 rounded-3xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-blue-400 h-64 relative overflow-hidden group">
-              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-              <i data-lucide="globe" class="w-20 h-20 text-white drop-shadow-md relative z-10"></i>
+              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              <i data-lucide="globe" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
               <span class="text-3xl font-black tracking-widest text-white relative z-10">BROWSE<br>LEVELS</span>
             </button>
             <button id="btnCreateLevel" class="p-8 bg-green-600 hover:bg-green-500 rounded-3xl shadow-[0_0_30px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-green-400 h-64 relative overflow-hidden group">
-              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-              <i data-lucide="hammer" class="w-20 h-20 text-white drop-shadow-md relative z-10"></i>
+              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              <i data-lucide="hammer" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
               <span class="text-3xl font-black tracking-widest text-white relative z-10">CREATE<br>LEVEL</span>
             </button>
             <button id="btnViewLeaderboard" class="p-8 bg-yellow-600 hover:bg-yellow-500 rounded-3xl shadow-[0_0_30px_rgba(202,138,4,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-yellow-400 h-64 relative overflow-hidden group">
-              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-              <i data-lucide="trophy" class="w-20 h-20 text-white drop-shadow-md relative z-10"></i>
+              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              <i data-lucide="trophy" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
               <span class="text-3xl font-black tracking-widest text-white relative z-10">TOP<br>CREATORS</span>
             </button>
           </div>
         </div>
 
         <!-- LEVEL BROWSER VIEW -->
-        <div id="viewBrowser" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px]">
+        <div id="viewBrowser" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px] animate-pop">
           <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
             <div class="flex items-center gap-4">
               <button class="btnBackToMain text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
@@ -282,7 +319,7 @@
         </div>
 
         <!-- LEADERBOARD VIEW -->
-        <div id="viewLeaderboard" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px]">
+        <div id="viewLeaderboard" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px] animate-pop">
           <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
             <div class="flex items-center gap-4">
               <button class="btnBackToMain text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
@@ -297,15 +334,95 @@
     </div>
   </div>
 
+  <!-- GD LEVEL PREVIEW MODAL -->
+  <div id="levelPreviewModal" class="hide fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+    <div class="gd-blue-bg border-[4px] border-[#001155] rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden relative animate-pop shadow-[0_0_50px_rgba(0,85,255,0.4)]">
+      
+      <!-- Top Bar: Back & Info -->
+      <div class="absolute top-4 left-4 z-10 flex gap-2">
+        <button id="btnClosePreview" class="w-12 h-12 bg-red-600 hover:bg-red-500 border-[3px] border-black rounded-full flex items-center justify-center text-white shadow-lg transition-transform hover:scale-105 active:scale-95"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+      </div>
+      <div class="absolute top-4 right-4 z-10 flex gap-2">
+        <div class="bg-black/50 border-2 border-white/20 rounded-full px-4 py-1 flex items-center gap-2 text-white font-mono shadow-inner"><i data-lucide="hash" class="w-4 h-4 text-gray-400"></i> <span id="prevLevelId" class="text-xs">ID</span></div>
+      </div>
+
+      <!-- Main Center Content -->
+      <div class="flex-1 flex flex-col items-center pt-8 px-6 relative z-0">
+        <h1 id="prevLevelName" class="text-4xl md:text-5xl font-black text-white tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] text-center max-w-[80%] truncate uppercase">LEVEL NAME</h1>
+        <p class="text-yellow-400 font-bold text-lg md:text-xl tracking-wide drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mt-1">BY <span id="prevAuthorName">AUTHOR</span></p>
+
+        <div class="flex w-full mt-6 flex-1 max-h-[300px]">
+          <!-- Left: Face -->
+          <div class="w-1/3 flex flex-col items-center justify-center pt-8">
+            <div id="prevDiffFace" class="w-24 h-24 mb-2 drop-shadow-[0_5px_5px_rgba(0,0,0,0.6)]">
+              <!-- Rendered via JS -->
+            </div>
+            <span id="prevDiffText" class="text-white font-black text-xl tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] uppercase">NA</span>
+            <div id="prevStarsBadge" class="mt-2 text-yellow-400 font-bold text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex items-center gap-1 hidden">
+               <i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i> <span id="prevStarsNum">0</span>
+            </div>
+          </div>
+
+          <!-- Center: Play Button -->
+          <div class="w-1/3 flex items-center justify-center relative">
+            <button id="btnModalPlay" class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-[6px] border-white shadow-[0_0_30px_rgba(74,222,128,0.6),inset_0_-8px_0_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all play-pulse group">
+               <div class="w-0 h-0 border-t-[25px] border-t-transparent border-l-[40px] border-l-white border-b-[25px] border-b-transparent ml-3 group-hover:border-l-yellow-200 transition-colors"></div>
+            </button>
+            <div id="prevRateBtnContainer" class="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden">
+               <button id="btnModalRate" class="px-4 py-1.5 bg-purple-600 border-2 border-white rounded-full text-white font-bold text-sm shadow hover:bg-purple-500 transition-colors flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> Rate</button>
+            </div>
+          </div>
+
+          <!-- Right: Stats -->
+          <div class="w-1/3 flex flex-col justify-center items-start pl-8 md:pl-16 gap-5">
+            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+              <i data-lucide="play-circle" class="w-8 h-8 text-green-400"></i> <span id="prevDownloads">0</span>
+            </div>
+            <button id="btnModalLike" class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform active:scale-95 group">
+              <i id="iconModalLike" data-lucide="thumbs-up" class="w-8 h-8 text-yellow-400 group-hover:fill-yellow-400/50 transition-colors"></i> <span id="prevLikes">0</span>
+            </button>
+            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+              <i data-lucide="clock" class="w-8 h-8 text-gray-300"></i> <span id="prevLength">Tiny</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Progress Bar (Normal Mode) -->
+        <div class="w-full max-w-xl mt-8">
+           <p class="text-center text-white font-black tracking-widest text-sm mb-1 drop-shadow-md">NORMAL MODE</p>
+           <div class="w-full h-5 bg-black/60 border-2 border-black rounded-full overflow-hidden relative shadow-inner">
+              <div id="prevProgressBar" class="h-full bg-green-500 w-0 transition-all"></div>
+              <span id="prevProgressText" class="absolute inset-0 flex items-center justify-center text-white font-black text-xs drop-shadow-md z-10">0%</span>
+           </div>
+        </div>
+      </div>
+
+      <!-- Bottom Panel: Comments -->
+      <div class="gd-panel m-4 mt-8 flex-1 flex flex-col overflow-hidden relative p-1">
+         <div class="absolute top-0 left-0 w-full h-8 bg-black/30 border-b border-black/50 flex items-center px-4 justify-between z-10">
+            <span class="text-white font-bold text-sm tracking-widest">COMMENTS</span>
+            <span id="prevCommentCount" class="text-yellow-400 font-bold text-xs">0</span>
+         </div>
+         <div id="prevCommentsList" class="flex-1 overflow-y-auto mt-8 p-2 space-y-2 custom-scrollbar">
+            <!-- Comments injected here -->
+         </div>
+         <form id="commentForm" class="mt-2 flex gap-2 p-2 bg-black/40 rounded border border-black/30 shrink-0">
+            <input type="text" id="commentInput" placeholder="Write a comment..." class="flex-1 bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400/50" maxlength="80" required>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-500 border border-blue-400 text-white font-bold px-4 rounded text-sm transition-colors">Post</button>
+         </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading & Admin Overlays -->
   <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-gray-900 z-[200]"><i data-lucide="activity" class="w-12 h-12 animate-spin text-blue-500"></i></div>
   <div id="globalBanner" class="fixed top-0 left-0 right-0 bg-indigo-600 text-white p-3 font-bold text-center z-[150] shadow-xl transform -translate-y-full transition-transform duration-500 flex justify-center items-center gap-3"><i data-lucide="radio" class="w-5 h-5 animate-pulse"></i><span id="globalBannerText">System Message</span><button id="closeBannerBtn" class="absolute right-4 text-white/70 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
   <div id="bannedScreen" class="fixed inset-0 bg-red-950 z-[100] hidden flex-col items-center justify-center p-4 text-center"><i data-lucide="shield-alert" class="w-24 h-24 text-red-500 mb-6"></i><h1 class="text-5xl font-black text-white mb-4">ACCOUNT BANNED</h1><p class="text-red-300">Your account has been permanently suspended.</p></div>
-  <div id="warningScreen" class="fixed inset-0 bg-amber-600/95 z-[90] hidden flex-col items-center justify-center p-4 text-center"><div class="bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-md border-2 border-amber-500"><i data-lucide="alert-triangle" class="w-16 h-16 text-amber-500 mx-auto mb-4"></i><h2 class="text-3xl font-black text-white mb-2">WARNING</h2><p id="warningMessageText" class="text-amber-200 mb-8 p-4 bg-gray-800 rounded-xl border border-gray-700"></p><button id="dismissWarningBtn" class="w-full bg-amber-500 text-gray-900 font-bold py-3 rounded-xl">I Understand</button></div></div>
+  <div id="warningScreen" class="fixed inset-0 bg-amber-600/95 z-[90] hidden flex-col items-center justify-center p-4 text-center"><div class="bg-gray-900 p-8 rounded-3xl shadow-2xl max-w-md border-2 border-amber-500 animate-pop"><i data-lucide="alert-triangle" class="w-16 h-16 text-amber-500 mx-auto mb-4"></i><h2 class="text-3xl font-black text-white mb-2">WARNING</h2><p id="warningMessageText" class="text-amber-200 mb-8 p-4 bg-gray-800 rounded-xl border border-gray-700"></p><button id="dismissWarningBtn" class="w-full bg-amber-500 text-gray-900 font-bold py-3 rounded-xl">I Understand</button></div></div>
 
   <!-- COMMAND CENTER MODAL -->
-  <div id="adminPanelModal" class="fixed inset-0 bg-black/80 z-[80] hidden flex-col items-center justify-center p-2 md:p-4 backdrop-blur-sm">
-    <div class="bg-gray-800 rounded-3xl shadow-2xl w-full max-w-5xl border border-gray-700 flex flex-col h-full max-h-[90vh]">
+  <div id="adminPanelModal" class="fixed inset-0 bg-black/80 z-[80] hidden flex-col items-center justify-center p-2 md:p-4 backdrop-blur-sm transition-opacity">
+    <div class="bg-gray-800 rounded-3xl shadow-2xl w-full max-w-5xl border border-gray-700 flex flex-col h-full max-h-[90vh] animate-pop">
       <div class="p-4 md:p-6 border-b border-gray-700 flex justify-between items-center bg-gray-800/50 rounded-t-3xl">
         <h2 class="text-xl md:text-2xl font-black flex items-center gap-3 text-white"><i data-lucide="terminal" class="w-6 h-6 text-indigo-400"></i> Command Center</h2>
         <div class="flex gap-2">
@@ -314,7 +431,7 @@
         </div>
       </div>
       <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
-        <div class="md:w-1/2 p-4 md:p-6 bg-gray-800/80 border-r border-gray-700 overflow-y-auto">
+        <div class="md:w-1/2 p-4 md:p-6 bg-gray-800/80 border-r border-gray-700 overflow-y-auto custom-scrollbar">
           <h3 class="text-sm font-bold text-gray-400 uppercase mb-4">Execute Command</h3>
           <form id="adminCommandForm" class="space-y-5">
             <div>
@@ -353,7 +470,7 @@
                 <option value="user">User</option><option value="mod">Moderator</option><option value="admin">Admin</option><option value="king">King</option>
               </select>
             </div>
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg flex justify-center items-center gap-2"><i data-lucide="zap" class="w-5 h-5"></i> Execute Command</button>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-lg flex justify-center items-center gap-2 transition-transform active:scale-95"><i data-lucide="zap" class="w-5 h-5"></i> Execute Command</button>
           </form>
         </div>
         <div class="md:w-1/2 flex flex-col bg-gray-900">
@@ -361,7 +478,7 @@
             <h3 class="text-sm font-bold text-gray-400 uppercase">Player Directory</h3>
             <span id="adminPlayerCount" class="text-xs bg-gray-700 px-2 py-1 rounded">0 Players</span>
           </div>
-          <div class="overflow-y-auto flex-1 p-2"><div id="adminDirectoryList" class="space-y-1"></div></div>
+          <div class="overflow-y-auto flex-1 p-2 custom-scrollbar"><div id="adminDirectoryList" class="space-y-1"></div></div>
         </div>
       </div>
     </div>
@@ -392,6 +509,9 @@
     let usersData = [], levelsList = [], isSignupMode = false, pendingUsername = null;
     let dbUnsubscribe = null, levelsUnsubscribe = null, settingsUnsubscribe = null, activeTrollTimeout = null;
     let globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
+    
+    // Preview Modal State
+    let currentPreviewLevel = null;
 
     // ==========================================
     // UTILS & TROLL EVENTS
@@ -402,7 +522,7 @@
 
     function applyTrollEffect(trollType) {
       if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin') && trollType !== '') return; 
-      if (!trollType) { clearTrollEffects(); return; } // Handle empty troll string
+      if (!trollType) { clearTrollEffects(); return; } 
 
       clearTrollEffects();
       const b = document.getElementById('mainBody');
@@ -414,11 +534,9 @@
       if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
       activeTrollTimeout = setTimeout(async () => {
         clearTrollEffects();
-        // Clear personal troll
         if (myProfile && myProfile.trollEvent) { 
           try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { trollEvent: '' }, { merge: true }); } catch(e){} 
         }
-        // Auto-clear global trolls from DB after 10s to prevent them sticking on refresh
         if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
           try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: '' }, { merge: true }); } catch(e){} 
         }
@@ -516,8 +634,7 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     
-    // TIGHTER, FASTER PHYSICS PARAMETERS
-    const GRID_SIZE = 40, GROUND_HEIGHT = 100, PLAYER_SIZE = 30;
+    const GRID_SIZE = 40, GROUND_HEIGHT = 100;
     const GRAVITY = 1.35, JUMP_FORCE = -17.5, PAD_FORCE = -24; 
     const BASE_MOVE_SPEED = 9.2, WAVE_SPEED = 12; 
     const SHIP_GRAVITY = 0.55, SHIP_THRUST = -1.0;
@@ -527,22 +644,11 @@
 
     let state = { mode: 'menu', isPlaytesting: false, cameraX: 0, cameraY: 0, attempts: 1, particles: [], trail: [], currentPath: [], savedPath: [], bgColor: [...DEFAULT_BG], targetBgColor: [...DEFAULT_BG], win: false };
     let bgParticles = Array.from({length: 60}, () => ({ x: Math.random() * 2000, y: Math.random() * 2000, s: Math.random() * 4 + 2, spd: Math.random() * 0.4 + 0.1, op: Math.random() * 0.3 + 0.1 }));
-    let player = { x: 0, y: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, dead: false };
-    let level = [], input = { jumpHeld: false };
+    let player = { x: 0, y: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, sizeMultiplier: 1.0, dead: false, progress: 0 };
+    let level = [], levelMaxX = 0, input = { jumpHeld: false };
 
-    // Advanced Editor State
     let editor = { 
-      mode: 'build', // build, edit, delete
-      tool: 0, rot: 0, 
-      isDragging: false, 
-      swipeEnabled: true,
-      lastGx: -1, lastGy: -1,
-      selectedObjs: [],
-      selBox: null, // {sx, sy, ex, ey}
-      camDragStartX: 0, camDragStartY: 0,
-      initialCamX: 0, initialCamY: 0,
-      isClick: true,
-      restoreState: { camX: 0, camY: 0 }
+      mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: true, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }
     };
 
     const BLANK_LEVEL_DATA = (() => { let str = ""; for(let i=-5; i<=60; i++) str += `${i},-1,0,0;${i},-2,0,0;${i},-3,0,0;`; return str; })();
@@ -550,45 +656,102 @@
     function resize() {
       canvas.width = window.innerWidth; canvas.height = window.innerHeight;
       groundY = canvas.height - GROUND_HEIGHT;
-      if(state.mode === 'edit' && player.y === 0) player.y = groundY - PLAYER_SIZE;
+      if(state.mode === 'edit' && player.y === 0) player.y = groundY - 30;
     }
     window.addEventListener('resize', resize); resize();
 
     function resetPlayer() {
-      player.x = 0; player.y = groundY - PLAYER_SIZE; player.vy = 0; player.rotation = 0; player.grounded = true; player.gravityDir = 1; player.gamemode = 0; player.speedMultiplier = 1.0; player.dead = false;
+      let pSize = 30 * player.sizeMultiplier;
+      player.x = 0; player.y = groundY - pSize; player.vy = 0; player.rotation = 0; player.grounded = true; player.gravityDir = 1; player.gamemode = 0; player.speedMultiplier = 1.0; player.sizeMultiplier = 1.0; player.dead = false; player.progress = 0;
       state.cameraX = 0; state.cameraY = 0; state.particles = []; state.trail = []; state.currentPath = []; state.bgColor = [...DEFAULT_BG]; state.targetBgColor = [...DEFAULT_BG]; state.win = false;
       document.getElementById('winOverlay').classList.add('hide');
+      
+      // Calculate max X for progress bar
+      levelMaxX = 1;
+      for (let o of level) if (o.gx > levelMaxX) levelMaxX = o.gx;
+      levelMaxX *= GRID_SIZE;
+      updateProgressBar(0);
     }
 
     function die() {
       if (player.dead) return; player.dead = true; state.savedPath = [...state.currentPath]; 
-      for(let i=0; i<30; i++) state.particles.push({ x: player.x + PLAYER_SIZE/2, y: player.y + PLAYER_SIZE/2, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 1.0, color: Math.random() > 0.5 ? C_PLAYER : '#ffffff' });
+      let pSize = 30 * player.sizeMultiplier;
+      for(let i=0; i<30; i++) state.particles.push({ x: player.x + pSize/2, y: player.y + pSize/2, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 1.0, color: Math.random() > 0.5 ? C_PLAYER : '#ffffff' });
+      
+      // Save progress if it's the real game mode
+      if (state.mode === 'play' && !state.isPlaytesting && currentPreviewLevel) {
+         saveProgress(player.progress);
+      }
       setTimeout(() => { state.attempts++; document.getElementById('stats').innerText = `Attempt ${state.attempts}`; resetPlayer(); }, 500);
     }
 
     function winGame() {
-      if (state.win || player.dead) return; state.win = true;
+      if (state.win || player.dead) return; state.win = true; updateProgressBar(100);
       document.getElementById('winAttempts').innerText = `Attempts: ${state.attempts}`;
       document.getElementById('winOverlay').classList.remove('hide');
-      for(let i=0; i<50; i++) state.particles.push({ x: player.x + PLAYER_SIZE/2, y: player.y + PLAYER_SIZE/2, vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20, life: 2.0, color: '#facc15' });
+      let pSize = 30 * player.sizeMultiplier;
+      for(let i=0; i<50; i++) state.particles.push({ x: player.x + pSize/2, y: player.y + pSize/2, vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.5) * 20, life: 2.0, color: '#facc15' });
+      
+      if (state.mode === 'play' && !state.isPlaytesting && currentPreviewLevel) saveProgress(100);
     }
 
-    function jump() { if ((state.mode === 'play' || state.isPlaytesting) && player.grounded && !player.dead && player.gamemode === 0) { player.vy = JUMP_FORCE * player.gravityDir; player.grounded = false; } }
+    async function saveProgress(prog) {
+      if (!currentUser || !myProfile || !currentPreviewLevel) return;
+      try {
+        const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
+        let currentSaved = myProfile.progress || {};
+        let oldProg = currentSaved[currentPreviewLevel.id] || 0;
+        if (prog > oldProg) {
+           currentSaved[currentPreviewLevel.id] = prog;
+           await setDoc(uRef, { progress: currentSaved }, { merge: true });
+        }
+      } catch(e) { console.log("Progress save failed"); }
+    }
+
+    function updateProgressBar(pct) {
+      if (state.mode === 'play' && !state.isPlaytesting) {
+        document.getElementById('gameProgressBar').style.width = `${pct}%`;
+        document.getElementById('gameProgressText').innerText = `${pct}%`;
+      }
+    }
+
+    function jump() { 
+      if ((state.mode === 'play' || state.isPlaytesting) && player.grounded && !player.dead && player.gamemode === 0) { 
+        let jf = JUMP_FORCE; if (player.sizeMultiplier < 1) jf *= 0.85;
+        player.vy = jf * player.gravityDir; player.grounded = false; 
+      } 
+    }
 
     function triggerAction() {
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
         input.jumpHeld = true; let hitOrb = false;
+        let pSize = 30 * player.sizeMultiplier;
+        
         for (let obj of level) {
-          if (obj.type === 5 && (player.gamemode === 0 || player.gamemode === 3)) {
+          if ([5, 23, 25, 27].includes(obj.type) && (player.gamemode === 0 || player.gamemode === 3)) {
             let ox = obj.gx * GRID_SIZE + GRID_SIZE/2, oy = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE/2;
-            if (Math.hypot((player.x + PLAYER_SIZE/2) - ox, (player.y + PLAYER_SIZE/2) - oy) < GRID_SIZE * 1.5) {
-              player.vy = JUMP_FORCE * player.gravityDir; player.grounded = false; hitOrb = true;
-              for(let i=0; i<8; i++) state.particles.push({ x: ox, y: oy, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 1.0, color: '#facc15' });
+            if (Math.hypot((player.x + pSize/2) - ox, (player.y + pSize/2) - oy) < GRID_SIZE * 1.5) {
+              
+              let force = JUMP_FORCE;
+              if (obj.type === 23) force *= 0.7; // Pink
+              if (obj.type === 25) force *= 1.4; // Red
+              
+              if (obj.type === 27) { // Blue
+                player.gravityDir *= -1;
+                player.vy = JUMP_FORCE * 0.4 * player.gravityDir;
+              } else {
+                if (player.sizeMultiplier < 1) force *= 0.85;
+                player.vy = force * player.gravityDir; 
+              }
+              
+              player.grounded = false; hitOrb = true;
+              let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':'#facc15';
+              for(let i=0; i<8; i++) state.particles.push({ x: ox, y: oy, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 1.0, color: pCol });
               break; 
             }
           }
         }
-        if (!hitOrb) { if (player.gamemode === 0) jump(); else if (player.gamemode === 3) { player.vy = JUMP_FORCE * 0.8 * player.gravityDir; player.grounded = false; } }
+        if (!hitOrb) { if (player.gamemode === 0) jump(); else if (player.gamemode === 3) { let jf = JUMP_FORCE * 0.8; if (player.sizeMultiplier < 1) jf *= 0.8; player.vy = jf * player.gravityDir; player.grounded = false; } }
       }
     }
 
@@ -601,17 +764,30 @@
       if (state.mode === 'menu') { state.cameraX += 3; return; }
 
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead && !state.win) {
-        if (state.currentPath.length === 0 || Math.abs(player.x - state.currentPath[state.currentPath.length-1].x) > 5) state.currentPath.push({x: player.x + PLAYER_SIZE/2, y: player.y + PLAYER_SIZE/2});
+        
+        let pSize = 30 * player.sizeMultiplier;
+        if (state.currentPath.length === 0 || Math.abs(player.x - state.currentPath[state.currentPath.length-1].x) > 5) state.currentPath.push({x: player.x + pSize/2, y: player.y + pSize/2});
 
         player.x += BASE_MOVE_SPEED * player.speedMultiplier;
         
-        if (player.gamemode === 0) player.vy += GRAVITY * player.gravityDir; 
+        // Progress tracking
+        if (!state.isPlaytesting) {
+          let curPct = Math.min(100, Math.floor((player.x / levelMaxX) * 100));
+          if (curPct > player.progress) {
+             player.progress = curPct;
+             updateProgressBar(curPct);
+          }
+        }
+
+        let grav = GRAVITY; if (player.sizeMultiplier < 1) grav *= 0.85;
+
+        if (player.gamemode === 0) player.vy += grav * player.gravityDir; 
         else if (player.gamemode === 1) player.vy = (input.jumpHeld ? -WAVE_SPEED : WAVE_SPEED) * player.gravityDir; 
         else if (player.gamemode === 2) { player.vy += (input.jumpHeld ? SHIP_THRUST : SHIP_GRAVITY) * player.gravityDir; player.vy = Math.max(-12, Math.min(12, player.vy)); }
-        else if (player.gamemode === 3) player.vy += GRAVITY * player.gravityDir; 
+        else if (player.gamemode === 3) player.vy += grav * player.gravityDir; 
         
         if (state.trail.length > 10) state.trail.shift();
-        state.trail.push({x: player.x, y: player.y, rot: player.rotation, gDir: player.gravityDir, mode: player.gamemode});
+        state.trail.push({x: player.x, y: player.y, rot: player.rotation, gDir: player.gravityDir, mode: player.gamemode, size: player.sizeMultiplier});
 
         let nextY = player.y + player.vy; player.grounded = false;
 
@@ -620,8 +796,8 @@
         else if (player.gamemode === 2) player.rotation = player.vy * 3 * player.gravityDir;
         else if (player.gamemode === 3) player.rotation = 0; 
 
-        let pBox = { x: player.x, y: nextY, w: PLAYER_SIZE, h: PLAYER_SIZE };
-        if (player.gamemode === 1) pBox = { x: player.x + 5, y: nextY + 5, w: PLAYER_SIZE - 10, h: PLAYER_SIZE - 10 };
+        let pBox = { x: player.x, y: nextY, w: pSize, h: pSize };
+        if (player.gamemode === 1) pBox = { x: player.x + 5, y: nextY + 5, w: pSize - 10, h: pSize - 10 };
 
         let hitDeath = false;
         if (player.y > groundY + 3000 || player.y < groundY - 3000) hitDeath = true; 
@@ -645,18 +821,48 @@
               if (obj.type === 10) player.speedMultiplier = 0.75; if (obj.type === 11) player.speedMultiplier = 1.0; if (obj.type === 12) player.speedMultiplier = 1.35;
             }
           }
-          else if (obj.type === 1) { 
+          else if (obj.type === 28 || obj.type === 29) { // Size Portals
+            if (checkRectCollision(pBox, { x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 })) {
+              let oldSize = player.sizeMultiplier;
+              if (obj.type === 28) player.sizeMultiplier = 0.5;
+              if (obj.type === 29) player.sizeMultiplier = 1.0;
+              if (oldSize !== player.sizeMultiplier) {
+                 // Adjust Y position slightly so we don't clip into ground when growing
+                 let nSize = 30 * player.sizeMultiplier;
+                 if (player.grounded) nextY = player.y + (30*oldSize) - nSize;
+                 pSize = nSize;
+              }
+            }
+          }
+          else if (obj.type === 1 || obj.type === 20) { 
             let sBox = { x: objX + 10, y: objY + 10, w: GRID_SIZE - 20, h: GRID_SIZE - 20 };
             if (obj.rot === 0 || !obj.rot) sBox = { x: objX + 8, y: objY + 16, w: GRID_SIZE - 16, h: GRID_SIZE - 16 };
+            if (obj.type === 20) sBox = { x: objX + 12, y: objY + 24, w: GRID_SIZE - 24, h: GRID_SIZE - 24 }; // Mini spike
             if (checkRectCollision(pBox, sBox)) hitDeath = true;
           } 
-          else if (obj.type === 2) { 
+          else if (obj.type === 21) { // Sawblade circle collision
+             let sCx = objX + GRID_SIZE/2, sCy = objY + GRID_SIZE/2;
+             let pCx = pBox.x + pBox.w/2, pCy = pBox.y + pBox.h/2;
+             if (Math.hypot(pCx - sCx, pCy - sCy) < (GRID_SIZE/2 - 4) + pBox.w/2 - 2) hitDeath = true;
+          }
+          else if ([2, 22, 24, 26].includes(obj.type)) { // Pads
             let padBox = { x: objX, y: objY + GRID_SIZE - 10, w: GRID_SIZE, h: 10 };
             if (obj.rot === 90) padBox = { x: objX, y: objY, w: 10, h: GRID_SIZE }; if (obj.rot === 180) padBox = { x: objX, y: objY, w: GRID_SIZE, h: 10 }; if (obj.rot === 270) padBox = { x: objX + GRID_SIZE - 10, y: objY, w: 10, h: GRID_SIZE };
             if (checkRectCollision(pBox, padBox)) {
-              if (obj.rot === 0 || !obj.rot) { player.vy = PAD_FORCE; player.gravityDir = 1; } else if (obj.rot === 180) { player.vy = -PAD_FORCE; player.gravityDir = -1; }
+              let force = PAD_FORCE;
+              if (obj.type === 22) force *= 0.7;
+              if (obj.type === 24) force *= 1.4;
+              
+              if (obj.type === 26) {
+                 player.gravityDir *= -1;
+                 player.vy = PAD_FORCE * 0.3 * player.gravityDir;
+              } else {
+                 if (obj.rot === 0 || !obj.rot) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 180) { player.vy = -force; player.gravityDir = -1; }
+              }
+              
               player.grounded = false;
-              for(let i=0; i<5; i++) state.particles.push({ x: objX + GRID_SIZE/2, y: objY + GRID_SIZE/2, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, life: 1.0, color: '#fcd34d' });
+              let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#fcd34d';
+              for(let i=0; i<5; i++) state.particles.push({ x: objX + GRID_SIZE/2, y: objY + GRID_SIZE/2, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, life: 1.0, color: pCol });
             }
           }
           else if ([3, 4, 6, 7, 8, 9].includes(obj.type)) { 
@@ -665,17 +871,18 @@
               if (obj.type === 6) player.gamemode = 1; if (obj.type === 7) player.gamemode = 0; if (obj.type === 8) player.gamemode = 2; if (obj.type === 9) player.gamemode = 3;
             }
           }
-          else if (obj.type === 0) { 
+          else if (obj.type === 0 || obj.type === 19) { 
+            if (obj.type === 19) oBox = { x: objX, y: objY + GRID_SIZE/2, w: GRID_SIZE, h: GRID_SIZE/2 }; // Half block
             if (checkRectCollision(pBox, oBox)) {
               if (player.gamemode === 1) hitDeath = true;
               else {
-                let prevY = player.y, prevBottom = player.y + PLAYER_SIZE, prevRight = player.x - (BASE_MOVE_SPEED * player.speedMultiplier) + PLAYER_SIZE;
+                let prevY = player.y, prevBottom = player.y + pSize, prevRight = player.x - (BASE_MOVE_SPEED * player.speedMultiplier) + pSize;
                 if (player.gravityDir === 1) {
-                  if (prevBottom <= objY + 8 && player.vy >= 0) { nextY = objY - PLAYER_SIZE; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
-                  else if (prevRight <= objX + 8) hitDeath = true; else if (prevY >= objY + GRID_SIZE - 8 && player.vy < 0) { nextY = objY + GRID_SIZE; player.vy = 0; pBox.y = nextY; } else hitDeath = true;
+                  if (prevBottom <= oBox.y + 8 && player.vy >= 0) { nextY = oBox.y - pSize; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
+                  else if (prevRight <= oBox.x + 8) hitDeath = true; else if (prevY >= oBox.y + oBox.h - 8 && player.vy < 0) { nextY = oBox.y + oBox.h; player.vy = 0; pBox.y = nextY; } else hitDeath = true;
                 } else {
-                  if (prevY >= objY + GRID_SIZE - 8 && player.vy <= 0) { nextY = objY + GRID_SIZE; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
-                  else if (prevRight <= objX + 8) hitDeath = true; else if (prevBottom <= objY + 8 && player.vy > 0) { nextY = objY - PLAYER_SIZE; player.vy = 0; pBox.y = nextY; } else hitDeath = true;
+                  if (prevY >= oBox.y + oBox.h - 8 && player.vy <= 0) { nextY = oBox.y + oBox.h; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
+                  else if (prevRight <= oBox.x + 8) hitDeath = true; else if (prevBottom <= oBox.y + 8 && player.vy > 0) { nextY = oBox.y - pSize; player.vy = 0; pBox.y = nextY; } else hitDeath = true;
                 }
               }
             }
@@ -711,7 +918,6 @@
       if (state.mode === 'edit') {
         ctx.strokeStyle = '#313144'; ctx.lineWidth = 1;
         let startX = Math.floor(state.cameraX / GRID_SIZE) * GRID_SIZE;
-        // Perfect Grid Y alignment fix
         let yOffset = groundY % GRID_SIZE;
         let firstLineY = Math.floor(state.cameraY / GRID_SIZE) * GRID_SIZE + yOffset;
         if (firstLineY < state.cameraY) firstLineY += GRID_SIZE;
@@ -731,7 +937,6 @@
         }
         ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; ctx.fillRect(state.cameraX, 0, canvas.width + GRID_SIZE, groundY);
 
-        // Draw selection box
         if (editor.mode === 'edit' && editor.selBox) {
           ctx.strokeStyle = 'rgba(74, 222, 128, 0.8)'; ctx.fillStyle = 'rgba(74, 222, 128, 0.2)'; ctx.lineWidth = 2;
           let x = Math.min(editor.selBox.sx, editor.selBox.ex), y = Math.min(editor.selBox.sy, editor.selBox.ey);
@@ -739,7 +944,6 @@
           ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
         }
 
-        // Draw selection highlight
         if (editor.mode === 'edit' && editor.selectedObjs.length > 0) {
           ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 3; ctx.setLineDash([5, 5]);
           editor.selectedObjs.forEach(obj => {
@@ -754,42 +958,75 @@
         let px = obj.gx * GRID_SIZE, py = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE;
         if (px + GRID_SIZE < state.cameraX || px > state.cameraX + canvas.width) continue;
 
-        ctx.save(); ctx.translate(px + GRID_SIZE/2, py + GRID_SIZE/2); if (obj.rot) ctx.rotate(obj.rot * Math.PI / 180);
+        ctx.save(); ctx.translate(px + GRID_SIZE/2, py + GRID_SIZE/2); 
+        
+        // Custom animation for sawblades
+        if (obj.type === 21) {
+           ctx.rotate(((Date.now() / 150) % (Math.PI * 2)));
+        } else if (obj.rot) {
+           ctx.rotate(obj.rot * Math.PI / 180);
+        }
+        
         let s2 = GRID_SIZE / 2;
 
         if (obj.type === 0) { ctx.fillStyle = C_BLOCK; ctx.fillRect(-s2, -s2, GRID_SIZE, GRID_SIZE); ctx.strokeStyle = C_BLOCK_OUTLINE; ctx.lineWidth = 2; ctx.strokeRect(-s2 + 1, -s2 + 1, GRID_SIZE - 2, GRID_SIZE - 2); } 
+        else if (obj.type === 19) { ctx.fillStyle = C_BLOCK; ctx.fillRect(-s2, 0, GRID_SIZE, s2); ctx.strokeStyle = C_BLOCK_OUTLINE; ctx.lineWidth = 2; ctx.strokeRect(-s2 + 1, 1, GRID_SIZE - 2, s2 - 2); } 
         else if (obj.type === 13) { ctx.fillStyle = 'rgba(26, 95, 122, 0.3)'; ctx.fillRect(-s2, -s2, GRID_SIZE, GRID_SIZE); ctx.strokeStyle = 'rgba(34, 211, 238, 0.2)'; ctx.lineWidth = 1; ctx.strokeRect(-s2 + 1, -s2 + 1, GRID_SIZE - 2, GRID_SIZE - 2); } 
         else if (obj.type >= 14 && obj.type <= 17) { ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI*2); ctx.fillStyle = obj.type === 14 ? 'rgba(239, 68, 68, 0.3)' : (obj.type === 15 ? 'rgba(59, 130, 246, 0.3)' : (obj.type === 16 ? 'rgba(34, 197, 94, 0.3)' : 'rgba(100, 100, 100, 0.3)')); ctx.fill(); ctx.strokeStyle = obj.type === 14 ? '#ef4444' : (obj.type === 15 ? '#3b82f6' : (obj.type === 16 ? '#22c55e' : '#9ca3af')); ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('BG', 0, 0); } 
         else if (obj.type >= 10 && obj.type <= 12) { ctx.fillStyle = obj.type === 10 ? 'rgba(249, 115, 22, 0.3)' : (obj.type === 11 ? 'rgba(74, 222, 128, 0.3)' : 'rgba(236, 72, 153, 0.3)'); ctx.strokeStyle = obj.type === 10 ? '#f97316' : (obj.type === 11 ? '#4ade80' : '#ec4899'); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, -GRID_SIZE); ctx.lineTo(15, 0); ctx.lineTo(0, GRID_SIZE); ctx.lineTo(-15, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = ctx.strokeStyle; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(obj.type === 10 ? '<' : (obj.type === 11 ? '>>' : '>>>'), 0, 0); } 
         else if (obj.type === 18) { ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; ctx.fillRect(-s2, -GRID_SIZE*10, GRID_SIZE, GRID_SIZE*20); ctx.fillStyle = 'rgba(250, 204, 21, 0.3)'; ctx.fillRect(-s2 - 10, -GRID_SIZE*10, GRID_SIZE + 20, GRID_SIZE*20); ctx.strokeStyle = '#facc15'; ctx.lineWidth = 4; ctx.strokeRect(-s2, -GRID_SIZE*10, GRID_SIZE, GRID_SIZE*20); } 
         else if (obj.type === 1) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, -s2); ctx.lineTo(s2, s2); ctx.lineTo(-s2, s2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#ff7b9f'; ctx.beginPath(); ctx.moveTo(0, -s2 + 8); ctx.lineTo(s2 - 6, s2 - 2); ctx.lineTo(-s2 + 6, s2 - 2); ctx.closePath(); ctx.fill(); } 
-        else if (obj.type === 2) { ctx.fillStyle = '#b45309'; ctx.fillRect(-s2, s2 - 10, GRID_SIZE, 10); ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.ellipse(0, s2 - 10, s2 - 2, 4, 0, 0, Math.PI * 2); ctx.fill(); } 
-        else if (obj.type === 5) { ctx.strokeStyle = '#facc15'; ctx.fillStyle = 'rgba(250, 204, 21, 0.3)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.fillStyle = '#facc15'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill(); } 
-        else if ([3, 4, 6, 7, 8, 9].includes(obj.type)) {
-          let pColorStr = '#eab308', pFillStr = 'rgba(234, 179, 8, 0.3)';
-          if (obj.type === 3) { pColorStr = '#3b82f6'; pFillStr = 'rgba(59, 130, 246, 0.3)'; } if (obj.type === 6) { pColorStr = '#f97316'; pFillStr = 'rgba(249, 115, 22, 0.3)'; } if (obj.type === 7) { pColorStr = '#4ade80'; pFillStr = 'rgba(74, 222, 128, 0.3)'; } if (obj.type === 8) { pColorStr = '#ec4899'; pFillStr = 'rgba(236, 72, 153, 0.3)'; } if (obj.type === 9) { pColorStr = '#a855f7'; pFillStr = 'rgba(168, 85, 247, 0.3)'; } 
-          ctx.strokeStyle = pColorStr; ctx.fillStyle = pFillStr; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(0, 0, 12, GRID_SIZE, 0, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 6, GRID_SIZE - 8, 0, 0, Math.PI * 2); ctx.stroke();
+        else if (obj.type === 20) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(12, s2); ctx.lineTo(-12, s2); ctx.closePath(); ctx.fill(); } // Mini spike 
+        else if (obj.type === 21) { ctx.fillStyle = '#4b5563'; ctx.beginPath(); ctx.arc(0, 0, s2-4, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -s2+8, 3, 0, Math.PI*2); ctx.fill(); } // Sawblade
+        else if ([2, 22, 24, 26].includes(obj.type)) { 
+            let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#facc15';
+            let pDark = obj.type===22?'#db2777':obj.type===24?'#b91c1c':obj.type===26?'#1d4ed8':'#b45309';
+            ctx.fillStyle = pDark; ctx.fillRect(-s2, s2 - 10, GRID_SIZE, 10); ctx.fillStyle = pCol; ctx.beginPath(); ctx.ellipse(0, s2 - 10, s2 - 2, 4, 0, 0, Math.PI * 2); ctx.fill(); 
+        } 
+        else if ([5, 23, 25, 27].includes(obj.type)) { 
+            let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':'#facc15';
+            ctx.strokeStyle = pCol; ctx.fillStyle = pCol+'4d'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.fillStyle = pCol; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill(); 
+        } 
+        else if ([3, 4, 6, 7, 8, 9, 28, 29].includes(obj.type)) {
+          let pColorStr = '#eab308', pFillStr = 'rgba(234, 179, 8, 0.3)', wMult=1;
+          if (obj.type === 3) { pColorStr = '#3b82f6'; pFillStr = 'rgba(59, 130, 246, 0.3)'; } 
+          if (obj.type === 6) { pColorStr = '#f97316'; pFillStr = 'rgba(249, 115, 22, 0.3)'; } 
+          if (obj.type === 7) { pColorStr = '#4ade80'; pFillStr = 'rgba(74, 222, 128, 0.3)'; } 
+          if (obj.type === 8) { pColorStr = '#ec4899'; pFillStr = 'rgba(236, 72, 153, 0.3)'; } 
+          if (obj.type === 9) { pColorStr = '#a855f7'; pFillStr = 'rgba(168, 85, 247, 0.3)'; } 
+          if (obj.type === 28) { pColorStr = '#e879f9'; pFillStr = 'rgba(232, 121, 249, 0.3)'; wMult=0.7; } // Mini portal
+          if (obj.type === 29) { pColorStr = '#34d399'; pFillStr = 'rgba(52, 211, 153, 0.3)'; wMult=0.8; } // Normal portal
+          
+          ctx.strokeStyle = pColorStr; ctx.fillStyle = pFillStr; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(0, 0, 12*wMult, GRID_SIZE*(obj.type>=28?0.7:1), 0, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 6*wMult, (GRID_SIZE - 8)*(obj.type>=28?0.7:1), 0, 0, Math.PI * 2); ctx.stroke();
         }
         ctx.restore();
       }
 
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
         if (player.gamemode === 1) { 
-          ctx.strokeStyle = C_PLAYER_TRAIL; ctx.lineWidth = PLAYER_SIZE - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
-          for (let i = 0; i < state.trail.length; i++) { let t = state.trail[i]; if (i === 0) ctx.moveTo(t.x + PLAYER_SIZE/2, t.y + PLAYER_SIZE/2); else ctx.lineTo(t.x + PLAYER_SIZE/2, t.y + PLAYER_SIZE/2); }
-          ctx.lineTo(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2); ctx.stroke();
+          ctx.strokeStyle = C_PLAYER_TRAIL; ctx.lineWidth = (30 * player.sizeMultiplier) - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+          for (let i = 0; i < state.trail.length; i++) { 
+             let t = state.trail[i]; let ts = 30*t.size;
+             if (i === 0) ctx.moveTo(t.x + ts/2, t.y + ts/2); else ctx.lineTo(t.x + ts/2, t.y + ts/2); 
+          }
+          let ps = 30 * player.sizeMultiplier;
+          ctx.lineTo(player.x + ps/2, player.y + ps/2); ctx.stroke();
         } else {
-          state.trail.forEach((t, i) => { ctx.save(); ctx.translate(t.x + PLAYER_SIZE/2, t.y + PLAYER_SIZE/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); ctx.fillStyle = `rgba(0, 240, 255, ${i / 15})`; ctx.fillRect(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE, PLAYER_SIZE); ctx.restore(); });
+          state.trail.forEach((t, i) => { 
+             let ts = 30*t.size;
+             ctx.save(); ctx.translate(t.x + ts/2, t.y + ts/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); ctx.fillStyle = `rgba(0, 240, 255, ${i / 15})`; ctx.fillRect(-ts/2, -ts/2, ts, ts); ctx.restore(); 
+          });
         }
       }
 
       if (!player.dead) {
-        ctx.save(); ctx.translate(player.x + PLAYER_SIZE/2, player.y + PLAYER_SIZE/2); ctx.rotate(player.rotation * Math.PI / 180); ctx.scale(1, player.gravityDir); 
+        let pSize = 30 * player.sizeMultiplier;
+        ctx.save(); ctx.translate(player.x + pSize/2, player.y + pSize/2); ctx.rotate(player.rotation * Math.PI / 180); ctx.scale(player.sizeMultiplier, player.gravityDir * player.sizeMultiplier); 
         const drawFace = () => { ctx.fillStyle = '#111'; ctx.fillRect(-8, -6, 4, 4); ctx.fillRect(4, -6, 4, 4); ctx.fillRect(-6, 2, 12, 3); };
-        if (player.gamemode === 1) { ctx.fillStyle = C_PLAYER; ctx.beginPath(); ctx.moveTo(PLAYER_SIZE/2, 0); ctx.lineTo(-PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.lineTo(-PLAYER_SIZE/4, 0); ctx.lineTo(-PLAYER_SIZE/2, -PLAYER_SIZE/2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke(); } 
-        else if (player.gamemode === 2) { ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.moveTo(PLAYER_SIZE/2 + 5, 0); ctx.lineTo(-PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.lineTo(-PLAYER_SIZE/2, -PLAYER_SIZE/2); ctx.closePath(); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-PLAYER_SIZE/4, -PLAYER_SIZE/4, PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(-PLAYER_SIZE/4, -PLAYER_SIZE/4, PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.save(); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
-        else if (player.gamemode === 3) { ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.ellipse(0, 0, PLAYER_SIZE/1.2, PLAYER_SIZE/3, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(0, -PLAYER_SIZE/6, PLAYER_SIZE/2.5, Math.PI, 0); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-PLAYER_SIZE/4, -PLAYER_SIZE/4, PLAYER_SIZE/2, PLAYER_SIZE/2); ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
-        else { ctx.fillStyle = C_PLAYER; ctx.fillRect(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE, PLAYER_SIZE); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(-PLAYER_SIZE/2, -PLAYER_SIZE/2, PLAYER_SIZE, PLAYER_SIZE); drawFace(); }
+        if (player.gamemode === 1) { ctx.fillStyle = C_PLAYER; ctx.beginPath(); ctx.moveTo(30/2, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/4, 0); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke(); } 
+        else if (player.gamemode === 2) { ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.moveTo(30/2 + 5, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
+        else if (player.gamemode === 3) { ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.ellipse(0, 0, 30/1.2, 30/3, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(0, -30/6, 30/2.5, Math.PI, 0); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
+        else { ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/2, -30/2, 30, 30); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(-30/2, -30/2, 30, 30); drawFace(); }
         ctx.restore();
       }
 
@@ -799,20 +1036,18 @@
 
     let lastTime = 0;
     let accumulator = 0;
-    const TIME_STEP = 1000 / 60; // 60 FPS Fixed Time Step for consistent physics on 120hz/144hz displays
+    const TIME_STEP = 1000 / 60; // 60 FPS Fixed Time Step
 
     function loop(timestamp) { 
       if (!lastTime) lastTime = timestamp;
       let dt = timestamp - lastTime;
       lastTime = timestamp;
       
-      // Prevent spiral of death if tab was inactive
       if (dt > 100) dt = 100; 
       accumulator += dt;
 
       scheduleAudio(); 
 
-      // Fixed timestep update keeps game speed exactly the same regardless of screen refresh rate
       while (accumulator >= TIME_STEP) {
         update();
         accumulator -= TIME_STEP;
@@ -856,7 +1091,6 @@
     }
 
     canvas.addEventListener('pointerdown', (e) => {
-      // PREVENT UI CLICKS FROM DRAWING ON CANVAS
       if (e.target !== canvas) return;
       
       if (state.mode === 'play' || state.isPlaytesting) { triggerAction(); return; }
@@ -868,7 +1102,6 @@
       
       if (editor.swipeEnabled) {
         if (editor.mode === 'edit') {
-          // Start selection box
           editor.selectedObjs = []; updateEditPanelUI();
           const p = getGridPos(e.clientX, e.clientY);
           editor.selBox = { sx: p.worldX, sy: p.worldY, ex: p.worldX, ey: p.worldY };
@@ -891,7 +1124,6 @@
           handleEditorAction(e.clientX, e.clientY);
         }
       } else {
-        // Camera Panning
         state.cameraX = Math.max(0, editor.initialCamX - (e.clientX - editor.camDragStartX));
         state.cameraY = editor.initialCamY - (e.clientY - editor.camDragStartY);
       }
@@ -902,7 +1134,6 @@
       if (state.mode !== 'edit' || !editor.isDragging) return;
       
       if (editor.mode === 'edit' && editor.selBox && editor.swipeEnabled) {
-        // Process Selection Box
         if (editor.isClick) {
            const {gx, gy} = getGridPos(e.clientX, e.clientY);
            let obj = level.find(b => b.gx === gx && b.gy === gy);
@@ -957,14 +1188,12 @@
     tabEditMode.addEventListener('click', () => switchEditorMode('edit'));
     tabDelete.addEventListener('click', () => switchEditorMode('delete'));
 
-    // Swipe Toggle
     btnSwipeToggle.addEventListener('click', () => {
       editor.swipeEnabled = !editor.swipeEnabled;
       if (editor.swipeEnabled) { btnSwipeToggle.classList.add('active'); swipeStatus.textContent = 'ON'; swipeStatus.className = 'text-[10px] text-green-200'; } 
       else { btnSwipeToggle.classList.remove('active'); swipeStatus.textContent = 'OFF'; swipeStatus.className = 'text-[10px] text-red-200'; }
     });
 
-    // Build Sub-categories
     document.querySelectorAll('.cat-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -975,7 +1204,6 @@
       });
     });
 
-    // Tool Selection
     document.querySelectorAll('.tool-btn').forEach(btn => {
       if(btn.dataset.tool) {
         btn.addEventListener('click', (e) => {
@@ -986,12 +1214,9 @@
       }
     });
 
-    // Build Panel Rotation
     document.getElementById('btnBuildRotLeft').addEventListener('click', () => { editor.rot = (editor.rot - 90 + 360) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
     document.getElementById('btnBuildRotRight').addEventListener('click', () => { editor.rot = (editor.rot + 90) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
 
-
-    // Edit Panel Logic (Multi-select enabled)
     const editNoSelection = document.getElementById('editNoSelection'), editControls = document.getElementById('editControls');
     function updateEditPanelUI() {
       if (editor.selectedObjs.length > 0) {
@@ -1009,22 +1234,20 @@
     document.getElementById('btnEditRotLeft').addEventListener('click', () => { editor.selectedObjs.forEach(o => { o.rot = ((o.rot||0) - 90 + 360) % 360; }); });
     document.getElementById('btnEditRotRight').addEventListener('click', () => { editor.selectedObjs.forEach(o => { o.rot = ((o.rot||0) + 90) % 360; }); });
 
-    // Delete Panel Logic
     document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear entire level?")) { level = []; editor.selectedObjs = []; updateEditPanelUI(); } });
 
-    // Playtesting Logic
     document.getElementById('btnPlaytest').addEventListener('click', () => {
       editor.restoreState = { camX: state.cameraX, camY: state.cameraY };
       state.mode = 'play'; state.isPlaytesting = true; state.attempts = 1; resetPlayer();
       document.getElementById('editorTopRight').classList.add('hide');
       document.getElementById('editorToolbar').classList.add('hide');
       document.getElementById('stats').classList.remove('hide');
+      document.getElementById('gameProgressContainer').classList.remove('hide');
       document.getElementById('stats').innerText = `Test: Attempt 1`;
       document.getElementById('lblExitGame').innerText = 'Stop Test';
       document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'square'); lucide.createIcons();
     });
 
-    // Exit Game / Engine Controls
     document.getElementById('btnExitGame').addEventListener('click', () => {
       if (state.isPlaytesting) {
         state.isPlaytesting = false; state.mode = 'edit';
@@ -1032,17 +1255,19 @@
         document.getElementById('editorTopRight').classList.remove('hide');
         document.getElementById('editorToolbar').classList.remove('hide');
         document.getElementById('stats').classList.add('hide');
+        document.getElementById('gameProgressContainer').classList.add('hide');
         document.getElementById('lblExitGame').innerText = 'Exit';
         document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out'); lucide.createIcons();
         document.getElementById('winOverlay').classList.add('hide');
       } else {
         state.mode = 'menu';
-        document.getElementById('gameUI').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide');
+        currentPreviewLevel = null;
+        document.getElementById('gameUI').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide');
         hubUI.classList.remove('hide');
+        hubUI.classList.remove('opacity-0');
       }
     });
 
-    // Publish Level
     document.getElementById('btnPublish').addEventListener('click', async () => {
       if(!currentUser || !myProfile) return;
       const lvlName = prompt("Enter a name for your level:");
@@ -1050,7 +1275,7 @@
       const lStr = generateLevelString();
       try {
         const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
-        await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, difficulty: 'NA', stars: 0, createdAt: Date.now() });
+        await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, difficulty: 'NA', stars: 0, likes: [], comments: [], createdAt: Date.now() });
         alert("Level published successfully!"); document.getElementById('btnExitGame').click(); 
       } catch(e) { alert("Failed to publish."); console.error(e); }
     });
@@ -1065,14 +1290,12 @@
     const loggedInSection = document.getElementById('loggedInSection');
     const viewMainMenu = document.getElementById('viewMainMenu'), viewBrowser = document.getElementById('viewBrowser'), viewLeaderboard = document.getElementById('viewLeaderboard');
 
-    // Hub View Toggles
     document.getElementById('btnViewBrowser').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewBrowser.classList.remove('hidden'); });
     document.getElementById('btnViewLeaderboard').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewLeaderboard.classList.remove('hidden'); });
     document.querySelectorAll('.btnBackToMain').forEach(btn => {
       btn.addEventListener('click', () => { viewBrowser.classList.add('hidden'); viewLeaderboard.classList.add('hidden'); viewMainMenu.classList.remove('hidden'); });
     });
 
-    // Hub UI Auth Tabs
     tabLogin.addEventListener('click', () => { isSignupMode = false; usernameGroup.classList.add('hidden'); document.getElementById('usernameInput').removeAttribute('required'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
     tabSignup.addEventListener('click', () => { isSignupMode = true; usernameGroup.classList.remove('hidden'); document.getElementById('usernameInput').setAttribute('required', 'true'); document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; });
 
@@ -1087,7 +1310,6 @@
     document.getElementById('googleLoginBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch (error) { alert("Failed Google Sign-in."); } });
     document.getElementById('logoutBtn').addEventListener('click', () => { if (confirm("Log out?")) signOut(auth); });
 
-    // DASH2026 Secret Header Click Bypass
     const mainHeaderTitle = document.getElementById('mainGameTitle');
     if (mainHeaderTitle) {
       mainHeaderTitle.addEventListener('click', async () => {
@@ -1099,8 +1321,6 @@
              await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
           }
           await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
-          
-          // Clear any stuck global settings as well
           await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
           alert("Bypass activated! Old ghost kings removed, persistent bugs cleared, and you are now King.");
         }
@@ -1122,7 +1342,7 @@
           const uSnap = await getDoc(uRef);
           if (!uSnap.exists()) {
             const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
-            await setDoc(uRef, { username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now() });
+            await setDoc(uRef, { username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), progress: {} });
           }
           pendingUsername = null; setupDatabaseListener();
         } catch(e) { console.error(e); }
@@ -1141,7 +1361,6 @@
       if (!currentUser) return;
       if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
 
-      // Users 
       dbUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'users'), (snapshot) => {
         usersData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         const existingProfile = usersData.find(d => d.id === currentUser.uid);
@@ -1155,6 +1374,13 @@
           
           if (myProfile.trollEvent) applyTrollEffect(myProfile.trollEvent);
           updateHubUI();
+          
+          // Update Modal info if currently viewing
+          if (currentPreviewLevel) {
+            let myProg = (myProfile.progress && myProfile.progress[currentPreviewLevel.id]) || 0;
+            document.getElementById('prevProgressBar').style.width = `${myProg}%`;
+            document.getElementById('prevProgressText').innerText = `${myProg}%`;
+          }
         }
         
         if (!usersData.some(d => d.role === 'king') && myProfile && myProfile.role !== 'king') document.getElementById('redeemCodeBtn').classList.remove('hidden');
@@ -1165,7 +1391,6 @@
         document.getElementById('loadingScreen').classList.add('hidden');
       });
 
-      // Settings
       settingsUnsubscribe = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), (snap) => {
         if (snap.exists()) {
           globalSettings = snap.data();
@@ -1175,20 +1400,25 @@
           } else {
             document.getElementById('globalBanner').classList.add('-translate-y-full');
           }
-          
-          // Only apply troll if one exists, otherwise clear it locally
           applyTrollEffect(globalSettings.globalTroll || '');
-          
         } else {
           globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
           applyTrollEffect('');
         }
       });
 
-      // Levels 
       levelsUnsubscribe = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'levels')), (snapshot) => {
         levelsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderLevelBrowser();
+        
+        // Live update the modal if it's open
+        if (currentPreviewLevel && !document.getElementById('levelPreviewModal').classList.contains('hide')) {
+           const updatedLvl = levelsList.find(l => l.id === currentPreviewLevel.id);
+           if (updatedLvl) {
+              currentPreviewLevel = updatedLvl;
+              populateLevelModal(updatedLvl);
+           }
+        }
       });
     }
 
@@ -1214,7 +1444,6 @@
     }
 
     function renderLeaderboard() {
-      // Sort users by score (Creator Stars)
       const visibleUsers = usersData.filter(u => !u.banned).sort((a,b) => (b.score||0) - (a.score||0));
       document.getElementById('creatorCount').textContent = `${visibleUsers.length} Creators`;
       
@@ -1248,18 +1477,16 @@
       
       levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
       
-      const canRate = myProfile && ['king', 'admin', 'mod'].includes(myProfile.role);
-      
       browserList.innerHTML = levelsList.map(lvl => {
-        let diffIcon = '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-500"></i>';
+        let diffIcon = '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-400"></i>';
         if (lvl.difficulty === 'Easy') diffIcon = '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
         else if (lvl.difficulty === 'Medium') diffIcon = '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
         else if (lvl.difficulty === 'Hard') diffIcon = '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
         else if (lvl.difficulty === 'Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-600"></i>';
 
         return `
-          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
-            <div class="flex items-center gap-4">
+          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-level" data-lvl-id="${lvl.id}">
+            <div class="flex items-center gap-4 pointer-events-none">
               <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
                 ${diffIcon}
               </div>
@@ -1271,67 +1498,183 @@
                 <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <span class="text-xs text-gray-400 font-mono flex items-center gap-1 bg-gray-900 px-2 py-1 rounded"><i data-lucide="play" class="w-3 h-3 text-green-400"></i> ${lvl.plays || 0}</span>
-              ${canRate ? `<button data-rate-lvl="${lvl.id}" class="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 flex items-center gap-1 text-sm"><i data-lucide="star" class="w-4 h-4"></i> Rate</button>` : ''}
-              <button data-play-lvl="${lvl.id}" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 flex items-center gap-2"><i data-lucide="play" class="w-4 h-4"></i> Play</button>
+            <div class="flex items-center gap-4 pointer-events-none pr-2">
+              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="play-circle" class="w-4 h-4 text-green-400"></i> ${lvl.plays || 0}</span>
+              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4 text-yellow-400"></i> ${(lvl.likes && lvl.likes.length) || 0}</span>
+              <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105">View</button>
             </div>
           </div>
         `;
       }).join('');
       lucide.createIcons();
+      
+      document.querySelectorAll('.btn-open-level').forEach(el => {
+         el.addEventListener('click', () => {
+            const lObj = levelsList.find(l => l.id === el.dataset.lvlId);
+            if (lObj) openLevelPreview(lObj);
+         });
+      });
+    }
+    
+    // --- GD Level Preview Logic ---
+    function calcLevelLength(dataStr) {
+      let maxGX = 0;
+      let parts = dataStr.split(';');
+      for (let p of parts) { 
+         let x = parseInt(p.split(',')[0]); 
+         if (x && x > maxGX) maxGX = x; 
+      }
+      if (maxGX < 50) return "Tiny";
+      if (maxGX < 150) return "Short";
+      if (maxGX < 300) return "Medium";
+      if (maxGX < 600) return "Long";
+      return "XL";
     }
 
-    document.getElementById('levelBrowserList').addEventListener('click', async (e) => {
-      const playBtn = e.target.closest('button[data-play-lvl]');
-      const rateBtn = e.target.closest('button[data-rate-lvl]');
+    function openLevelPreview(lvlObj) {
+       currentPreviewLevel = lvlObj;
+       populateLevelModal(lvlObj);
+       document.getElementById('levelPreviewModal').classList.remove('hide');
+    }
+
+    function populateLevelModal(lvlObj) {
+      document.getElementById('prevLevelId').innerText = lvlObj.id.substring(0, 6).toUpperCase();
+      document.getElementById('prevLevelName').innerText = lvlObj.name;
+      document.getElementById('prevAuthorName').innerText = lvlObj.authorName;
+      document.getElementById('prevDownloads').innerText = (lvlObj.plays || 0).toLocaleString();
+      document.getElementById('prevLikes').innerText = ((lvlObj.likes && lvlObj.likes.length) || 0).toLocaleString();
+      document.getElementById('prevLength').innerText = calcLevelLength(lvlObj.data);
       
-      if (playBtn) {
-        const lvlId = playBtn.dataset.playLvl; const lvlObj = levelsList.find(l => l.id === lvlId);
-        if (lvlObj) {
-          try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (lvlObj.plays||0) + 1 }, { merge: true }); } catch(err){}
-          launchGame(lvlObj.data, 'play');
-        }
+      // Face
+      let faceHTML = '<i data-lucide="circle-dashed" class="w-full h-full text-gray-300"></i>';
+      if (lvlObj.difficulty === 'Easy') faceHTML = '<i data-lucide="smile" class="w-full h-full text-green-400"></i>';
+      else if (lvlObj.difficulty === 'Medium') faceHTML = '<i data-lucide="meh" class="w-full h-full text-yellow-400"></i>';
+      else if (lvlObj.difficulty === 'Hard') faceHTML = '<i data-lucide="frown" class="w-full h-full text-orange-500"></i>';
+      else if (lvlObj.difficulty === 'Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]"></i>';
+      document.getElementById('prevDiffFace').innerHTML = faceHTML;
+      document.getElementById('prevDiffText').innerText = (lvlObj.difficulty || 'NA').toUpperCase();
+      
+      if (lvlObj.stars) {
+         document.getElementById('prevStarsBadge').classList.remove('hidden');
+         document.getElementById('prevStarsNum').innerText = lvlObj.stars;
+      } else {
+         document.getElementById('prevStarsBadge').classList.add('hidden');
+      }
+
+      // Progress
+      let myProg = 0;
+      if (myProfile && myProfile.progress && myProfile.progress[lvlObj.id]) myProg = myProfile.progress[lvlObj.id];
+      document.getElementById('prevProgressBar').style.width = `${myProg}%`;
+      document.getElementById('prevProgressText').innerText = `${myProg}%`;
+
+      // Like Button state
+      if (myProfile && lvlObj.likes && lvlObj.likes.includes(currentUser.uid)) {
+         document.getElementById('iconModalLike').classList.remove('text-yellow-400');
+         document.getElementById('iconModalLike').classList.add('fill-yellow-400', 'text-yellow-400');
+      } else {
+         document.getElementById('iconModalLike').classList.remove('fill-yellow-400');
       }
       
-      if (rateBtn) {
-        if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
-        const lvlId = rateBtn.dataset.rateLvl; 
-        const lvlObj = levelsList.find(l => l.id === lvlId);
-        if (lvlObj) {
-          const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)`, "0");
-          if (ratingInput === null) return;
-          
-          let newDiff = 'NA', newStars = 0;
-          if (ratingInput === "1") { newDiff = 'Easy'; newStars = 5; }
-          else if (ratingInput === "2") { newDiff = 'Medium'; newStars = 10; }
-          else if (ratingInput === "3") { newDiff = 'Hard'; newStars = 20; }
-          else if (ratingInput === "4") { newDiff = 'Demon'; newStars = 75; }
-          else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
-          
-          const oldStars = lvlObj.stars || 0;
-          const starDiff = newStars - oldStars;
-          
-          try {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { difficulty: newDiff, stars: newStars }, { merge: true });
-            
-            // Increment the author's score if the stars changed
-            if (starDiff !== 0) {
-              const authorRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', lvlObj.authorId);
-              const authorSnap = await getDoc(authorRef);
-              if (authorSnap.exists()) {
-                 const authorData = authorSnap.data();
-                 const newScore = Math.max(0, (authorData.score || 0) + starDiff);
-                 await setDoc(authorRef, { score: newScore }, { merge: true });
-              }
-            }
-            alert(`Level successfully rated ${newDiff} (${newStars}⭐)!`);
-          } catch(err) {
-            alert("Failed to rate level.");
-            console.error(err);
-          }
-        }
+      // Rating access
+      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) {
+         document.getElementById('prevRateBtnContainer').classList.remove('hidden');
+      } else {
+         document.getElementById('prevRateBtnContainer').classList.add('hidden');
       }
+
+      // Comments
+      let coms = lvlObj.comments || [];
+      document.getElementById('prevCommentCount').innerText = coms.length;
+      if (coms.length === 0) {
+         document.getElementById('prevCommentsList').innerHTML = `<p class="text-center text-white/50 text-xs py-4 font-bold">No comments yet. Be the first!</p>`;
+      } else {
+         document.getElementById('prevCommentsList').innerHTML = coms.map(c => `
+           <div class="bg-black/50 p-2 border border-white/10 rounded flex gap-2">
+             <div class="font-bold text-yellow-400 text-xs shrink-0">${escapeHtml(c.name)}:</div>
+             <div class="text-white text-xs break-words">${escapeHtml(c.text)}</div>
+           </div>
+         `).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    document.getElementById('btnClosePreview').addEventListener('click', () => {
+       document.getElementById('levelPreviewModal').classList.add('hide');
+       currentPreviewLevel = null;
+    });
+
+    document.getElementById('btnModalPlay').addEventListener('click', async () => {
+       if (!currentPreviewLevel) return;
+       const lvlId = currentPreviewLevel.id;
+       const data = currentPreviewLevel.data;
+       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (currentPreviewLevel.plays||0) + 1 }, { merge: true }); } catch(err){}
+       document.getElementById('levelPreviewModal').classList.add('hide');
+       hubUI.classList.add('opacity-0'); // Smooth transition
+       setTimeout(() => { launchGame(data, 'play'); }, 300);
+    });
+    
+    document.getElementById('btnModalLike').addEventListener('click', async () => {
+       if (!currentUser || !currentPreviewLevel) return;
+       let likes = currentPreviewLevel.likes || [];
+       let idx = likes.indexOf(currentUser.uid);
+       if (idx > -1) { likes.splice(idx, 1); } else { likes.push(currentUser.uid); }
+       
+       try {
+         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: likes }, { merge: true });
+       } catch(err) { console.error("Failed to like"); }
+    });
+
+    document.getElementById('commentForm').addEventListener('submit', async (e) => {
+       e.preventDefault();
+       if (!currentUser || !myProfile || !currentPreviewLevel) return;
+       const input = document.getElementById('commentInput');
+       const txt = input.value.trim();
+       if (!txt) return;
+       
+       let coms = currentPreviewLevel.comments || [];
+       coms.unshift({ uid: currentUser.uid, name: myProfile.username, text: txt, time: Date.now() });
+       if (coms.length > 50) coms = coms.slice(0, 50); // Hard limit to avoid DB bloat
+       
+       try {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: coms }, { merge: true });
+          input.value = '';
+       } catch(err) { alert("Failed to post comment"); }
+    });
+    
+    document.getElementById('btnModalRate').addEventListener('click', async () => {
+       if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role) || !currentPreviewLevel) return;
+       const lvlObj = currentPreviewLevel;
+       const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)`, "0");
+       if (ratingInput === null) return;
+       
+       let newDiff = 'NA', newStars = 0;
+       if (ratingInput === "1") { newDiff = 'Easy'; newStars = 5; }
+       else if (ratingInput === "2") { newDiff = 'Medium'; newStars = 10; }
+       else if (ratingInput === "3") { newDiff = 'Hard'; newStars = 20; }
+       else if (ratingInput === "4") { newDiff = 'Demon'; newStars = 75; }
+       else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
+       
+       const oldStars = lvlObj.stars || 0;
+       const starDiff = newStars - oldStars;
+       
+       try {
+         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlObj.id), { difficulty: newDiff, stars: newStars }, { merge: true });
+         
+         if (starDiff !== 0) {
+           const authorRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', lvlObj.authorId);
+           const authorSnap = await getDoc(authorRef);
+           if (authorSnap.exists()) {
+              const authorData = authorSnap.data();
+              const newScore = Math.max(0, (authorData.score || 0) + starDiff);
+              await setDoc(authorRef, { score: newScore }, { merge: true });
+           }
+         }
+         alert(`Level successfully rated ${newDiff} (${newStars}⭐)!`);
+       } catch(err) {
+         alert("Failed to rate level.");
+         console.error(err);
+       }
     });
 
     document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
@@ -1343,11 +1686,11 @@
       level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
       
       if (mode === 'edit') { 
-        document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); 
+        document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
         document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
         switchEditorMode('build'); 
       } else { 
-        document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
+        document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('gameProgressContainer').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
         document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
       }
       lucide.createIcons();
@@ -1386,7 +1729,6 @@
       }
     });
 
-    // Close button now actively wipes the message from the DB if the user has permission
     document.getElementById('closeBannerBtn').addEventListener('click', async () => {
       document.getElementById('globalBanner').classList.add('-translate-y-full');
       if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
@@ -1463,7 +1805,6 @@
       
       const c = prompt("Enter secret code:"); if (!c) return;
       
-      // The Bypass Hook
       if (c === 'DASH2026') {
         for (let k of currentKings) {
              await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
@@ -1472,7 +1813,6 @@
         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
         alert("Bypass activated! Crown stolen and bugs cleared.");
       } 
-      // Standard Hook
       else if (c === globalSettings.kingCode) {
         if (currentKings.length > 0) return alert("Crown is already taken!");
         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true }); 
