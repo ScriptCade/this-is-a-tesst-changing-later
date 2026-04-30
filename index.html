@@ -891,7 +891,7 @@
         player.y = nextY;
         if (player.gamemode === 0 && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; if (input.jumpHeld) jump(); }
         if (hitDeath) die();
-        state.cameraX = player.x - 150; 
+        state.cameraX = player.x - (canvas.width * 0.3); 
         state.cameraY += ((player.y - canvas.height / 1.6) - state.cameraY) * 0.08;
       }
 
