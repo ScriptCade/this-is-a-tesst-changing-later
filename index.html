@@ -194,7 +194,7 @@
         <div class="inline-flex items-center justify-center p-4 bg-purple-500/10 rounded-full mb-2 border border-purple-500/20 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
           <i data-lucide="boxes" class="w-12 h-12 text-purple-400"></i>
         </div>
-        <h1 class="text-4xl md:text-6xl font-black tracking-widest bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md">
+        <h1 id="mainGameTitle" class="text-4xl md:text-6xl font-black tracking-widest bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md cursor-pointer transition-transform hover:scale-105">
           GEOMETRY DASH MAKER
         </h1>
         <p class="text-gray-300 max-w-lg mx-auto font-medium text-lg">
@@ -401,7 +401,9 @@
     }
 
     function applyTrollEffect(trollType) {
-      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin')) return; 
+      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin') && trollType !== '') return; 
+      if (!trollType) { clearTrollEffects(); return; } // Handle empty troll string
+
       clearTrollEffects();
       const b = document.getElementById('mainBody');
       if (trollType === 'troll_earthquake') b.classList.add('troll-earthquake');
@@ -412,8 +414,13 @@
       if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
       activeTrollTimeout = setTimeout(async () => {
         clearTrollEffects();
+        // Clear personal troll
         if (myProfile && myProfile.trollEvent) { 
           try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { trollEvent: '' }, { merge: true }); } catch(e){} 
+        }
+        // Auto-clear global trolls from DB after 10s to prevent them sticking on refresh
+        if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
+          try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: '' }, { merge: true }); } catch(e){} 
         }
       }, 10000);
     }
@@ -1057,6 +1064,26 @@
     document.getElementById('googleLoginBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch (error) { alert("Failed Google Sign-in."); } });
     document.getElementById('logoutBtn').addEventListener('click', () => { if (confirm("Log out?")) signOut(auth); });
 
+    // DASH2026 Secret Header Click Bypass
+    const mainHeaderTitle = document.getElementById('mainGameTitle');
+    if (mainHeaderTitle) {
+      mainHeaderTitle.addEventListener('click', async () => {
+        if (!currentUser || !myProfile) return;
+        const c = prompt("Secret Command Bypass:");
+        if (c === 'DASH2026') {
+          const currentKings = usersData.filter(d => d.role === 'king');
+          for (let k of currentKings) {
+             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
+          }
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
+          
+          // Clear any stuck global settings as well
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
+          alert("Bypass activated! Old ghost kings removed, persistent bugs cleared, and you are now King.");
+        }
+      });
+    }
+
     async function initAuthApp() {
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
@@ -1119,10 +1146,20 @@
       settingsUnsubscribe = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), (snap) => {
         if (snap.exists()) {
           globalSettings = snap.data();
-          if (globalSettings.broadcastMsg) { document.getElementById('globalBannerText').textContent = globalSettings.broadcastMsg; document.getElementById('globalBanner').classList.remove('-translate-y-full'); } 
-          else document.getElementById('globalBanner').classList.add('-translate-y-full');
-          if (globalSettings.globalTroll) applyTrollEffect(globalSettings.globalTroll);
-        } else globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
+          if (globalSettings.broadcastMsg) { 
+            document.getElementById('globalBannerText').textContent = globalSettings.broadcastMsg; 
+            document.getElementById('globalBanner').classList.remove('-translate-y-full'); 
+          } else {
+            document.getElementById('globalBanner').classList.add('-translate-y-full');
+          }
+          
+          // Only apply troll if one exists, otherwise clear it locally
+          applyTrollEffect(globalSettings.globalTroll || '');
+          
+        } else {
+          globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
+          applyTrollEffect('');
+        }
       });
 
       // Levels 
@@ -1267,7 +1304,14 @@
       }
     });
 
-    document.getElementById('closeBannerBtn').addEventListener('click', () => document.getElementById('globalBanner').classList.add('-translate-y-full'));
+    // Close button now actively wipes the message from the DB if the user has permission
+    document.getElementById('closeBannerBtn').addEventListener('click', async () => {
+      document.getElementById('globalBanner').classList.add('-translate-y-full');
+      if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
+        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '' }, { merge: true }); } catch(e){}
+      }
+    });
+    
     document.getElementById('dismissWarningBtn').addEventListener('click', async () => { if (currentUser) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warning: "" }, { merge: true }); });
 
     document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
@@ -1332,9 +1376,29 @@
     });
 
     document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return; if (usersData.some(d => d.role === 'king')) return alert("Crown is taken!");
+      if (!currentUser || !myProfile) return; 
+      const currentKings = usersData.filter(d => d.role === 'king');
+      
       const c = prompt("Enter secret code:"); if (!c) return;
-      if (c === globalSettings.kingCode) { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true }); alert("Crown claimed!"); } else alert("Incorrect code.");
+      
+      // The Bypass Hook
+      if (c === 'DASH2026') {
+        for (let k of currentKings) {
+             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
+        }
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
+        alert("Bypass activated! Crown stolen and bugs cleared.");
+      } 
+      // Standard Hook
+      else if (c === globalSettings.kingCode) {
+        if (currentKings.length > 0) return alert("Crown is already taken!");
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true }); 
+        alert("Crown claimed!");
+      } 
+      else {
+        alert("Incorrect code.");
+      }
     });
     
     document.getElementById('changeCodeBtn').addEventListener('click', async () => {
