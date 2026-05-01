@@ -499,8 +499,8 @@
         <p class="text-yellow-400 font-bold text-lg md:text-xl tracking-wide drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mt-1">BY <span id="prevAuthorName">AUTHOR</span></p>
 
         <div class="flex w-full mt-6 flex-1 max-h-[300px]">
-          <div class="w-1/3 flex flex-col items-center justify-center pt-8">
-            <div id="prevDiffFace" class="w-24 h-24 mb-2 drop-shadow-[0_5px_5px_rgba(0,0,0,0.6)] flex items-center justify-center"></div>
+          <div class="w-1/3 flex flex-col items-center justify-center pt-8 relative">
+            <div id="prevDiffFace" class="w-24 h-24 mb-2 flex items-center justify-center"></div>
             <span id="prevDiffText" class="text-white font-black text-xl tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] uppercase">NA</span>
             <div id="prevStarsBadge" class="mt-2 text-yellow-400 font-bold text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex items-center gap-1 hidden"><i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i> <span id="prevStarsNum">0</span></div>
           </div>
@@ -508,8 +508,8 @@
             <button id="btnModalPlay" class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-[6px] border-white shadow-[0_0_30px_rgba(74,222,128,0.6),inset_0_-8px_0_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all play-pulse group">
                <div class="w-0 h-0 border-t-[25px] border-t-transparent border-l-[40px] border-l-white border-b-[25px] border-b-transparent ml-3 group-hover:border-l-yellow-200 transition-colors"></div>
             </button>
-            <div id="prevRateBtnContainer" class="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden">
-               <button id="btnModalRate" class="px-4 py-1.5 bg-purple-600 border-2 border-white rounded-full text-white font-bold text-sm shadow hover:bg-purple-500 transition-colors flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> Rate</button>
+            <div id="prevRateBtnContainer" class="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden z-10">
+               <button id="btnModalRate" class="px-6 py-2 bg-purple-600 border-2 border-white rounded-full text-white font-bold text-sm shadow hover:bg-purple-500 transition-colors flex items-center gap-2"><i data-lucide="star" class="w-4 h-4"></i> Rate Level</button>
             </div>
           </div>
           <div class="w-1/3 flex flex-col justify-center items-start pl-8 md:pl-16 gap-5">
@@ -629,8 +629,20 @@
     const googleProvider = new GoogleAuthProvider();
 
     // ==========================================
-    // 🎨 ASSET DICTIONARIES (ICONS & COLORS)
+    // 🎨 ASSET DICTIONARIES (ICONS & COLORS & FACES)
     // ==========================================
+    function getDifficultySVG(diff) {
+        let inner = `<circle cx="50" cy="50" r="40" fill="#6b7280" stroke="#fff" stroke-width="6"/><text x="50" y="58" font-size="24" font-weight="bold" fill="#fff" text-anchor="middle" font-family="sans-serif">NA</text>`;
+        if (diff === 'Auto') { inner = `<circle cx="50" cy="50" r="40" fill="#facc15" stroke="#fff" stroke-width="6"/><path d="M35 45 Q50 65 65 45" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="35" cy="35" r="5" fill="#000"/><circle cx="65" cy="35" r="5" fill="#000"/>`; }
+        if (diff === 'Easy') { inner = `<circle cx="50" cy="50" r="40" fill="#3b82f6" stroke="#fff" stroke-width="6"/><path d="M30 55 Q50 75 70 55" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/>`; }
+        if (diff === 'Normal') { inner = `<circle cx="50" cy="50" r="40" fill="#22c55e" stroke="#fff" stroke-width="6"/><path d="M35 60 L65 60" stroke="#000" stroke-width="6" stroke-linecap="round"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/>`; }
+        if (diff === 'Hard') { inner = `<circle cx="50" cy="50" r="40" fill="#facc15" stroke="#fff" stroke-width="6"/><path d="M35 60 Q50 50 65 60" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><rect x="30" y="35" width="10" height="10" fill="#000"/><rect x="60" y="35" width="10" height="10" fill="#000"/>`; }
+        if (diff === 'Harder') { inner = `<circle cx="50" cy="50" r="40" fill="#ef4444" stroke="#fff" stroke-width="6"/><path d="M35 65 Q50 50 65 65" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M25 30 L45 40 M75 30 L55 40" stroke="#000" stroke-width="6" stroke-linecap="round"/><circle cx="35" cy="45" r="5" fill="#000"/><circle cx="65" cy="45" r="5" fill="#000"/>`; }
+        if (diff === 'Insane') { inner = `<circle cx="50" cy="50" r="40" fill="#ec4899" stroke="#fff" stroke-width="6"/><path d="M30 65 Q50 45 70 65" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M20 25 L45 45 M80 25 L55 45" stroke="#000" stroke-width="8" stroke-linecap="round"/><circle cx="35" cy="45" r="5" fill="#fff"/><circle cx="65" cy="45" r="5" fill="#fff"/>`; }
+        if (diff === 'Demon') { inner = `<circle cx="50" cy="50" r="40" fill="#dc2626" stroke="#fff" stroke-width="6"/><path d="M20 20 L35 35 M80 20 L65 35" stroke="#fff" stroke-width="8" stroke-linecap="round"/><path d="M30 70 Q50 40 70 70" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="35" cy="45" r="6" fill="#fff"/><circle cx="65" cy="45" r="6" fill="#fff"/>`; }
+        return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">${inner}</svg>`;
+    }
+
     function getIconSVG(idStr, c1, c2) {
        const id = parseInt(idStr.replace('i', ''));
        let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; 
@@ -920,7 +932,12 @@
         let oldProg = currentSaved[currentPreviewLevel.id] || 0;
         if (prog > oldProg) {
            currentSaved[currentPreviewLevel.id] = prog;
-           await setDoc(uRef, { progress: currentSaved }, { merge: true });
+           let updates = { progress: currentSaved };
+           // Award stars upon 100% completion if the level has them and wasn't completed before
+           if (prog === 100 && oldProg < 100 && (currentPreviewLevel.stars || 0) > 0) {
+              updates.score = (myProfile.score || 0) + currentPreviewLevel.stars;
+           }
+           await setDoc(uRef, updates, { merge: true });
         }
       } catch(e) {}
     }
@@ -2089,13 +2106,17 @@
       
       list.innerHTML = levelsList.sort((a,b) => b.createdAt - a.createdAt).map(l => `
         <div class="bg-gray-900 border border-gray-700 p-4 rounded-xl flex items-center justify-between hover:bg-gray-800 transition-colors cursor-pointer group" onclick="openLevelPreview('${l.id}')">
-          <div>
-            <h4 class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">${escapeHtml(l.name)}</h4>
-            <p class="text-sm text-yellow-500">By ${escapeHtml(l.authorName)}</p>
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 flex-shrink-0">${getDifficultySVG(l.difficulty || 'NA')}</div>
+            <div>
+              <h4 class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">${escapeHtml(l.name)}</h4>
+              <p class="text-sm text-yellow-500">By ${escapeHtml(l.authorName)}</p>
+            </div>
           </div>
           <div class="flex gap-4 text-gray-400 font-bold text-sm">
             <span class="flex items-center gap-1"><i data-lucide="play" class="w-4 h-4"></i> ${l.plays || 0}</span>
             <span class="flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4"></i> ${(l.likes || []).length}</span>
+            ${(l.stars || 0) > 0 ? `<span class="flex items-center gap-1 text-yellow-400"><i data-lucide="star" class="w-4 h-4 fill-yellow-400"></i> ${l.stars}</span>` : ''}
           </div>
         </div>
       `).join('');
@@ -2122,8 +2143,22 @@
       document.getElementById('prevDownloads').innerText = lvl.plays || 0;
       document.getElementById('prevLikes').innerText = (lvl.likes || []).length;
       
-      document.getElementById('prevDiffFace').innerHTML = `<div class="w-16 h-16 rounded-full border-4 border-gray-400 bg-gray-500 flex items-center justify-center shadow-inner"><span class="text-white font-black text-xl">NA</span></div>`;
-      document.getElementById('prevDiffText').innerText = 'N/A';
+      document.getElementById('prevDiffFace').innerHTML = getDifficultySVG(lvl.difficulty || 'NA');
+      document.getElementById('prevDiffText').innerText = lvl.difficulty || 'NA';
+      
+      if ((lvl.stars || 0) > 0) {
+          document.getElementById('prevStarsBadge').classList.remove('hidden');
+          document.getElementById('prevStarsNum').innerText = lvl.stars;
+      } else {
+          document.getElementById('prevStarsBadge').classList.add('hidden');
+      }
+
+      const rateBtnContainer = document.getElementById('prevRateBtnContainer');
+      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) {
+          rateBtnContainer.classList.remove('hidden');
+      } else {
+          rateBtnContainer.classList.add('hidden');
+      }
       
       let lengthStr = 'Tiny';
       if (lvl.data.length > 5000) lengthStr = 'Short';
@@ -2175,6 +2210,31 @@
          }
          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: currentLikes }, { merge: true });
       } catch(e) {}
+    });
+
+    document.getElementById('btnModalRate').addEventListener('click', async () => {
+      if (!currentUser || !myProfile || !currentPreviewLevel) return;
+      if (!['king', 'admin', 'mod'].includes(myProfile.role)) return;
+
+      const diffs = ['NA', 'Auto', 'Easy', 'Normal', 'Hard', 'Harder', 'Insane', 'Demon'];
+      let diff = prompt("Enter difficulty (NA, Auto, Easy, Normal, Hard, Harder, Insane, Demon):", currentPreviewLevel.difficulty || "NA");
+      if (!diff) return;
+      diff = diff.charAt(0).toUpperCase() + diff.slice(1).toLowerCase();
+      if (diff === 'Na') diff = 'NA';
+      if (!diffs.includes(diff)) { alert("Invalid difficulty. Using NA."); diff = 'NA'; }
+      
+      const starsStr = prompt("Enter star reward (0-10):", currentPreviewLevel.stars || "0");
+      const stars = parseInt(starsStr) || 0;
+
+      try {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), {
+          difficulty: diff,
+          stars: stars
+        }, { merge: true });
+        alert("Level rated successfully!");
+      } catch(e) {
+        alert("Error rating level: " + e.message);
+      }
     });
 
     document.getElementById('commentForm').addEventListener('submit', async (e) => {
