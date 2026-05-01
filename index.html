@@ -2023,6 +2023,192 @@
 
     function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
+    function renderAdminPanel() {
+      if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
+      document.getElementById('adminPlayerCount').textContent = `${usersData.length} Players`;
+      const dirList = document.getElementById('adminDirectoryList');
+      const targetSel = document.getElementById('cmdTarget');
+      
+      let selVal = targetSel.value;
+      targetSel.innerHTML = '<option value="GLOBAL">🌐 EVERYONE (GLOBAL)</option>';
+      dirList.innerHTML = '';
+      
+      usersData.forEach(u => {
+        targetSel.innerHTML += `<option value="${u.id}">${escapeHtml(u.username)}</option>`;
+        
+        let roleIcon = u.role === 'king' ? '👑' : u.role === 'admin' ? '🛡️' : u.role === 'mod' ? '⚔️' : '👤';
+        dirList.innerHTML += `
+          <div class="flex items-center justify-between p-2 bg-gray-900 border border-gray-700 rounded mb-1">
+            <div class="flex items-center gap-2">
+              <span title="${u.role}">${roleIcon}</span>
+              <span class="text-white font-bold text-sm">${escapeHtml(u.username)}</span>
+              ${u.banned ? '<span class="text-xs bg-red-900 text-red-300 px-1 rounded">BANNED</span>' : ''}
+            </div>
+            <div class="text-xs text-gray-400 font-mono">UID: ${u.id.substring(0, 5)}... | Stars: ${u.score||0}</div>
+          </div>
+        `;
+      });
+      if ([...targetSel.options].some(o => o.value === selVal)) targetSel.value = selVal;
+    }
+
+    adminCommandForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser || !myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
+      
+      const target = document.getElementById('cmdTarget').value;
+      const action = document.getElementById('cmdAction').value;
+      const numParam = parseInt(document.getElementById('cmdParamNumber').value) || 0;
+      const txtParam = document.getElementById('cmdParamText').value;
+      const roleParam = document.getElementById('cmdParamRole').value;
+      
+      try {
+        if (target === 'GLOBAL') {
+          if (action === 'globalMsg') await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: txtParam }, { merge: true });
+          if (action.startsWith('troll_') || action === 'troll_clear') await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: action === 'troll_clear' ? '' : action }, { merge: true });
+        } else {
+          const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', target);
+          const uDat = usersData.find(u => u.id === target);
+          if (!uDat) return;
+          
+          if (action === 'addScore') await setDoc(uRef, { score: (uDat.score || 0) + numParam }, { merge: true });
+          if (action === 'subScore') await setDoc(uRef, { score: Math.max(0, (uDat.score || 0) - numParam) }, { merge: true });
+          if (action === 'setScore') await setDoc(uRef, { score: numParam }, { merge: true });
+          if (action === 'warn') await setDoc(uRef, { warning: txtParam }, { merge: true });
+          if (action === 'ban') await setDoc(uRef, { banned: true }, { merge: true });
+          if (action === 'unban') await setDoc(uRef, { banned: false }, { merge: true });
+          if (action === 'role' && myProfile.role === 'king') await setDoc(uRef, { role: roleParam }, { merge: true });
+          if (action.startsWith('troll_') || action === 'troll_clear') await setDoc(uRef, { trollEvent: action === 'troll_clear' ? '' : action }, { merge: true });
+        }
+      } catch(err) { alert("Error: " + err.message); }
+    });
+
+    function renderLevelBrowser() {
+      const list = document.getElementById('levelBrowserList');
+      document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
+      if (levelsList.length === 0) { list.innerHTML = `<div class="p-8 text-center text-gray-500">No levels published yet. Be the first!</div>`; return; }
+      
+      list.innerHTML = levelsList.sort((a,b) => b.createdAt - a.createdAt).map(l => `
+        <div class="bg-gray-900 border border-gray-700 p-4 rounded-xl flex items-center justify-between hover:bg-gray-800 transition-colors cursor-pointer group" onclick="openLevelPreview('${l.id}')">
+          <div>
+            <h4 class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">${escapeHtml(l.name)}</h4>
+            <p class="text-sm text-yellow-500">By ${escapeHtml(l.authorName)}</p>
+          </div>
+          <div class="flex gap-4 text-gray-400 font-bold text-sm">
+            <span class="flex items-center gap-1"><i data-lucide="play" class="w-4 h-4"></i> ${l.plays || 0}</span>
+            <span class="flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4"></i> ${(l.likes || []).length}</span>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    window.openLevelPreview = function(id) {
+      const lvl = levelsList.find(l => l.id === id);
+      if (!lvl) return;
+      currentPreviewLevel = lvl;
+      populateLevelModal(lvl);
+      document.getElementById('levelPreviewModal').classList.remove('hide');
+    };
+
+    document.getElementById('btnClosePreview').addEventListener('click', () => {
+      document.getElementById('levelPreviewModal').classList.add('hide');
+      currentPreviewLevel = null;
+    });
+
+    function populateLevelModal(lvl) {
+      document.getElementById('prevLevelName').innerText = lvl.name;
+      document.getElementById('prevAuthorName').innerText = lvl.authorName;
+      document.getElementById('prevLevelId').innerText = lvl.id.substring(0, 8);
+      document.getElementById('prevDownloads').innerText = lvl.plays || 0;
+      document.getElementById('prevLikes').innerText = (lvl.likes || []).length;
+      
+      document.getElementById('prevDiffFace').innerHTML = `<div class="w-16 h-16 rounded-full border-4 border-gray-400 bg-gray-500 flex items-center justify-center shadow-inner"><span class="text-white font-black text-xl">NA</span></div>`;
+      document.getElementById('prevDiffText').innerText = 'N/A';
+      
+      let lengthStr = 'Tiny';
+      if (lvl.data.length > 5000) lengthStr = 'Short';
+      if (lvl.data.length > 15000) lengthStr = 'Medium';
+      if (lvl.data.length > 30000) lengthStr = 'Long';
+      document.getElementById('prevLength').innerText = lengthStr;
+      
+      const likeIcon = document.getElementById('iconModalLike');
+      if (currentUser && (lvl.likes || []).includes(currentUser.uid)) {
+        likeIcon.classList.add('fill-yellow-400');
+      } else {
+        likeIcon.classList.remove('fill-yellow-400');
+      }
+
+      let myProg = myProfile && myProfile.progress ? (myProfile.progress[lvl.id] || 0) : 0;
+      document.getElementById('prevProgressBar').style.width = `${myProg}%`;
+      document.getElementById('prevProgressText').innerText = `${myProg}%`;
+
+      document.getElementById('prevCommentCount').innerText = (lvl.comments || []).length;
+      const cList = document.getElementById('prevCommentsList');
+      cList.innerHTML = (lvl.comments || []).slice().reverse().map(c => `
+         <div class="bg-black/40 p-2 rounded border border-white/5">
+            <div class="flex justify-between items-center mb-1">
+               <span class="text-blue-300 font-bold text-xs">${escapeHtml(c.user)}</span>
+               <span class="text-gray-500 text-[10px]">${new Date(c.time).toLocaleDateString()}</span>
+            </div>
+            <p class="text-white text-sm break-words">${escapeHtml(c.text)}</p>
+         </div>
+      `).join('');
+    }
+    
+    document.getElementById('btnModalPlay').addEventListener('click', async () => {
+      if (!currentPreviewLevel) return;
+      try {
+         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { plays: (currentPreviewLevel.plays || 0) + 1 }, { merge: true });
+      } catch(e) {}
+      document.getElementById('levelPreviewModal').classList.add('hide');
+      launchGame(currentPreviewLevel.data, 'play');
+    });
+
+    document.getElementById('btnModalLike').addEventListener('click', async () => {
+      if (!currentUser || !currentPreviewLevel) return;
+      try {
+         let currentLikes = currentPreviewLevel.likes || [];
+         if (currentLikes.includes(currentUser.uid)) {
+            currentLikes = currentLikes.filter(id => id !== currentUser.uid);
+         } else {
+            currentLikes.push(currentUser.uid);
+         }
+         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: currentLikes }, { merge: true });
+      } catch(e) {}
+    });
+
+    document.getElementById('commentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser || !myProfile || !currentPreviewLevel) return;
+      const input = document.getElementById('commentInput');
+      const txt = input.value.trim();
+      if (!txt) return;
+      try {
+         let comments = currentPreviewLevel.comments || [];
+         comments.push({ user: myProfile.username, text: txt, time: Date.now() });
+         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: comments }, { merge: true });
+         input.value = '';
+      } catch(e) {}
+    });
+
+    document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
+      if (!currentUser || !myProfile) return;
+      const code = prompt("Enter the King Code to claim the crown:");
+      if (code === globalSettings.kingCode) {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
+        alert("You are now the King!");
+      } else {
+        alert("Invalid code.");
+      }
+    });
+    
+    document.getElementById('changeCodeBtn').addEventListener('click', async () => {
+       if (myProfile?.role === 'king') {
+          const newCode = prompt("Enter new King Code:");
+          if(newCode) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: newCode }, { merge: true });
+       }
+    });
+
     level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
   </script>
 </body>
