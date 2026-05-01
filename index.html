@@ -370,7 +370,7 @@
              </div>
              <div class="md:w-2/3 flex flex-col bg-gray-800">
                 <div class="flex border-b border-gray-700">
-                   <button class="kit-tab-btn active flex-1 py-4 font-bold text-white border-b-2 border-blue-500" data-tab="icons">Icons (<span id="kitCountIcons">1</span>/30)</button>
+                   <button class="kit-tab-btn active flex-1 py-4 font-bold text-white border-b-2 border-blue-500" data-tab="icons">Icons (<span id="kitCountIcons">1</span>/15)</button>
                    <button class="kit-tab-btn flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="col1">Color 1 (<span id="kitCountCol1">1</span>/30)</button>
                    <button class="kit-tab-btn flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="col2">Color 2 (<span id="kitCountCol2">1</span>/30)</button>
                 </div>
@@ -469,7 +469,7 @@
             <div class="w-px bg-white/10"></div>
             <div class="text-center">
                <p class="text-gray-400 text-xs font-bold mb-1">ICONS</p>
-               <p id="profModalIconCount" class="text-purple-400 font-mono text-2xl font-bold">1/30</p>
+               <p id="profModalIconCount" class="text-purple-400 font-mono text-2xl font-bold">1/15</p>
             </div>
             <div class="w-px bg-white/10"></div>
             <div class="text-center">
@@ -575,6 +575,12 @@
                   <option value="subScore">➖ Subtract Stars</option>
                   <option value="setScore">🎯 Set Exact Stars</option>
                 </optgroup>
+                <optgroup label="Inventory">
+                  <option value="addKeys">🔑 Award Keys</option>
+                  <option value="subKeys">🗝️ Subtract Keys</option>
+                  <option value="setKeys">🎯 Set Exact Keys</option>
+                  <option value="iconHack">🔓 Icon Hack (Unlock All)</option>
+                </optgroup>
                 <optgroup label="Moderation">
                   <option value="warn">⚠️ Send Warning Message</option>
                   <option value="ban">🔨 Ban Player</option>
@@ -629,6 +635,11 @@
     const googleProvider = new GoogleAuthProvider();
 
     // ==========================================
+    // UTILS
+    // ==========================================
+    function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+
+    // ==========================================
     // 🎨 ASSET DICTIONARIES (ICONS & COLORS)
     // ==========================================
     function getIconSVG(idStr, c1, c2) {
@@ -637,40 +648,27 @@
        switch(id) {
           case 1: content += `<rect x="25" y="30" width="15" height="15" fill="${c2}"/><rect x="60" y="30" width="15" height="15" fill="${c2}"/><rect x="25" y="65" width="50" height="10" fill="${c2}"/>`; break; 
           case 2: content += `<rect x="25" y="40" width="15" height="10" fill="${c2}"/><rect x="60" y="40" width="15" height="10" fill="${c2}"/><path d="M 25 30 L 40 40 M 75 30 L 60 40" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="10" fill="${c2}"/>`; break; 
-          case 3: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><path d="M 30 65 Q 50 85 70 65" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; 
-          case 4: content += `<rect x="15" y="35" width="70" height="25" fill="#111" rx="5"/><circle cx="50" cy="47" r="8" fill="${c2}"/>`; break; 
-          case 5: content += `<rect x="5" y="30" width="90" height="25" fill="${c2}"/><rect x="25" y="35" width="50" height="15" fill="${c1}"/><circle cx="35" cy="42" r="4" fill="${c2}"/><circle cx="65" cy="42" r="4" fill="${c2}"/>`; break; 
-          case 6: content += `<path d="M 25 30 L 40 45 L 25 60 M 75 30 L 60 45 L 75 60" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; 
-          case 7: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><circle cx="50" cy="65" r="10" fill="${c2}"/>`; break; 
-          case 8: content += `<rect x="20" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><rect x="55" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 45 42 L 55 42" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="6" fill="${c2}"/>`; break; 
-          case 9: content += `<path d="M 30 45 L 45 45 L 45 30 L 30 30 Z" fill="${c2}"/><path d="M 55 45 L 70 45 L 70 30 L 55 30 Z" fill="${c2}"/><rect x="45" y="70" width="10" height="10" fill="${c2}"/>`; break; 
-          case 10: content += `<rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="4"/><rect x="25" y="25" width="50" height="50" fill="none" stroke="${c2}" stroke-width="4"/><rect x="35" y="35" width="30" height="30" fill="${c2}"/>`; break; 
-          case 11: content += `<circle cx="30" cy="40" r="12" fill="white"/><circle cx="30" cy="40" r="4" fill="${c2}"/><circle cx="70" cy="40" r="12" fill="white"/><circle cx="70" cy="40" r="4" fill="${c2}"/><path d="M 30 70 Q 50 60 70 70" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; 
-          case 12: content += `<path d="M 15 15 L 85 85 M 15 85 L 85 15" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 13: content += `<rect x="5" y="5" width="45" height="90" fill="${c2}"/><circle cx="30" cy="45" r="10" fill="${c1}"/><circle cx="70" cy="45" r="10" fill="${c2}"/>`; break; 
-          case 14: content += `<path d="M 50 15 L 85 85 L 15 85 Z" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="60" r="10" fill="${c2}"/>`; break; 
-          case 15: content += `<rect x="20" y="20" width="60" height="60" rx="30" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 35 45 Q 50 20 65 45" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="65" r="8" fill="${c2}"/>`; break; 
-          case 16: content += `<path d="M 5 50 L 95 50 M 50 5 L 50 95" stroke="${c2}" stroke-width="6"/><rect x="30" y="30" width="40" height="40" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 17: content += `<path d="M 25 35 Q 50 50 75 35" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><path d="M 35 65 Q 50 50 65 65" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; 
-          case 18: content += `<rect x="15" y="20" width="70" height="30" fill="${c2}" rx="15"/><rect x="25" y="25" width="50" height="20" fill="#111" rx="10"/><rect x="30" y="25" width="10" height="20" fill="${c1}"/><rect x="60" y="25" width="10" height="20" fill="${c1}"/><rect x="35" y="65" width="30" height="15" fill="${c2}" rx="5"/>`; break; 
-          case 19: content += `<path d="M 20 5 L 35 25 L 15 35 Z M 80 5 L 65 25 L 85 35 Z" fill="${c2}"/><circle cx="35" cy="50" r="8" fill="${c2}"/><circle cx="65" cy="50" r="8" fill="${c2}"/><path d="M 30 75 Q 50 85 70 75" fill="none" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 20: content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="10 5"/><circle cx="50" cy="50" r="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="${c1}"/>`; break; 
-          case 21: content += `<path d="M 15 50 Q 50 15 85 50 Q 50 85 15 50" fill="${c2}"/><circle cx="50" cy="50" r="12" fill="#111"/><circle cx="50" cy="50" r="4" fill="${c1}"/>`; break; 
-          case 22: content += `<rect x="5" y="5" width="90" height="90" fill="none" stroke="${c2}" stroke-width="8" rx="20"/><path d="M 25 25 L 75 75 M 25 75 L 75 25" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 23: content += `<path d="M 50 5 L 60 40 L 95 50 L 60 60 L 50 95 L 40 60 L 5 50 L 40 40 Z" fill="${c2}"/><circle cx="50" cy="50" r="10" fill="${c1}"/>`; break; 
-          case 24: content += `<rect x="25" y="25" width="20" height="20" fill="${c2}"/><rect x="55" y="25" width="20" height="20" fill="${c2}"/><rect x="25" y="55" width="20" height="20" fill="${c2}"/><rect x="55" y="55" width="20" height="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="#111"/>`; break; 
-          case 25: content += `<path d="M 15 35 L 30 10 L 50 25 L 70 10 L 85 35 Z" fill="${c2}"/><rect x="25" y="45" width="15" height="15" fill="${c2}"/><rect x="60" y="45" width="15" height="15" fill="${c2}"/><path d="M 40 75 L 60 75" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 26: content += `<circle cx="50" cy="50" r="40" fill="none" stroke="${c2}" stroke-width="4"/><path d="M 50 10 L 50 90 M 10 50 L 90 50 M 22 22 L 78 78 M 22 78 L 78 22" stroke="${c2}" stroke-width="4"/><circle cx="50" cy="50" r="15" fill="${c2}"/><circle cx="50" cy="50" r="6" fill="${c1}"/>`; break; 
-          case 27: content += `<path d="M 5 50 Q 50 -10 95 50 Q 50 110 5 50" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c2}"/><path d="M 45 45 L 55 55 M 55 45 L 45 55" stroke="${c1}" stroke-width="4"/>`; break; 
-          case 28: content += `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${c2}" stroke-width="8" transform="rotate(45 50 50)"/><rect x="35" y="35" width="30" height="30" fill="${c2}" transform="rotate(45 50 50)"/>`; break; 
-          case 29: content += `<style>.mythic-spin { transform-origin: 50px 50px; animation: m-spin 3s linear infinite; } @keyframes m-spin { 100% { transform: rotate(360deg); } }</style><circle cx="50" cy="50" r="42" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="15 15" class="mythic-spin"/><path d="M 50 15 L 60 40 L 95 50 L 60 60 L 50 85 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="mythic-spin" style="animation-direction: reverse; animation-duration: 4s;"/><circle cx="50" cy="50" r="12" fill="${c2}"/>`; break; 
-          case 30: content += `<style>.mythic-pulse { transform-origin: 50px 50px; animation: m-pulse 1s ease-in-out infinite alternate; } @keyframes m-pulse { 0% { transform: scale(0.8); opacity: 0.8;} 100% { transform: scale(1.1); opacity: 1;} }</style><rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="35" class="mythic-pulse"/><rect x="30" y="30" width="40" height="40" fill="${c2}" stroke="${c1}" stroke-width="4" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="8" fill="#fff" class="mythic-pulse" style="animation-delay: -0.5s;"/>`; break; 
+          case 3: content += `<rect x="5" y="30" width="90" height="25" fill="${c2}"/><rect x="25" y="35" width="50" height="15" fill="${c1}"/><circle cx="35" cy="42" r="4" fill="${c2}"/><circle cx="65" cy="42" r="4" fill="${c2}"/>`; break; 
+          case 4: content += `<rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="4"/><rect x="25" y="25" width="50" height="50" fill="none" stroke="${c2}" stroke-width="4"/><rect x="35" y="35" width="30" height="30" fill="${c2}"/>`; break; 
+          case 5: content += `<rect x="5" y="5" width="45" height="90" fill="${c2}"/><circle cx="30" cy="45" r="10" fill="${c1}"/><circle cx="70" cy="45" r="10" fill="${c2}"/>`; break; 
+          case 6: content += `<rect x="20" y="20" width="60" height="60" rx="30" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 35 45 Q 50 20 65 45" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="65" r="8" fill="${c2}"/>`; break; 
+          case 7: content += `<rect x="15" y="20" width="70" height="30" fill="${c2}" rx="15"/><rect x="25" y="25" width="50" height="20" fill="#111" rx="10"/><rect x="30" y="25" width="10" height="20" fill="${c1}"/><rect x="60" y="25" width="10" height="20" fill="${c1}"/><rect x="35" y="65" width="30" height="15" fill="${c2}" rx="5"/>`; break; 
+          case 8: content += `<path d="M 20 5 L 35 25 L 15 35 Z M 80 5 L 65 25 L 85 35 Z" fill="${c2}"/><circle cx="35" cy="50" r="8" fill="${c2}"/><circle cx="65" cy="50" r="8" fill="${c2}"/><path d="M 30 75 Q 50 85 70 75" fill="none" stroke="${c2}" stroke-width="6"/>`; break; 
+          case 9: content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="10 5"/><circle cx="50" cy="50" r="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="${c1}"/>`; break; 
+          case 10: content += `<path d="M 15 50 Q 50 15 85 50 Q 50 85 15 50" fill="${c2}"/><circle cx="50" cy="50" r="12" fill="#111"/><circle cx="50" cy="50" r="4" fill="${c1}"/>`; break; 
+          case 11: content += `<rect x="5" y="5" width="90" height="90" fill="none" stroke="${c2}" stroke-width="8" rx="20"/><path d="M 25 25 L 75 75 M 25 75 L 75 25" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
+          case 12: content += `<path d="M 15 35 L 30 10 L 50 25 L 70 10 L 85 35 Z" fill="${c2}"/><rect x="25" y="45" width="15" height="15" fill="${c2}"/><rect x="60" y="45" width="15" height="15" fill="${c2}"/><path d="M 40 75 L 60 75" stroke="${c2}" stroke-width="6"/>`; break; 
+          case 13: content += `<path d="M 5 50 Q 50 -10 95 50 Q 50 110 5 50" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c2}"/><path d="M 45 45 L 55 55 M 55 45 L 45 55" stroke="${c1}" stroke-width="4"/>`; break; 
+          case 14: content += `<style>.mythic-spin { transform-origin: 50px 50px; animation: m-spin 3s linear infinite; } @keyframes m-spin { 100% { transform: rotate(360deg); } }</style><circle cx="50" cy="50" r="42" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="15 15" class="mythic-spin"/><path d="M 50 15 L 60 40 L 95 50 L 60 60 L 50 85 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="mythic-spin" style="animation-direction: reverse; animation-duration: 4s;"/><circle cx="50" cy="50" r="12" fill="${c2}"/>`; break; 
+          case 15: content += `<style>.mythic-pulse { transform-origin: 50px 50px; animation: m-pulse 1s ease-in-out infinite alternate; } @keyframes m-pulse { 0% { transform: scale(0.8); opacity: 0.8;} 100% { transform: scale(1.1); opacity: 1;} }</style><rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="35" class="mythic-pulse"/><rect x="30" y="30" width="40" height="40" fill="${c2}" stroke="${c1}" stroke-width="4" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="8" fill="#fff" class="mythic-pulse" style="animation-delay: -0.5s;"/>`; break; 
        }
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
-    const ALL_ICONS = Array.from({length: 30}, (_, i) => {
-       let id = `i${i+1}`; let rarity = i < 10 ? 'common' : i < 18 ? 'rare' : i < 24 ? 'epic' : i < 28 ? 'legendary' : 'mythic'; return { id, rarity };
+    const ALL_ICONS = Array.from({length: 15}, (_, i) => {
+       let id = `i${i+1}`; 
+       let rarity = i < 4 ? 'common' : i < 7 ? 'rare' : i < 11 ? 'epic' : i < 13 ? 'legendary' : 'mythic'; 
+       return { id, rarity };
     });
 
     const BASE_HUES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
@@ -691,13 +689,15 @@
     }
 
     // ==========================================
-    // 🌐 APP STATE (TOP LEVEL VARIABLES)
+    // 🌐 APP STATE
     // ==========================================
     let currentUser = null, myProfile = null;
     let usersData = [], levelsList = [], isSignupMode = false, pendingUsername = null;
     let dbUnsubscribe = null, levelsUnsubscribe = null, settingsUnsubscribe = null, activeTrollTimeout = null;
     let globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
     let currentPreviewLevel = null;
+    
+    // History System for Undo/Redo
     let historyList = [];
     let historyIndex = -1;
 
@@ -847,7 +847,7 @@
     }
 
     // ==========================================
-    // 🎮 GAME ENGINE CORE & EDITOR STATE
+    // 🎮 GAME ENGINE CORE
     // ==========================================
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -865,9 +865,7 @@
     let player = { x: 0, y: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, sizeMultiplier: 1.0, dead: false, progress: 0 };
     let level = [], levelMaxX = 0, input = { jumpHeld: false };
 
-    let editor = { 
-      mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: true, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }, hasChangedLevel: false
-    };
+    let editor = { mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: true, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }, hasChangedLevel: false };
 
     const BLANK_LEVEL_DATA = (() => { let str = ""; for(let i=-5; i<=60; i++) str += `${i},-1,0,0;${i},-2,0,0;${i},-3,0,0;`; return str; })();
 
@@ -950,10 +948,10 @@
             if (Math.hypot((player.x + pSize/2) - ox, (player.y + pSize/2) - oy) < GRID_SIZE * 1.5) {
               
               let force = JUMP_FORCE;
-              if (obj.type === 23) force *= 0.7; // Pink
-              if (obj.type === 25) force *= 1.4; // Red
+              if (obj.type === 23) force *= 0.7; 
+              if (obj.type === 25) force *= 1.4; 
               
-              if (obj.type === 27) { // Blue
+              if (obj.type === 27) { 
                 player.gravityDir *= -1;
                 player.vy = JUMP_FORCE * 0.4 * player.gravityDir;
               } else {
@@ -981,7 +979,6 @@
       if (state.mode === 'menu') { state.cameraX += 3; return; }
 
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead && !state.win) {
-        
         let pSize = 30 * player.sizeMultiplier;
         if (state.currentPath.length === 0 || Math.abs(player.x - state.currentPath[state.currentPath.length-1].x) > 5) state.currentPath.push({x: player.x + pSize/2, y: player.y + pSize/2});
 
@@ -1295,16 +1292,19 @@
       requestAnimationFrame(loop); 
     }
 
+    // ==========================================
+    // 🖱️ EDITOR LOGIC
+    // ==========================================
     function parseLevelString(str) {
       let newLvl = []; let parts = str.split(';');
       for(let p of parts) { if(!p.trim()) continue; let [x, y, t, r] = p.split(','); if(x !== undefined && y !== undefined && t !== undefined) newLvl.push({ gx: parseInt(x), gy: parseInt(y), type: parseInt(t), rot: parseInt(r) || 0 }); }
       return newLvl;
     }
-    function generateLevelString() { return level.map(b => `${b.gx},${b.gy},${b.type},${b.rot || 0}`).join(';'); }
+    
+    function generateLevelString() { 
+      return level.map(b => `${b.gx},${b.gy},${b.type},${b.rot || 0}`).join(';'); 
+    }
 
-    // ==========================================
-    // 🖱️ EDITOR INPUT HANDLING (SWIPE VS PAN VS BOX)
-    // ==========================================
     function getGridPos(clientX, clientY) {
       const rect = canvas.getBoundingClientRect();
       let gx = Math.floor((clientX - rect.left + state.cameraX) / GRID_SIZE);
@@ -1594,7 +1594,7 @@
     });
 
     // ==========================================
-    // 🌐 APP STATE & FIREBASE INTEGRATION
+    // 🌐 HUB UI & FIREBASE HOOKS
     // ==========================================
     const hubUI = document.getElementById('hubUI'), joinSection = document.getElementById('joinSection'), emailAuthForm = document.getElementById('emailAuthForm');
     const tabLogin = document.getElementById('tabLogin'), tabSignup = document.getElementById('tabSignup'), usernameGroup = document.getElementById('usernameGroup');
@@ -1608,7 +1608,24 @@
     document.getElementById('btnViewIconKit').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewIconKit.classList.remove('hidden'); renderIconKit(); });
     document.getElementById('btnViewTreasure').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewTreasure.classList.remove('hidden'); updateTreasureUI(); });
     
-    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
+    function launchGameGlobal(dataStr, mode) {
+      hubUI.classList.add('hide'); document.getElementById('gameUI').classList.remove('hide');
+      level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
+      
+      historyList = []; historyIndex = -1; saveHistory();
+      
+      if (mode === 'edit') { 
+        document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
+        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
+        switchEditorMode('build'); 
+      } else { 
+        document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('gameProgressContainer').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
+        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
+      }
+      lucide.createIcons();
+    }
+
+    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGameGlobal(BLANK_LEVEL_DATA, 'edit'); });
     document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
     document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
 
@@ -1665,7 +1682,7 @@
             const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
             await setDoc(uRef, { 
                username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), progress: {},
-               unlockedIcons: ['i1'], unlockedCol1: ['c1'], unlockedCol2: ['c20'], equippedIcon: 'i1', equippedCol1: 'c1', equippedCol2: 'c20', keysSpent: 0
+               unlockedIcons: ['i1'], unlockedCol1: ['c1'], unlockedCol2: ['c20'], equippedIcon: 'i1', equippedCol1: 'c1', equippedCol2: 'c20', keysSpent: 0, bonusKeys: 0
             });
           }
           pendingUsername = null; setupDatabaseListener();
@@ -1697,7 +1714,8 @@
           if (!myProfile.equippedIcon) myProfile.equippedIcon = 'i1';
           if (!myProfile.equippedCol1) myProfile.equippedCol1 = 'c1';
           if (!myProfile.equippedCol2) myProfile.equippedCol2 = 'c20';
-          if (!myProfile.keysSpent) myProfile.keysSpent = 0;
+          if (myProfile.keysSpent === undefined) myProfile.keysSpent = 0;
+          if (myProfile.bonusKeys === undefined) myProfile.bonusKeys = 0;
           
           updatePlayerSprite();
 
@@ -1752,33 +1770,6 @@
       });
     }
 
-    function getAvailableKeys() {
-       if(!myProfile) return 0;
-       return Math.floor((myProfile.score || 0) / 25) - (myProfile.keysSpent || 0);
-    }
-
-    function updateHubUI() {
-      joinSection.classList.add('hidden'); loggedInSection.classList.remove('hidden');
-      if (state.mode === 'menu') hubUI.classList.remove('hide');
-      document.getElementById('displayUsername').textContent = myProfile.username;
-      document.getElementById('displayScore').textContent = (myProfile.score || 0).toLocaleString();
-      document.getElementById('displayKeys').textContent = getAvailableKeys().toLocaleString();
-      document.getElementById('displayPfp').src = myProfile.photoURL ? myProfile.photoURL : getDefaultAvatar(myProfile.username);
-      
-      const rb = document.getElementById('myRoleBadge');
-      if (myProfile.role === 'king') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/50">👑 King</span>`;
-      else if (myProfile.role === 'admin') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/50">🛡️ Admin</span>`;
-      else if (myProfile.role === 'mod') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-green-500/20 text-green-400 border border-green-500/50">⚔️ Mod</span>`;
-      else rb.innerHTML = '';
-
-      if (['king', 'admin', 'mod'].includes(myProfile.role)) { document.getElementById('openAdminBtn').classList.remove('hidden'); document.getElementById('openAdminBtn').classList.add('flex'); } 
-      else { document.getElementById('openAdminBtn').classList.add('hidden'); document.getElementById('openAdminBtn').classList.remove('flex'); }
-      
-      if (myProfile.role === 'king') document.getElementById('changeCodeBtn').classList.remove('hidden');
-      else document.getElementById('changeCodeBtn').classList.add('hidden');
-      lucide.createIcons();
-    }
-
     function renderLeaderboard() {
       const visibleUsers = usersData.filter(u => !u.banned).sort((a,b) => (b.score||0) - (a.score||0));
       document.getElementById('creatorCount').textContent = `${visibleUsers.length} Creators`;
@@ -1816,213 +1807,168 @@
       });
     }
 
-    function openProfileModal(uid) {
-       const u = usersData.find(x => x.id === uid);
-       if(!u) return;
-       document.getElementById('profModalName').innerText = u.username;
-       document.getElementById('profModalImg').src = u.photoURL || getDefaultAvatar(u.username);
-       document.getElementById('profModalStars').innerText = (u.score || 0).toLocaleString();
-       document.getElementById('profModalIconCount').innerText = `${(u.unlockedIcons || ['i1']).length}/${ALL_ICONS.length}`;
-       document.getElementById('profModalColorCount').innerText = `${((u.unlockedCol1 || []).length + (u.unlockedCol2 || []).length)}/${ALL_COLORS.length * 2}`;
-       
-       const rb = document.getElementById('profModalBadge');
-       if (u.role === 'king') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]">👑 The King</span>`;
-       else if (u.role === 'admin') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/50">🛡️ Admin</span>`;
-       else if (u.role === 'mod') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/50">⚔️ Moderator</span>`;
-       else rb.innerHTML = '';
-       
-       let favIconId = u.equippedIcon || 'i1';
-       let favC1 = ALL_COLORS.find(c=>c.id===(u.equippedCol1 || 'c1'))?.val || '#00f0ff';
-       let favC2 = ALL_COLORS.find(c=>c.id===(u.equippedCol2 || 'c20'))?.val || '#ffffff';
-       document.getElementById('profModalFavIcon').innerHTML = getIconSVG(favIconId, favC1, favC2);
-
-       document.getElementById('profileModal').classList.remove('hide');
-    }
-    document.getElementById('btnCloseProfile').addEventListener('click', () => { document.getElementById('profileModal').classList.add('hide'); });
-
-    // --- ICON KIT LOGIC ---
-    let kitTab = 'icons';
-    document.querySelectorAll('.kit-tab-btn').forEach(b => {
-       b.addEventListener('click', (e) => {
-          document.querySelectorAll('.kit-tab-btn').forEach(btn => { btn.classList.remove('active', 'text-white', 'border-blue-500'); btn.classList.add('text-gray-400', 'border-transparent'); });
-          e.currentTarget.classList.remove('text-gray-400', 'border-transparent'); e.currentTarget.classList.add('active', 'text-white', 'border-blue-500');
-          kitTab = e.currentTarget.dataset.tab;
-          document.getElementById('kitGridIcons').classList.add('hide'); document.getElementById('kitGridCol1').classList.add('hide'); document.getElementById('kitGridCol2').classList.add('hide');
-          if(kitTab==='icons') document.getElementById('kitGridIcons').classList.remove('hide');
-          if(kitTab==='col1') document.getElementById('kitGridCol1').classList.remove('hide');
-          if(kitTab==='col2') document.getElementById('kitGridCol2').classList.remove('hide');
-       });
-    });
-
-    function renderIconKit() {
-       if(!myProfile) return;
-       const eqI = myProfile.equippedIcon, eqC1 = myProfile.equippedCol1, eqC2 = myProfile.equippedCol2;
-       const c1Val = ALL_COLORS.find(c=>c.id===eqC1)?.val || '#00f0ff', c2Val = ALL_COLORS.find(c=>c.id===eqC2)?.val || '#ffffff';
-       
-       document.getElementById('kitPreviewContainer').innerHTML = getIconSVG(eqI, c1Val, c2Val);
-       document.getElementById('kitCountIcons').innerText = myProfile.unlockedIcons.length;
-       document.getElementById('kitCountCol1').innerText = myProfile.unlockedCol1.length;
-       document.getElementById('kitCountCol2').innerText = myProfile.unlockedCol2.length;
-
-       const renderItem = (item, type, isUnlocked, isEquipped, contentHTML) => {
-          return `<button class="relative w-full aspect-square rounded-xl border-[3px] transition-all hover:scale-105 active:scale-95 flex items-center justify-center p-2 
-             ${isUnlocked ? (isEquipped ? 'bg-blue-600/30 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.6)]' : 'bg-gray-800 border-gray-600 rarity-'+item.rarity) : 'bg-gray-900 border-gray-800 opacity-50'}"
-             ${isUnlocked ? `data-equip-${type}="${item.id}"` : 'disabled'}>
-             ${contentHTML}
-             ${!isUnlocked ? `<div class="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center backdrop-blur-[2px]"><i data-lucide="lock" class="w-6 h-6 text-white/50"></i></div>` : ''}
-          </button>`;
-       };
-
-       document.getElementById('kitGridIcons').innerHTML = ALL_ICONS.map(i => renderItem(i, 'icon', myProfile.unlockedIcons.includes(i.id), eqI === i.id, getIconSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', myProfile.unlockedCol1.includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', myProfile.unlockedCol2.includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       lucide.createIcons();
-
-       ['icon', 'col1', 'col2'].forEach(t => {
-          document.querySelectorAll(`[data-equip-${t}]`).forEach(b => b.addEventListener('click', async (e) => {
-             const val = e.currentTarget.getAttribute(`data-equip-${t}`);
-             try {
-                let key = t==='icon' ? 'equippedIcon' : t==='col1' ? 'equippedCol1' : 'equippedCol2';
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { [key]: val }, { merge: true });
-             } catch(err) {}
-          }));
-       });
-    }
-
-    // --- TREASURE / GACHA LOGIC ---
-    function updateTreasureUI() {
-       document.getElementById('treasureKeyCount').innerText = getAvailableKeys().toLocaleString();
-    }
-
-    document.querySelectorAll('.btn-buy-chest').forEach(btn => {
-       btn.addEventListener('click', async (e) => {
-          if (!currentUser || !myProfile) return;
-          const cost = parseInt(e.currentTarget.dataset.cost);
-          const tier = e.currentTarget.dataset.tier;
-          if (getAvailableKeys() < cost) return alert("Not enough keys! Keep beating or publishing levels to earn Stars.");
-          
-          let availI = ALL_ICONS.filter(x => !myProfile.unlockedIcons.includes(x.id));
-          let availC1 = ALL_COLORS.filter(x => !myProfile.unlockedCol1.includes(x.id));
-          let availC2 = ALL_COLORS.filter(x => !myProfile.unlockedCol2.includes(x.id));
-          
-          if (availI.length===0 && availC1.length===0 && availC2.length===0) return alert("You have unlocked literally everything in the game! Go outside!");
-
-          const filterPool = (pool, rarities) => { let p = pool.filter(x => rarities.includes(x.rarity)); return p.length > 0 ? p : pool; }; 
-          
-          if (tier === 'wood') {
-             availI = filterPool(availI, ['common', 'rare']); availC1 = filterPool(availC1, ['common', 'rare']); availC2 = filterPool(availC2, ['common', 'rare']);
-          } else if (tier === 'gold') {
-             availI = filterPool(availI, ['rare', 'epic', 'legendary']); availC1 = filterPool(availC1, ['rare', 'epic', 'legendary']); availC2 = filterPool(availC2, ['rare', 'epic', 'legendary']);
-          } else if (tier === 'demon') {
-             availI = filterPool(availI, ['epic', 'legendary', 'mythic']); availC1 = filterPool(availC1, ['epic', 'legendary', 'mythic']); availC2 = filterPool(availC2, ['epic', 'legendary', 'mythic']);
-          }
-
-          let wonI = availI.length > 0 ? availI[Math.floor(Math.random()*availI.length)] : ALL_ICONS[0];
-          let wonC1 = availC1.length > 0 ? availC1[Math.floor(Math.random()*availC1.length)] : ALL_COLORS[0];
-          let wonC2 = availC2.length > 0 ? availC2[Math.floor(Math.random()*availC2.length)] : ALL_COLORS[0];
-
-          try {
-             let newKeysSpent = (myProfile.keysSpent || 0) + cost;
-             let nI = [...new Set([...myProfile.unlockedIcons, wonI.id])];
-             let nC1 = [...new Set([...myProfile.unlockedCol1, wonC1.id])];
-             let nC2 = [...new Set([...myProfile.unlockedCol2, wonC2.id])];
-             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { keysSpent: newKeysSpent, unlockedIcons: nI, unlockedCol1: nC1, unlockedCol2: nC2 }, { merge: true });
-             triggerChestAnimation(tier, wonI, wonC1, wonC2);
-          } catch(err) { alert("Error opening chest."); }
-       });
-    });
-
-    function triggerChestAnimation(tier, wonI, wonC1, wonC2) {
-       const mainArea = document.getElementById('treasureMainArea');
-       const openArea = document.getElementById('treasureOpenArea');
-       const animCont = document.getElementById('chestAnimContainer');
-       const rewardCont = document.getElementById('rewardsContainer');
-       const btnCont = document.getElementById('btnTreasureContinue');
-       const flash = document.getElementById('flashScreen');
-
-       mainArea.classList.add('hide'); openArea.classList.remove('hide');
-       rewardCont.classList.add('hide'); btnCont.classList.add('hide'); rewardCont.innerHTML = '';
-       
-       let chestCol = tier==='wood'?'bg-yellow-900 border-yellow-700':tier==='gold'?'bg-yellow-500 border-yellow-300':'bg-red-950 border-red-500 shadow-[0_0_50px_red]';
-       animCont.innerHTML = `<div class="w-full h-full ${chestCol} border-8 rounded-2xl flex items-center justify-center relative chest-shaking"><div class="absolute top-1/2 left-0 w-full h-4 bg-black/50 -translate-y-1/2"></div><div class="w-12 h-16 bg-gray-300 border-4 border-black rounded-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
-       
-       setTimeout(() => {
-          animCont.innerHTML = '';
-          flash.classList.add('flash-screen');
-          
-          setTimeout(() => {
-             flash.classList.remove('flash-screen');
-             rewardCont.classList.remove('hide');
-             
-             let c1Val = wonC1.val, c2Val = wonC2.val;
-             
-             rewardCont.innerHTML = `
-                <div class="flex flex-col items-center card-flip" style="animation-delay: 0s">
-                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonI.rarity}">${getIconSVG(wonI.id, '#ccc', '#fff')}</div>
-                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Icon</p>
-                   <p class="text-xs text-gray-400 uppercase">${wonI.rarity}</p>
-                </div>
-                <div class="flex flex-col items-center card-flip" style="animation-delay: 0.2s">
-                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonC1.rarity}"><div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${c1Val}"></div></div>
-                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Color 1</p>
-                   <p class="text-xs text-gray-400 uppercase">${wonC1.rarity}</p>
-                </div>
-                <div class="flex flex-col items-center card-flip" style="animation-delay: 0.4s">
-                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonC2.rarity}"><div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${c2Val}"></div></div>
-                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Color 2</p>
-                   <p class="text-xs text-gray-400 uppercase">${wonC2.rarity}</p>
-                </div>
-             `;
-             
-             setTimeout(() => { btnCont.classList.remove('hide'); }, 1500);
-          }, 500);
-       }, 1500);
-    }
-
-    document.getElementById('btnTreasureContinue').addEventListener('click', () => {
-       document.getElementById('treasureOpenArea').classList.add('hide');
-       document.getElementById('treasureMainArea').classList.remove('hide');
-       updateTreasureUI();
-    });
-
-    const cmdTarget = document.getElementById('cmdTarget');
-    const cmdAction = document.getElementById('cmdAction');
-    const cmdParamContainer = document.getElementById('cmdParamContainer');
-    const cmdParamLabel = document.getElementById('cmdParamLabel');
-    const cmdParamNumber = document.getElementById('cmdParamNumber');
-    const cmdParamText = document.getElementById('cmdParamText');
-    const cmdParamRole = document.getElementById('cmdParamRole');
-
-    cmdAction.addEventListener('change', () => {
-      const act = cmdAction.value; cmdParamNumber.classList.add('hidden'); cmdParamText.classList.add('hidden'); cmdParamRole.classList.add('hidden'); cmdParamContainer.classList.remove('hidden');
-      if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
-      else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
-      else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
-      else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
-    });
-
-    document.getElementById('btnWinReplay').addEventListener('click', () => { state.mode = 'play'; state.attempts = 1; resetPlayer(); });
-    document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
-
-    function launchGame(dataStr, mode) {
-      hubUI.classList.add('hide'); document.getElementById('gameUI').classList.remove('hide');
-      level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
+    function renderLevelBrowser() {
+      document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
+      const browserList = document.getElementById('levelBrowserList');
+      if (levelsList.length === 0) { browserList.innerHTML = `<div class="p-8 text-center text-gray-500">No community levels yet. Be the first to build one!</div>`; return; }
       
-      historyList = []; historyIndex = -1; saveHistory();
+      levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
       
-      if (mode === 'edit') { 
-        document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
-        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
-        switchEditorMode('build'); 
-      } else { 
-        document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('gameProgressContainer').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
-        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
+      browserList.innerHTML = levelsList.map(lvl => {
+        let diffIcon = '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-400"></i>';
+        if (lvl.difficulty === 'Easy') diffIcon = '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
+        else if (lvl.difficulty === 'Medium') diffIcon = '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
+        else if (lvl.difficulty === 'Hard') diffIcon = '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
+        else if (lvl.difficulty === 'Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>';
+        else if (lvl.difficulty === 'Extreme Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-800 drop-shadow-[0_0_15px_rgba(153,27,27,0.9)]"></i>';
+        else if (lvl.difficulty === 'Impossible Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-black drop-shadow-[0_0_20px_rgba(255,0,0,1)]"></i>';
+
+        return `
+          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-level" data-lvl-id="${lvl.id}">
+            <div class="flex items-center gap-4 pointer-events-none">
+              <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
+                ${diffIcon}
+              </div>
+              <div>
+                <h4 class="text-lg font-bold text-white flex items-center gap-2">
+                  ${escapeHtml(lvl.name)}
+                  ${lvl.stars ? `<span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> ${lvl.stars}</span>` : ''}
+                </h4>
+                <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 pointer-events-none pr-2">
+              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="play-circle" class="w-4 h-4 text-green-400"></i> ${lvl.plays || 0}</span>
+              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4 text-yellow-400"></i> ${(lvl.likes && lvl.likes.length) || 0}</span>
+              <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 pointer-events-auto">View</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+      
+      document.querySelectorAll('.btn-open-level').forEach(el => {
+         el.addEventListener('click', () => {
+            const lObj = levelsList.find(l => l.id === el.dataset.lvlId);
+            if (lObj) openLevelPreview(lObj);
+         });
+      });
+    }
+
+    function populateLevelModal(lvlObj) {
+      document.getElementById('prevLevelId').innerText = lvlObj.id.substring(0, 6).toUpperCase();
+      document.getElementById('prevLevelName').innerText = lvlObj.name;
+      document.getElementById('prevAuthorName').innerText = lvlObj.authorName;
+      document.getElementById('prevDownloads').innerText = (lvlObj.plays || 0).toLocaleString();
+      document.getElementById('prevLikes').innerText = ((lvlObj.likes && lvlObj.likes.length) || 0).toLocaleString();
+      document.getElementById('prevLength').innerText = calcLevelLength(lvlObj.data);
+      
+      let faceHTML = '<i data-lucide="circle-dashed" class="w-full h-full text-gray-300"></i>';
+      if (lvlObj.difficulty === 'Easy') faceHTML = '<i data-lucide="smile" class="w-full h-full text-green-400"></i>';
+      else if (lvlObj.difficulty === 'Medium') faceHTML = '<i data-lucide="meh" class="w-full h-full text-yellow-400"></i>';
+      else if (lvlObj.difficulty === 'Hard') faceHTML = '<i data-lucide="frown" class="w-full h-full text-orange-500"></i>';
+      else if (lvlObj.difficulty === 'Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"></i>';
+      else if (lvlObj.difficulty === 'Extreme Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-800 drop-shadow-[0_0_20px_rgba(153,27,27,0.9)]"></i>';
+      else if (lvlObj.difficulty === 'Impossible Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-black drop-shadow-[0_0_25px_rgba(255,0,0,1)]"></i>';
+      
+      document.getElementById('prevDiffFace').innerHTML = faceHTML;
+      document.getElementById('prevDiffText').innerText = (lvlObj.difficulty || 'NA').toUpperCase();
+      
+      if (lvlObj.stars) { document.getElementById('prevStarsBadge').classList.remove('hidden'); document.getElementById('prevStarsNum').innerText = lvlObj.stars; } 
+      else { document.getElementById('prevStarsBadge').classList.add('hidden'); }
+
+      let myProg = 0;
+      if (myProfile && myProfile.progress && myProfile.progress[lvlObj.id]) myProg = myProfile.progress[lvlObj.id];
+      document.getElementById('prevProgressBar').style.width = `${myProg}%`;
+      document.getElementById('prevProgressText').innerText = `${myProg}%`;
+
+      if (myProfile && lvlObj.likes && lvlObj.likes.includes(currentUser.uid)) {
+         document.getElementById('iconModalLike').classList.remove('text-yellow-400'); document.getElementById('iconModalLike').classList.add('fill-yellow-400', 'text-yellow-400');
+      } else { document.getElementById('iconModalLike').classList.remove('fill-yellow-400'); }
+      
+      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) { document.getElementById('prevRateBtnContainer').classList.remove('hidden'); } 
+      else { document.getElementById('prevRateBtnContainer').classList.add('hidden'); }
+
+      let coms = lvlObj.comments || [];
+      document.getElementById('prevCommentCount').innerText = coms.length;
+      if (coms.length === 0) { document.getElementById('prevCommentsList').innerHTML = `<p class="text-center text-white/50 text-xs py-4 font-bold">No comments yet. Be the first!</p>`; } 
+      else {
+         document.getElementById('prevCommentsList').innerHTML = coms.map(c => `
+           <div class="bg-black/50 p-2 border border-white/10 rounded flex gap-2">
+             <div class="font-bold text-yellow-400 text-xs shrink-0">${escapeHtml(c.name)}:</div>
+             <div class="text-white text-xs break-words">${escapeHtml(c.text)}</div>
+           </div>
+         `).join('');
       }
       lucide.createIcons();
     }
 
-    function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+    document.getElementById('btnClosePreview').addEventListener('click', () => {
+       document.getElementById('levelPreviewModal').classList.add('hide'); currentPreviewLevel = null;
+    });
 
+    document.getElementById('btnModalPlay').addEventListener('click', async () => {
+       if (!currentPreviewLevel) return;
+       const lvlId = currentPreviewLevel.id; const data = currentPreviewLevel.data;
+       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (currentPreviewLevel.plays||0) + 1 }, { merge: true }); } catch(err){}
+       document.getElementById('levelPreviewModal').classList.add('hide'); hubUI.classList.add('opacity-0');
+       setTimeout(() => { launchGameGlobal(data, 'play'); }, 300);
+    });
+    
+    document.getElementById('btnModalLike').addEventListener('click', async () => {
+       if (!currentUser || !currentPreviewLevel) return;
+       let likes = currentPreviewLevel.likes || [];
+       let idx = likes.indexOf(currentUser.uid);
+       if (idx > -1) { likes.splice(idx, 1); } else { likes.push(currentUser.uid); }
+       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: likes }, { merge: true }); } catch(err) { }
+    });
+
+    document.getElementById('commentForm').addEventListener('submit', async (e) => {
+       e.preventDefault();
+       if (!currentUser || !myProfile || !currentPreviewLevel) return;
+       const input = document.getElementById('commentInput'); const txt = input.value.trim(); if (!txt) return;
+       let coms = currentPreviewLevel.comments || [];
+       coms.unshift({ uid: currentUser.uid, name: myProfile.username, text: txt, time: Date.now() });
+       if (coms.length > 50) coms = coms.slice(0, 50);
+       try {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: coms }, { merge: true });
+          input.value = '';
+       } catch(err) {}
+    });
+    
+    document.getElementById('btnModalRate').addEventListener('click', async () => {
+       if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role) || !currentPreviewLevel) return;
+       const lvlObj = currentPreviewLevel;
+       const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)\n5 = Extreme Demon (125⭐)\n6 = Impossible Demon (300⭐)`, "0");
+       if (ratingInput === null) return;
+       
+       let newDiff = 'NA', newStars = 0;
+       if (ratingInput === "1") { newDiff = 'Easy'; newStars = 5; }
+       else if (ratingInput === "2") { newDiff = 'Medium'; newStars = 10; }
+       else if (ratingInput === "3") { newDiff = 'Hard'; newStars = 20; }
+       else if (ratingInput === "4") { newDiff = 'Demon'; newStars = 75; }
+       else if (ratingInput === "5") { newDiff = 'Extreme Demon'; newStars = 125; }
+       else if (ratingInput === "6") { newDiff = 'Impossible Demon'; newStars = 300; }
+       else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
+       
+       const oldStars = lvlObj.stars || 0; const starDiff = newStars - oldStars;
+       
+       try {
+         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlObj.id), { difficulty: newDiff, stars: newStars }, { merge: true });
+         if (starDiff !== 0) {
+           const authorRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', lvlObj.authorId);
+           const authorSnap = await getDoc(authorRef);
+           if (authorSnap.exists()) {
+              const authorData = authorSnap.data();
+              const newScore = Math.max(0, (authorData.score || 0) + starDiff);
+              await setDoc(authorRef, { score: newScore }, { merge: true });
+           }
+         }
+         alert(`Level successfully rated ${newDiff} (${newStars}⭐)!`);
+       } catch(err) { alert("Failed to rate level."); }
+    });
+
+    // --- INIT ---
     level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
   </script>
 </body>
