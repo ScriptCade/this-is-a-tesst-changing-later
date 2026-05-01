@@ -1415,6 +1415,18 @@
       }
     });
 
+    document.getElementById('btnMusic').addEventListener('click', () => {
+      initAudio();
+      isMusicOn = !isMusicOn;
+      document.getElementById('btnMusic').innerText = isMusicOn ? '🎵 Music: ON' : '🎵 Music: OFF';
+      document.getElementById('btnMusic').className = isMusicOn ? 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-white font-bold transition-colors shadow' : 'px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow';
+      
+      // Reset the note timer to current time so we don't play a massive backlog of notes at once
+      if (isMusicOn && audioCtx) {
+         nextNoteTime = audioCtx.currentTime + 0.1;
+      }
+    });
+
     document.getElementById('btnPublish').addEventListener('click', async () => {
       if(!currentUser || !myProfile) return;
       const lvlName = prompt("Enter a name for your level:");
