@@ -42,6 +42,7 @@
     .ed-btn.delete { background: linear-gradient(180deg, #f87171, #dc2626); }
     .ed-btn.delete.active { background: linear-gradient(180deg, #60a5fa, #2563eb); }
     
+    /* Consistently Huge Tool Buttons (~3x larger) */
     .tool-btn { 
       background: #334; border: 3px solid #111; border-radius: 8px; 
       display: flex; justify-content: center; align-items: center; 
@@ -75,7 +76,6 @@
     .rarity-legendary { box-shadow: 0 0 25px #facc15; border-color: #facc15 !important; }
     .rarity-mythic { box-shadow: 0 0 35px #ef4444; border-color: #ef4444 !important; animation: pulse-mythic 1s infinite alternate; }
     @keyframes pulse-mythic { from { box-shadow: 0 0 15px #ef4444; } to { box-shadow: 0 0 35px #ff0000, 0 0 15px inset #ef4444; } }
-
   </style>
 </head>
 <body id="mainBody">
@@ -219,6 +219,7 @@
     </div>
   </div>
 
+  <!-- Win Overlay -->
   <div id="winOverlay" class="hide absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex justify-center items-center">
     <div class="bg-gray-900 border-2 border-yellow-400 p-10 rounded-2xl text-center shadow-[0_0_80px_rgba(250,204,21,0.4)] flex flex-col items-center animate-pop">
       <h1 class="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">LEVEL COMPLETE</h1>
@@ -248,7 +249,7 @@
         </p>
       </header>
 
-      <!-- UNLOGGED STATE (Auth) -->
+      <!-- UNLOGGED STATE -->
       <div id="joinSection" class="max-w-md mx-auto bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl block mt-8 animate-pop">
         <button id="googleLoginBtn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]">
           <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google
@@ -266,10 +267,8 @@
         </form>
       </div>
 
-      <!-- LOGGED IN STATE (Hub Dashboard) -->
+      <!-- LOGGED IN STATE -->
       <div id="loggedInSection" class="hidden w-full max-w-5xl mx-auto flex flex-col items-center gap-8 mt-8">
-        
-        <!-- Profile Banner -->
         <div class="w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl shadow-xl p-4 flex flex-wrap items-center justify-between gap-4 animate-slide-up">
           <div class="flex items-center gap-4">
             <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Change Profile Picture">
@@ -297,9 +296,8 @@
           </div>
         </div>
 
-        <!-- MAIN MENU (5 Buttons now) -->
+        <!-- MAIN MENU -->
         <div id="viewMainMenu" class="w-full flex flex-col items-center gap-6 animate-pop">
-          <!-- Top Row -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
             <button id="btnViewBrowser" class="p-8 bg-blue-600 hover:bg-blue-500 rounded-3xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-transform hover:scale-105 flex items-center justify-center gap-6 border-2 border-blue-400 h-40 relative overflow-hidden group">
               <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
@@ -312,7 +310,6 @@
               <span class="text-3xl font-black tracking-widest text-white relative z-10 text-left">CREATE<br>LEVEL</span>
             </button>
           </div>
-          <!-- Bottom Row -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             <button id="btnViewLeaderboard" class="p-6 bg-yellow-600 hover:bg-yellow-500 rounded-3xl shadow-[0_0_30px_rgba(202,138,4,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-3 border-2 border-yellow-400 h-48 relative overflow-hidden group">
               <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
@@ -332,7 +329,7 @@
           </div>
         </div>
 
-        <!-- LEVEL BROWSER VIEW -->
+        <!-- LEVEL BROWSER -->
         <div id="viewBrowser" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px] animate-pop">
           <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
             <div class="flex items-center gap-4">
@@ -344,7 +341,7 @@
           <div id="levelBrowserList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
         </div>
 
-        <!-- LEADERBOARD VIEW -->
+        <!-- LEADERBOARD -->
         <div id="viewLeaderboard" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px] animate-pop">
           <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
             <div class="flex items-center gap-4">
@@ -356,7 +353,7 @@
           <div id="leaderboardViewList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
         </div>
 
-        <!-- ICON KIT VIEW -->
+        <!-- ICON KIT -->
         <div id="viewIconKit" class="hidden w-full bg-gray-800/90 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[700px] animate-pop">
           <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center z-10">
             <div class="flex items-center gap-4">
@@ -364,20 +361,13 @@
               <h3 class="text-xl font-bold flex items-center gap-2 text-white"><i data-lucide="box" class="w-6 h-6 text-purple-400"></i> Icon Kit</h3>
             </div>
           </div>
-          
           <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
-             <!-- Preview Pane -->
              <div class="md:w-1/3 bg-gray-900 border-r border-gray-700 p-8 flex flex-col items-center justify-center relative overflow-hidden">
                 <div class="absolute inset-0 bg-blue-900/20"></div>
                 <div class="absolute bottom-0 w-full h-1/3 bg-blue-900/40 border-t-2 border-blue-500/50"></div>
-                
                 <h4 class="absolute top-6 text-gray-400 font-bold tracking-widest text-sm z-10">PREVIEW</h4>
-                <div id="kitPreviewContainer" class="w-32 h-32 relative z-10 drop-shadow-2xl">
-                   <!-- Injected SVG Preview -->
-                </div>
+                <div id="kitPreviewContainer" class="w-32 h-32 relative z-10 drop-shadow-2xl"></div>
              </div>
-             
-             <!-- Selection Pane -->
              <div class="md:w-2/3 flex flex-col bg-gray-800">
                 <div class="flex border-b border-gray-700">
                    <button class="kit-tab-btn active flex-1 py-4 font-bold text-white border-b-2 border-blue-500" data-tab="icons">Icons (<span id="kitCountIcons">1</span>/30)</button>
@@ -393,10 +383,9 @@
           </div>
         </div>
 
-        <!-- TREASURE ROOM VIEW -->
+        <!-- TREASURE ROOM -->
         <div id="viewTreasure" class="hidden w-full bg-gray-900 backdrop-blur border-[4px] border-red-900 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.3)] flex flex-col min-h-[600px] animate-pop relative">
           <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0icmdiYSgyNTUsIDAsIDAsIDAuMSkiLz48L3N2Zz4=')] opacity-50 pointer-events-none"></div>
-          
           <div class="p-5 flex justify-between items-center relative z-10 bg-gradient-to-b from-red-950 to-transparent">
             <button class="btnBackToMain text-red-400 hover:text-white transition-colors p-2 hover:bg-red-900/50 rounded-lg bg-black/50"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
             <div class="bg-black/80 border-2 border-blue-500 rounded-xl px-6 py-2 flex items-center gap-3 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
@@ -405,11 +394,9 @@
                <i data-lucide="key" class="w-6 h-6 text-blue-400"></i>
             </div>
           </div>
-
           <div class="flex-1 flex flex-col items-center justify-center p-8 relative z-10" id="treasureMainArea">
              <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600 drop-shadow-lg text-center uppercase tracking-widest mb-2">Treasure Room</h2>
              <p class="text-red-300 font-bold text-center mb-12 max-w-lg">Earn 1 Key for every 25 Stars collected! Unlock exclusive icons and colors to customize your cube.</p>
-             
              <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
                 <!-- Wood Chest -->
                 <div class="bg-gray-800/80 border-2 border-gray-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-xl">
@@ -423,7 +410,6 @@
                       Open: 1 <i data-lucide="key" class="w-4 h-4"></i>
                    </button>
                 </div>
-
                 <!-- Gold Chest -->
                 <div class="bg-yellow-900/30 border-2 border-yellow-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-[0_0_30px_rgba(202,138,4,0.2)]">
                    <div class="w-32 h-32 bg-yellow-500 border-4 border-yellow-300 rounded-lg flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] mb-4 relative overflow-hidden">
@@ -436,7 +422,6 @@
                       Open: 5 <i data-lucide="key" class="w-4 h-4"></i>
                    </button>
                 </div>
-
                 <!-- Demon Chest -->
                 <div class="bg-red-900/30 border-2 border-red-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
                    <div class="w-32 h-32 bg-red-950 border-4 border-red-500 rounded-lg flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(239,68,68,0.5)] mb-4 relative overflow-hidden">
@@ -451,19 +436,11 @@
                 </div>
              </div>
           </div>
-
-          <!-- Opening Animation Overlay -->
+          <!-- Opening Animation -->
           <div id="treasureOpenArea" class="hide absolute inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-8 backdrop-blur-md">
              <div id="flashScreen" class="absolute inset-0 bg-white z-0 pointer-events-none opacity-0"></div>
-             
-             <div id="chestAnimContainer" class="relative z-10 w-48 h-48 mb-12">
-                <!-- Animated dynamically via JS -->
-             </div>
-
-             <div id="rewardsContainer" class="hide z-10 flex gap-6 md:gap-12 items-center justify-center w-full max-w-4xl perspective-1000">
-                <!-- Rewards injected here -->
-             </div>
-             
+             <div id="chestAnimContainer" class="relative z-10 w-48 h-48 mb-12"></div>
+             <div id="rewardsContainer" class="hide z-10 flex gap-6 md:gap-12 items-center justify-center w-full max-w-4xl perspective-1000"></div>
              <button id="btnTreasureContinue" class="hide z-10 mt-16 px-12 py-4 bg-green-500 hover:bg-green-400 text-white font-black tracking-widest text-2xl rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-transform hover:scale-105 active:scale-95 animate-slide-up">CONTINUE</button>
           </div>
         </div>
@@ -484,7 +461,6 @@
          </div>
          <h2 id="profModalName" class="text-3xl font-black text-white mb-1 text-center">Username</h2>
          <div id="profModalBadge" class="mb-4"></div>
-         
          <div class="w-full bg-black/40 rounded-2xl p-4 border border-white/5 flex justify-around mb-6">
             <div class="text-center">
                <p class="text-gray-400 text-xs font-bold mb-1">STARS</p>
@@ -501,7 +477,6 @@
                <p id="profModalColorCount" class="text-blue-400 font-mono text-2xl font-bold">2/60</p>
             </div>
          </div>
-         
          <div class="w-full bg-gray-800 rounded-xl p-6 border border-gray-700 flex flex-col items-center shadow-inner">
             <p class="text-gray-500 text-xs font-bold tracking-widest mb-4">FAVORITE ICON</p>
             <div id="profModalFavIcon" class="w-24 h-24 drop-shadow-2xl transform transition-transform hover:scale-110"></div>
@@ -510,36 +485,25 @@
     </div>
   </div>
 
-  <!-- GD LEVEL PREVIEW MODAL -->
+  <!-- LEVEL PREVIEW MODAL -->
   <div id="levelPreviewModal" class="hide fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
     <div class="gd-blue-bg border-[4px] border-[#001155] rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden relative shadow-[0_0_50px_rgba(0,85,255,0.4)]">
-      
-      <!-- Top Bar: Back & Info -->
       <div class="absolute top-4 left-4 z-10 flex gap-2">
         <button id="btnClosePreview" class="w-12 h-12 bg-red-600 hover:bg-red-500 border-[3px] border-black rounded-full flex items-center justify-center text-white shadow-lg transition-transform hover:scale-105 active:scale-95"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
       </div>
       <div class="absolute top-4 right-4 z-10 flex gap-2">
         <div class="bg-black/50 border-2 border-white/20 rounded-full px-4 py-1 flex items-center gap-2 text-white font-mono shadow-inner"><i data-lucide="hash" class="w-4 h-4 text-gray-400"></i> <span id="prevLevelId" class="text-xs">ID</span></div>
       </div>
-
-      <!-- Main Center Content -->
       <div class="flex-1 flex flex-col items-center pt-8 px-6 relative z-0">
         <h1 id="prevLevelName" class="text-4xl md:text-5xl font-black text-white tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] text-center max-w-[80%] truncate uppercase">LEVEL NAME</h1>
         <p class="text-yellow-400 font-bold text-lg md:text-xl tracking-wide drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mt-1">BY <span id="prevAuthorName">AUTHOR</span></p>
 
         <div class="flex w-full mt-6 flex-1 max-h-[300px]">
-          <!-- Left: Face -->
           <div class="w-1/3 flex flex-col items-center justify-center pt-8">
-            <div id="prevDiffFace" class="w-24 h-24 mb-2 drop-shadow-[0_5px_5px_rgba(0,0,0,0.6)] flex items-center justify-center">
-              <!-- Rendered via JS -->
-            </div>
+            <div id="prevDiffFace" class="w-24 h-24 mb-2 drop-shadow-[0_5px_5px_rgba(0,0,0,0.6)] flex items-center justify-center"></div>
             <span id="prevDiffText" class="text-white font-black text-xl tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] uppercase">NA</span>
-            <div id="prevStarsBadge" class="mt-2 text-yellow-400 font-bold text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex items-center gap-1 hidden">
-               <i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i> <span id="prevStarsNum">0</span>
-            </div>
+            <div id="prevStarsBadge" class="mt-2 text-yellow-400 font-bold text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex items-center gap-1 hidden"><i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i> <span id="prevStarsNum">0</span></div>
           </div>
-
-          <!-- Center: Play Button -->
           <div class="w-1/3 flex items-center justify-center relative">
             <button id="btnModalPlay" class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-[6px] border-white shadow-[0_0_30px_rgba(74,222,128,0.6),inset_0_-8px_0_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all play-pulse group">
                <div class="w-0 h-0 border-t-[25px] border-t-transparent border-l-[40px] border-l-white border-b-[25px] border-b-transparent ml-3 group-hover:border-l-yellow-200 transition-colors"></div>
@@ -548,22 +512,13 @@
                <button id="btnModalRate" class="px-4 py-1.5 bg-purple-600 border-2 border-white rounded-full text-white font-bold text-sm shadow hover:bg-purple-500 transition-colors flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> Rate</button>
             </div>
           </div>
-
-          <!-- Right: Stats -->
           <div class="w-1/3 flex flex-col justify-center items-start pl-8 md:pl-16 gap-5">
-            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-              <i data-lucide="play-circle" class="w-8 h-8 text-green-400"></i> <span id="prevDownloads">0</span>
-            </div>
-            <button id="btnModalLike" class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform active:scale-95 group">
-              <i id="iconModalLike" data-lucide="thumbs-up" class="w-8 h-8 text-yellow-400 group-hover:fill-yellow-400/50 transition-colors"></i> <span id="prevLikes">0</span>
-            </button>
-            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-              <i data-lucide="clock" class="w-8 h-8 text-gray-300"></i> <span id="prevLength">Tiny</span>
-            </div>
+            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"><i data-lucide="play-circle" class="w-8 h-8 text-green-400"></i> <span id="prevDownloads">0</span></div>
+            <button id="btnModalLike" class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform active:scale-95 group"><i id="iconModalLike" data-lucide="thumbs-up" class="w-8 h-8 text-yellow-400 group-hover:fill-yellow-400/50 transition-colors"></i> <span id="prevLikes">0</span></button>
+            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"><i data-lucide="clock" class="w-8 h-8 text-gray-300"></i> <span id="prevLength">Tiny</span></div>
           </div>
         </div>
         
-        <!-- Progress Bar (Normal Mode) -->
         <div class="w-full max-w-xl mt-8">
            <p class="text-center text-white font-black tracking-widest text-sm mb-1 drop-shadow-md">NORMAL MODE</p>
            <div class="w-full h-5 bg-black/60 border-2 border-black rounded-full overflow-hidden relative shadow-inner">
@@ -579,9 +534,7 @@
             <span class="text-white font-bold text-sm tracking-widest">COMMENTS</span>
             <span id="prevCommentCount" class="text-yellow-400 font-bold text-xs">0</span>
          </div>
-         <div id="prevCommentsList" class="flex-1 overflow-y-auto mt-8 p-2 space-y-2 custom-scrollbar">
-            <!-- Comments injected here -->
-         </div>
+         <div id="prevCommentsList" class="flex-1 overflow-y-auto mt-8 p-2 space-y-2 custom-scrollbar"></div>
          <form id="commentForm" class="mt-2 flex gap-2 p-2 bg-black/40 rounded border border-black/30 shrink-0">
             <input type="text" id="commentInput" placeholder="Write a comment..." class="flex-1 bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400/50" maxlength="80" required>
             <button type="submit" class="bg-blue-600 hover:bg-blue-500 border border-blue-400 text-white font-bold px-4 rounded text-sm transition-colors">Post</button>
@@ -661,9 +614,6 @@
   </div>
 
   <script type="module">
-    // ==========================================
-    // 🔥 FIREBASE IMPORTS & SETUP
-    // ==========================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -681,87 +631,56 @@
     // ==========================================
     // 🎨 ASSET DICTIONARIES (ICONS & COLORS)
     // ==========================================
-    
-    // Generator for SVG paths for our 30 unique icons.
     function getIconSVG(idStr, c1, c2) {
        const id = parseInt(idStr.replace('i', ''));
-       let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; // Base Cube
-       
+       let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; 
        switch(id) {
-          // COMMONS (1-10)
-          case 1: content += `<rect x="25" y="30" width="15" height="15" fill="${c2}"/><rect x="60" y="30" width="15" height="15" fill="${c2}"/><rect x="25" y="65" width="50" height="10" fill="${c2}"/>`; break; // Classic Smile
-          case 2: content += `<rect x="25" y="40" width="15" height="10" fill="${c2}"/><rect x="60" y="40" width="15" height="10" fill="${c2}"/><path d="M 25 30 L 40 40 M 75 30 L 60 40" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="10" fill="${c2}"/>`; break; // Angry
-          case 3: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><path d="M 30 65 Q 50 85 70 65" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; // Happy
-          case 4: content += `<rect x="15" y="35" width="70" height="25" fill="#111" rx="5"/><circle cx="50" cy="47" r="8" fill="${c2}"/>`; break; // Cyclops
-          case 5: content += `<rect x="5" y="30" width="90" height="25" fill="${c2}"/><rect x="25" y="35" width="50" height="15" fill="${c1}"/><circle cx="35" cy="42" r="4" fill="${c2}"/><circle cx="65" cy="42" r="4" fill="${c2}"/>`; break; // Ninja
-          case 6: content += `<path d="M 25 30 L 40 45 L 25 60 M 75 30 L 60 45 L 75 60" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; // Dead
-          case 7: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><circle cx="50" cy="65" r="10" fill="${c2}"/>`; break; // Shocked
-          case 8: content += `<rect x="20" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><rect x="55" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 45 42 L 55 42" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="6" fill="${c2}"/>`; break; // Glasses
-          case 9: content += `<path d="M 30 45 L 45 45 L 45 30 L 30 30 Z" fill="${c2}"/><path d="M 55 45 L 70 45 L 70 30 L 55 30 Z" fill="${c2}"/><rect x="45" y="70" width="10" height="10" fill="${c2}"/>`; break; // Minecrafty
-          case 10: content += `<rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="4"/><rect x="25" y="25" width="50" height="50" fill="none" stroke="${c2}" stroke-width="4"/><rect x="35" y="35" width="30" height="30" fill="${c2}"/>`; break; // Tech Box
-          
-          // RARES (11-18)
-          case 11: content += `<circle cx="30" cy="40" r="12" fill="white"/><circle cx="30" cy="40" r="4" fill="${c2}"/><circle cx="70" cy="40" r="12" fill="white"/><circle cx="70" cy="40" r="4" fill="${c2}"/><path d="M 30 70 Q 50 60 70 70" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; // Crazy Eyes
-          case 12: content += `<path d="M 15 15 L 85 85 M 15 85 L 85 15" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; // X-Mark
-          case 13: content += `<rect x="5" y="5" width="45" height="90" fill="${c2}"/><circle cx="30" cy="45" r="10" fill="${c1}"/><circle cx="70" cy="45" r="10" fill="${c2}"/>`; break; // Two-Face
-          case 14: content += `<path d="M 50 15 L 85 85 L 15 85 Z" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="60" r="10" fill="${c2}"/>`; break; // Illuminati
-          case 15: content += `<rect x="20" y="20" width="60" height="60" rx="30" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 35 45 Q 50 20 65 45" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="65" r="8" fill="${c2}"/>`; break; // Alien
-          case 16: content += `<path d="M 5 50 L 95 50 M 50 5 L 50 95" stroke="${c2}" stroke-width="6"/><rect x="30" y="30" width="40" height="40" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; // Target
-          case 17: content += `<path d="M 25 35 Q 50 50 75 35" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><path d="M 35 65 Q 50 50 65 65" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; // Wavy
-          case 18: content += `<rect x="15" y="20" width="70" height="30" fill="${c2}" rx="15"/><rect x="25" y="25" width="50" height="20" fill="#111" rx="10"/><rect x="30" y="25" width="10" height="20" fill="${c1}"/><rect x="60" y="25" width="10" height="20" fill="${c1}"/><rect x="35" y="65" width="30" height="15" fill="${c2}" rx="5"/>`; break; // VR Headset
-          
-          // EPICS (19-24)
-          case 19: content += `<path d="M 20 5 L 35 25 L 15 35 Z M 80 5 L 65 25 L 85 35 Z" fill="${c2}"/><circle cx="35" cy="50" r="8" fill="${c2}"/><circle cx="65" cy="50" r="8" fill="${c2}"/><path d="M 30 75 Q 50 85 70 75" fill="none" stroke="${c2}" stroke-width="6"/>`; break; // Demon Horns
-          case 20: content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="10 5"/><circle cx="50" cy="50" r="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="${c1}"/>`; break; // Gear
-          case 21: content += `<path d="M 15 50 Q 50 15 85 50 Q 50 85 15 50" fill="${c2}"/><circle cx="50" cy="50" r="12" fill="#111"/><circle cx="50" cy="50" r="4" fill="${c1}"/>`; break; // Dragon Eye
-          case 22: content += `<rect x="5" y="5" width="90" height="90" fill="none" stroke="${c2}" stroke-width="8" rx="20"/><path d="M 25 25 L 75 75 M 25 75 L 75 25" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; // Mecha
-          case 23: content += `<path d="M 50 5 L 60 40 L 95 50 L 60 60 L 50 95 L 40 60 L 5 50 L 40 40 Z" fill="${c2}"/><circle cx="50" cy="50" r="10" fill="${c1}"/>`; break; // Starburst
-          case 24: content += `<rect x="25" y="25" width="20" height="20" fill="${c2}"/><rect x="55" y="25" width="20" height="20" fill="${c2}"/><rect x="25" y="55" width="20" height="20" fill="${c2}"/><rect x="55" y="55" width="20" height="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="#111"/>`; break; // Quad-Core
-          
-          // LEGENDARIES (25-28)
-          case 25: content += `<path d="M 15 35 L 30 10 L 50 25 L 70 10 L 85 35 Z" fill="${c2}"/><rect x="25" y="45" width="15" height="15" fill="${c2}"/><rect x="60" y="45" width="15" height="15" fill="${c2}"/><path d="M 40 75 L 60 75" stroke="${c2}" stroke-width="6"/>`; break; // The King
-          case 26: content += `<circle cx="50" cy="50" r="40" fill="none" stroke="${c2}" stroke-width="4"/><path d="M 50 10 L 50 90 M 10 50 L 90 50 M 22 22 L 78 78 M 22 78 L 78 22" stroke="${c2}" stroke-width="4"/><circle cx="50" cy="50" r="15" fill="${c2}"/><circle cx="50" cy="50" r="6" fill="${c1}"/>`; break; // Compass
-          case 27: content += `<path d="M 5 50 Q 50 -10 95 50 Q 50 110 5 50" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c2}"/><path d="M 45 45 L 55 55 M 55 45 L 45 55" stroke="${c1}" stroke-width="4"/>`; break; // Cosmic Eye
-          case 28: content += `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${c2}" stroke-width="8" transform="rotate(45 50 50)"/><rect x="35" y="35" width="30" height="30" fill="${c2}" transform="rotate(45 50 50)"/>`; break; // Diamond Core
-
-          // MYTHICS (29-30) - These contain CSS animations!
-          case 29: content += `
-             <style>.mythic-spin { transform-origin: 50px 50px; animation: m-spin 3s linear infinite; } @keyframes m-spin { 100% { transform: rotate(360deg); } }</style>
-             <circle cx="50" cy="50" r="42" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="15 15" class="mythic-spin"/>
-             <path d="M 50 15 L 60 40 L 95 50 L 60 60 L 50 85 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="mythic-spin" style="animation-direction: reverse; animation-duration: 4s;"/>
-             <circle cx="50" cy="50" r="12" fill="${c2}"/>`; break; // The Void
-          case 30: content += `
-             <style>.mythic-pulse { transform-origin: 50px 50px; animation: m-pulse 1s ease-in-out infinite alternate; } @keyframes m-pulse { 0% { transform: scale(0.8); opacity: 0.8;} 100% { transform: scale(1.1); opacity: 1;} }</style>
-             <rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="35" class="mythic-pulse"/>
-             <rect x="30" y="30" width="40" height="40" fill="${c2}" stroke="${c1}" stroke-width="4" transform="rotate(45 50 50)"/>
-             <circle cx="50" cy="50" r="8" fill="#fff" class="mythic-pulse" style="animation-delay: -0.5s;"/>`; break; // Pulsar
+          case 1: content += `<rect x="25" y="30" width="15" height="15" fill="${c2}"/><rect x="60" y="30" width="15" height="15" fill="${c2}"/><rect x="25" y="65" width="50" height="10" fill="${c2}"/>`; break; 
+          case 2: content += `<rect x="25" y="40" width="15" height="10" fill="${c2}"/><rect x="60" y="40" width="15" height="10" fill="${c2}"/><path d="M 25 30 L 40 40 M 75 30 L 60 40" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="10" fill="${c2}"/>`; break; 
+          case 3: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><path d="M 30 65 Q 50 85 70 65" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; 
+          case 4: content += `<rect x="15" y="35" width="70" height="25" fill="#111" rx="5"/><circle cx="50" cy="47" r="8" fill="${c2}"/>`; break; 
+          case 5: content += `<rect x="5" y="30" width="90" height="25" fill="${c2}"/><rect x="25" y="35" width="50" height="15" fill="${c1}"/><circle cx="35" cy="42" r="4" fill="${c2}"/><circle cx="65" cy="42" r="4" fill="${c2}"/>`; break; 
+          case 6: content += `<path d="M 25 30 L 40 45 L 25 60 M 75 30 L 60 45 L 75 60" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; 
+          case 7: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><circle cx="50" cy="65" r="10" fill="${c2}"/>`; break; 
+          case 8: content += `<rect x="20" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><rect x="55" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 45 42 L 55 42" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="6" fill="${c2}"/>`; break; 
+          case 9: content += `<path d="M 30 45 L 45 45 L 45 30 L 30 30 Z" fill="${c2}"/><path d="M 55 45 L 70 45 L 70 30 L 55 30 Z" fill="${c2}"/><rect x="45" y="70" width="10" height="10" fill="${c2}"/>`; break; 
+          case 10: content += `<rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="4"/><rect x="25" y="25" width="50" height="50" fill="none" stroke="${c2}" stroke-width="4"/><rect x="35" y="35" width="30" height="30" fill="${c2}"/>`; break; 
+          case 11: content += `<circle cx="30" cy="40" r="12" fill="white"/><circle cx="30" cy="40" r="4" fill="${c2}"/><circle cx="70" cy="40" r="12" fill="white"/><circle cx="70" cy="40" r="4" fill="${c2}"/><path d="M 30 70 Q 50 60 70 70" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; 
+          case 12: content += `<path d="M 15 15 L 85 85 M 15 85 L 85 15" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
+          case 13: content += `<rect x="5" y="5" width="45" height="90" fill="${c2}"/><circle cx="30" cy="45" r="10" fill="${c1}"/><circle cx="70" cy="45" r="10" fill="${c2}"/>`; break; 
+          case 14: content += `<path d="M 50 15 L 85 85 L 15 85 Z" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="60" r="10" fill="${c2}"/>`; break; 
+          case 15: content += `<rect x="20" y="20" width="60" height="60" rx="30" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 35 45 Q 50 20 65 45" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="65" r="8" fill="${c2}"/>`; break; 
+          case 16: content += `<path d="M 5 50 L 95 50 M 50 5 L 50 95" stroke="${c2}" stroke-width="6"/><rect x="30" y="30" width="40" height="40" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
+          case 17: content += `<path d="M 25 35 Q 50 50 75 35" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><path d="M 35 65 Q 50 50 65 65" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; 
+          case 18: content += `<rect x="15" y="20" width="70" height="30" fill="${c2}" rx="15"/><rect x="25" y="25" width="50" height="20" fill="#111" rx="10"/><rect x="30" y="25" width="10" height="20" fill="${c1}"/><rect x="60" y="25" width="10" height="20" fill="${c1}"/><rect x="35" y="65" width="30" height="15" fill="${c2}" rx="5"/>`; break; 
+          case 19: content += `<path d="M 20 5 L 35 25 L 15 35 Z M 80 5 L 65 25 L 85 35 Z" fill="${c2}"/><circle cx="35" cy="50" r="8" fill="${c2}"/><circle cx="65" cy="50" r="8" fill="${c2}"/><path d="M 30 75 Q 50 85 70 75" fill="none" stroke="${c2}" stroke-width="6"/>`; break; 
+          case 20: content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="10 5"/><circle cx="50" cy="50" r="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="${c1}"/>`; break; 
+          case 21: content += `<path d="M 15 50 Q 50 15 85 50 Q 50 85 15 50" fill="${c2}"/><circle cx="50" cy="50" r="12" fill="#111"/><circle cx="50" cy="50" r="4" fill="${c1}"/>`; break; 
+          case 22: content += `<rect x="5" y="5" width="90" height="90" fill="none" stroke="${c2}" stroke-width="8" rx="20"/><path d="M 25 25 L 75 75 M 25 75 L 75 25" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
+          case 23: content += `<path d="M 50 5 L 60 40 L 95 50 L 60 60 L 50 95 L 40 60 L 5 50 L 40 40 Z" fill="${c2}"/><circle cx="50" cy="50" r="10" fill="${c1}"/>`; break; 
+          case 24: content += `<rect x="25" y="25" width="20" height="20" fill="${c2}"/><rect x="55" y="25" width="20" height="20" fill="${c2}"/><rect x="25" y="55" width="20" height="20" fill="${c2}"/><rect x="55" y="55" width="20" height="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="#111"/>`; break; 
+          case 25: content += `<path d="M 15 35 L 30 10 L 50 25 L 70 10 L 85 35 Z" fill="${c2}"/><rect x="25" y="45" width="15" height="15" fill="${c2}"/><rect x="60" y="45" width="15" height="15" fill="${c2}"/><path d="M 40 75 L 60 75" stroke="${c2}" stroke-width="6"/>`; break; 
+          case 26: content += `<circle cx="50" cy="50" r="40" fill="none" stroke="${c2}" stroke-width="4"/><path d="M 50 10 L 50 90 M 10 50 L 90 50 M 22 22 L 78 78 M 22 78 L 78 22" stroke="${c2}" stroke-width="4"/><circle cx="50" cy="50" r="15" fill="${c2}"/><circle cx="50" cy="50" r="6" fill="${c1}"/>`; break; 
+          case 27: content += `<path d="M 5 50 Q 50 -10 95 50 Q 50 110 5 50" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c2}"/><path d="M 45 45 L 55 55 M 55 45 L 45 55" stroke="${c1}" stroke-width="4"/>`; break; 
+          case 28: content += `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${c2}" stroke-width="8" transform="rotate(45 50 50)"/><rect x="35" y="35" width="30" height="30" fill="${c2}" transform="rotate(45 50 50)"/>`; break; 
+          case 29: content += `<style>.mythic-spin { transform-origin: 50px 50px; animation: m-spin 3s linear infinite; } @keyframes m-spin { 100% { transform: rotate(360deg); } }</style><circle cx="50" cy="50" r="42" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="15 15" class="mythic-spin"/><path d="M 50 15 L 60 40 L 95 50 L 60 60 L 50 85 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="mythic-spin" style="animation-direction: reverse; animation-duration: 4s;"/><circle cx="50" cy="50" r="12" fill="${c2}"/>`; break; 
+          case 30: content += `<style>.mythic-pulse { transform-origin: 50px 50px; animation: m-pulse 1s ease-in-out infinite alternate; } @keyframes m-pulse { 0% { transform: scale(0.8); opacity: 0.8;} 100% { transform: scale(1.1); opacity: 1;} }</style><rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="35" class="mythic-pulse"/><rect x="30" y="30" width="40" height="40" fill="${c2}" stroke="${c1}" stroke-width="4" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="8" fill="#fff" class="mythic-pulse" style="animation-delay: -0.5s;"/>`; break; 
        }
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     const ALL_ICONS = Array.from({length: 30}, (_, i) => {
-       let id = `i${i+1}`;
-       let rarity = i < 10 ? 'common' : i < 18 ? 'rare' : i < 24 ? 'epic' : i < 28 ? 'legendary' : 'mythic';
-       return { id, rarity };
+       let id = `i${i+1}`; let rarity = i < 10 ? 'common' : i < 18 ? 'rare' : i < 24 ? 'epic' : i < 28 ? 'legendary' : 'mythic'; return { id, rarity };
     });
 
-    // 30 Colors generated programmatically
     const BASE_HUES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
     const ALL_COLORS = [];
-    // Commons (Basic Brights)
     BASE_HUES.forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 50%)`, rarity: 'common' }));
-    // Rares (Pastels)
     BASE_HUES.slice(0, 8).forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 80%)`, rarity: 'rare' }));
-    // Epics (Darks)
     BASE_HUES.slice(0, 6).forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 25%)`, rarity: 'epic' }));
-    // Legendaries (Pure/Neutrals)
-    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#ffffff', rarity: 'legendary' });
-    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#aaaaaa', rarity: 'legendary' });
-    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#222222', rarity: 'legendary' });
-    // Mythic (Special Neons)
+    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#ffffff', rarity: 'legendary' }); ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#aaaaaa', rarity: 'legendary' }); ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#222222', rarity: 'legendary' });
     ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#ff00ff', rarity: 'mythic' });
 
-    // Caching the player sprite for the game loop
     let cachedPlayerImg = new Image();
     function updatePlayerSprite() {
        if (!myProfile) return;
@@ -778,11 +697,7 @@
     let usersData = [], levelsList = [], isSignupMode = false, pendingUsername = null;
     let dbUnsubscribe = null, levelsUnsubscribe = null, settingsUnsubscribe = null, activeTrollTimeout = null;
     let globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
-    
-    // Preview Modal State
     let currentPreviewLevel = null;
-    
-    // History System for Undo/Redo
     let historyList = [];
     let historyIndex = -1;
 
@@ -811,12 +726,124 @@
     function duplicateSelected() {
        if (editor.selectedObjs.length > 0) {
            let newObjs = JSON.parse(JSON.stringify(editor.selectedObjs));
-           newObjs.forEach(o => o.gx += 1); // offset by 1 block so they aren't directly on top
+           newObjs.forEach(o => o.gx += 1);
            level.push(...newObjs);
            editor.selectedObjs = level.slice(-newObjs.length);
            updateEditPanelUI();
            saveHistory();
        }
+    }
+
+    function getDefaultAvatar(username) { 
+      return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`; 
+    }
+
+    function applyTrollEffect(trollType) {
+      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin') && trollType !== '') return; 
+      if (!trollType) { clearTrollEffects(); return; } 
+
+      clearTrollEffects();
+      const b = document.getElementById('mainBody');
+      if (trollType === 'troll_earthquake') b.classList.add('troll-earthquake');
+      else if (trollType === 'troll_spin') b.classList.add('troll-spin');
+      else if (trollType === 'troll_tiny') b.classList.add('troll-tiny');
+      else if (trollType === 'troll_invert') b.classList.add('troll-invert');
+      
+      if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
+      activeTrollTimeout = setTimeout(async () => {
+        clearTrollEffects();
+        if (myProfile && myProfile.trollEvent) { 
+          try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { trollEvent: '' }, { merge: true }); } catch(e){} 
+        }
+        if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
+          try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: '' }, { merge: true }); } catch(e){} 
+        }
+      }, 10000);
+    }
+
+    function clearTrollEffects() { 
+      document.getElementById('mainBody').classList.remove('troll-earthquake', 'troll-spin', 'troll-tiny', 'troll-invert'); 
+    }
+
+    // ==========================================
+    // 🎵 AUDIO ENGINE
+    // ==========================================
+    let audioCtx, noiseBuffer, isMusicOn = false, nextNoteTime = 0, current16thNote = 0, tempo = 140;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
+        const out = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < out.length; i++) out[i] = Math.random() * 2 - 1;
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function playKick(time) {
+      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.frequency.setValueAtTime(150, time); osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+      gain.gain.setValueAtTime(1, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+      osc.start(time); osc.stop(time + 0.5);
+    }
+    function playSnare(time) {
+      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.frequency.setValueAtTime(250, time); osc.frequency.exponentialRampToValueAtTime(100, time + 0.1);
+      gain.gain.setValueAtTime(0.6, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+      osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.1);
+      if (noiseBuffer) {
+        const ns = audioCtx.createBufferSource(), nf = audioCtx.createBiquadFilter(), ng = audioCtx.createGain();
+        ns.buffer = noiseBuffer; nf.type = 'highpass'; nf.frequency.value = 1000;
+        ng.gain.setValueAtTime(0.6, time); ng.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+        ns.connect(nf); nf.connect(ng); ng.connect(audioCtx.destination); ns.start(time); ns.stop(time + 0.2);
+      }
+    }
+    function playHiHat(time, isOpen) {
+      if (!noiseBuffer || !audioCtx) return; const dur = isOpen ? 0.25 : 0.05;
+      const ns = audioCtx.createBufferSource(), nf = audioCtx.createBiquadFilter(), ng = audioCtx.createGain();
+      ns.buffer = noiseBuffer; nf.type = 'highpass'; nf.frequency.value = 6000;
+      ng.gain.setValueAtTime(0.3, time); ng.gain.exponentialRampToValueAtTime(0.01, time + dur);
+      ns.connect(nf); nf.connect(ng); ng.connect(audioCtx.destination); ns.start(time); ns.stop(time + dur);
+    }
+    function playBass(time, note, filterFreq) {
+      if (!note || !audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), filter = audioCtx.createBiquadFilter();
+      osc.type = 'sawtooth'; osc.frequency.value = 440 * Math.pow(2, (note - 69) / 12);
+      filter.type = 'lowpass'; filter.frequency.setValueAtTime(filterFreq, time); filter.frequency.exponentialRampToValueAtTime(200, time + 0.2);
+      gain.gain.setValueAtTime(0.3, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
+      osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.25);
+    }
+    function playArp(time, note) {
+      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type = 'square'; osc.frequency.value = 440 * Math.pow(2, (note - 69) / 12);
+      gain.gain.setValueAtTime(0.08, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+      osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.1);
+    }
+    function scheduleAudio() {
+      if (!isMusicOn || !audioCtx) return;
+      while (nextNoteTime < audioCtx.currentTime + 0.1) {
+        const loopPos = current16thNote % 512, bar = Math.floor(loopPos / 16), step = loopPos % 16; 
+        const isBuild = bar >= 8 && bar < 16, isDrop = bar >= 16 && bar < 24, isBreak = bar >= 24;
+
+        if (!isBreak && step % 4 === 0) playKick(nextNoteTime);
+        if (isBuild && bar === 15 && step >= 8 && step % 2 === 0) playKick(nextNoteTime);
+        if ((isBuild || isDrop) && (step === 4 || step === 12)) playSnare(nextNoteTime);
+        if (isBuild && bar === 15 && step >= 8) playSnare(nextNoteTime);
+        if (isDrop) { if (step % 2 !== 0) playHiHat(nextNoteTime, true); else playHiHat(nextNoteTime, false); } 
+        else if (isBuild || isBreak) { if (step % 2 === 0) playHiHat(nextNoteTime, false); }
+
+        const seqA = [36, 0, 36, 36, 48, 0, 36, 0, 39, 0, 39, 39, 51, 0, 39, 0], seqB = [44, 0, 44, 44, 56, 0, 44, 0, 41, 0, 41, 41, 53, 0, 41, 0], seqDrop = [36, 36, 48, 36, 39, 39, 51, 39, 44, 44, 56, 44, 41, 41, 53, 41];
+        let currentSeq = (bar % 4 >= 2) ? seqB : seqA; if (isDrop) currentSeq = (bar % 2 === 0) ? seqDrop : seqB;
+        
+        let filterFreq = 1500;
+        if (isBuild) filterFreq = 1000 + ((loopPos - 128) / 128) * 4000; else if (isDrop) filterFreq = 5000; else if (isBreak) filterFreq = 800;
+        if (currentSeq[step] > 0) playBass(nextNoteTime, currentSeq[step], filterFreq);
+
+        if (isBuild || isDrop || isBreak) {
+          const arpNotes = [60, 63, 67, 72, 67, 63]; let arpNote = arpNotes[step % arpNotes.length];
+          if (isDrop) arpNote += 12; if (isDrop || step % 2 === 0) playArp(nextNoteTime, arpNote);
+        }
+        nextNoteTime += 0.25 * (60.0 / tempo); current16thNote++;
+      }
     }
 
     // ==========================================
@@ -1230,7 +1257,6 @@
         } 
         else { 
            if (cachedPlayerImg.complete && cachedPlayerImg.src) {
-              // Pulse effect for Mythics
               let r = ALL_ICONS.find(i=>i.id===(myProfile?myProfile.equippedIcon:'i1'))?.rarity;
               if (r==='mythic') { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 15 + Math.sin(Date.now()/150)*5; }
               ctx.drawImage(cachedPlayerImg, -15, -15, 30, 30); 
@@ -1248,7 +1274,7 @@
 
     let lastTime = 0;
     let accumulator = 0;
-    const TIME_STEP = 1000 / 60; // 60 FPS Fixed Time Step
+    const TIME_STEP = 1000 / 60; 
 
     function loop(timestamp) { 
       if (!lastTime) lastTime = timestamp;
@@ -1297,7 +1323,7 @@
         level = level.filter(b => !(b.gx === gx && b.gy === gy));
         let newObj = { gx, gy, type: editor.tool, rot: editor.rot };
         level.push(newObj);
-        editor.selectedObjs = [newObj]; // Auto-select last placed block
+        editor.selectedObjs = [newObj]; 
         updateEditPanelUI();
         editor.hasChangedLevel = true;
       } 
@@ -1371,11 +1397,7 @@
         handleEditorAction(e.clientX, e.clientY);
       }
 
-      if (editor.hasChangedLevel) {
-         saveHistory();
-         editor.hasChangedLevel = false;
-      }
-
+      if (editor.hasChangedLevel) { saveHistory(); editor.hasChangedLevel = false; }
       editor.isDragging = false; editor.lastGx = -1; editor.lastGy = -1;
     });
 
@@ -1574,7 +1596,6 @@
     // ==========================================
     // 🌐 APP STATE & FIREBASE INTEGRATION
     // ==========================================
-    
     const hubUI = document.getElementById('hubUI'), joinSection = document.getElementById('joinSection'), emailAuthForm = document.getElementById('emailAuthForm');
     const tabLogin = document.getElementById('tabLogin'), tabSignup = document.getElementById('tabSignup'), usernameGroup = document.getElementById('usernameGroup');
     const adminPanelModal = document.getElementById('adminPanelModal'), adminCommandForm = document.getElementById('adminCommandForm');
@@ -1587,6 +1608,10 @@
     document.getElementById('btnViewIconKit').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewIconKit.classList.remove('hidden'); renderIconKit(); });
     document.getElementById('btnViewTreasure').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewTreasure.classList.remove('hidden'); updateTreasureUI(); });
     
+    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
+    document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
+    document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
+
     document.querySelectorAll('.btnBackToMain').forEach(btn => {
       btn.addEventListener('click', () => { 
          viewBrowser.classList.add('hidden'); viewLeaderboard.classList.add('hidden'); viewIconKit.classList.add('hidden'); viewTreasure.classList.add('hidden');
@@ -1666,7 +1691,6 @@
         if (existingProfile) {
           myProfile = existingProfile;
           
-          // Data Migration / Verification
           if (!myProfile.unlockedIcons) myProfile.unlockedIcons = ['i1'];
           if (!myProfile.unlockedCol1) myProfile.unlockedCol1 = ['c1'];
           if (!myProfile.unlockedCol2) myProfile.unlockedCol2 = ['c20'];
@@ -1860,7 +1884,7 @@
              try {
                 let key = t==='icon' ? 'equippedIcon' : t==='col1' ? 'equippedCol1' : 'equippedCol2';
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { [key]: val }, { merge: true });
-             } catch(err) { console.error("Equip failed"); }
+             } catch(err) {}
           }));
        });
     }
@@ -1883,8 +1907,7 @@
           
           if (availI.length===0 && availC1.length===0 && availC2.length===0) return alert("You have unlocked literally everything in the game! Go outside!");
 
-          // Rarity Filtering based on chest
-          const filterPool = (pool, rarities) => { let p = pool.filter(x => rarities.includes(x.rarity)); return p.length > 0 ? p : pool; }; // Fallback to entire pool if tier is exhausted
+          const filterPool = (pool, rarities) => { let p = pool.filter(x => rarities.includes(x.rarity)); return p.length > 0 ? p : pool; }; 
           
           if (tier === 'wood') {
              availI = filterPool(availI, ['common', 'rare']); availC1 = filterPool(availC1, ['common', 'rare']); availC2 = filterPool(availC2, ['common', 'rare']);
@@ -1962,187 +1985,41 @@
        updateTreasureUI();
     });
 
-    function renderLevelBrowser() {
-      document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
-      const browserList = document.getElementById('levelBrowserList');
-      if (levelsList.length === 0) { browserList.innerHTML = `<div class="p-8 text-center text-gray-500">No community levels yet. Be the first to build one!</div>`; return; }
-      
-      levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
-      
-      browserList.innerHTML = levelsList.map(lvl => {
-        let diffIcon = '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-400"></i>';
-        if (lvl.difficulty === 'Easy') diffIcon = '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
-        else if (lvl.difficulty === 'Medium') diffIcon = '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
-        else if (lvl.difficulty === 'Hard') diffIcon = '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
-        else if (lvl.difficulty === 'Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>';
-        else if (lvl.difficulty === 'Extreme Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-800 drop-shadow-[0_0_15px_rgba(153,27,27,0.9)]"></i>';
-        else if (lvl.difficulty === 'Impossible Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-black drop-shadow-[0_0_20px_rgba(255,0,0,1)]"></i>';
+    const cmdTarget = document.getElementById('cmdTarget');
+    const cmdAction = document.getElementById('cmdAction');
+    const cmdParamContainer = document.getElementById('cmdParamContainer');
+    const cmdParamLabel = document.getElementById('cmdParamLabel');
+    const cmdParamNumber = document.getElementById('cmdParamNumber');
+    const cmdParamText = document.getElementById('cmdParamText');
+    const cmdParamRole = document.getElementById('cmdParamRole');
 
-        return `
-          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-level" data-lvl-id="${lvl.id}">
-            <div class="flex items-center gap-4 pointer-events-none">
-              <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
-                ${diffIcon}
-              </div>
-              <div>
-                <h4 class="text-lg font-bold text-white flex items-center gap-2">
-                  ${escapeHtml(lvl.name)}
-                  ${lvl.stars ? `<span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> ${lvl.stars}</span>` : ''}
-                </h4>
-                <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4 pointer-events-none pr-2">
-              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="play-circle" class="w-4 h-4 text-green-400"></i> ${lvl.plays || 0}</span>
-              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4 text-yellow-400"></i> ${(lvl.likes && lvl.likes.length) || 0}</span>
-              <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105">View</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-      lucide.createIcons();
-      
-      document.querySelectorAll('.btn-open-level').forEach(el => {
-         el.addEventListener('click', () => {
-            const lObj = levelsList.find(l => l.id === el.dataset.lvlId);
-            if (lObj) openLevelPreview(lObj);
-         });
-      });
-    }
-    
-    // --- GD Level Preview Logic ---
-    function calcLevelLength(dataStr) {
-      let maxGX = 0;
-      let parts = dataStr.split(';');
-      for (let p of parts) { 
-         let x = parseInt(p.split(',')[0]); 
-         if (x && x > maxGX) maxGX = x; 
-      }
-      if (maxGX < 50) return "Tiny";
-      if (maxGX < 150) return "Short";
-      if (maxGX < 300) return "Medium";
-      if (maxGX < 600) return "Long";
-      return "XL";
-    }
+    cmdAction.addEventListener('change', () => {
+      const act = cmdAction.value; cmdParamNumber.classList.add('hidden'); cmdParamText.classList.add('hidden'); cmdParamRole.classList.add('hidden'); cmdParamContainer.classList.remove('hidden');
+      if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
+      else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
+      else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
+      else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
+    });
 
-    function openLevelPreview(lvlObj) {
-       currentPreviewLevel = lvlObj;
-       populateLevelModal(lvlObj);
-       document.getElementById('levelPreviewModal').classList.remove('hide');
-    }
+    document.getElementById('btnWinReplay').addEventListener('click', () => { state.mode = 'play'; state.attempts = 1; resetPlayer(); });
+    document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
 
-    function populateLevelModal(lvlObj) {
-      document.getElementById('prevLevelId').innerText = lvlObj.id.substring(0, 6).toUpperCase();
-      document.getElementById('prevLevelName').innerText = lvlObj.name;
-      document.getElementById('prevAuthorName').innerText = lvlObj.authorName;
-      document.getElementById('prevDownloads').innerText = (lvlObj.plays || 0).toLocaleString();
-      document.getElementById('prevLikes').innerText = ((lvlObj.likes && lvlObj.likes.length) || 0).toLocaleString();
-      document.getElementById('prevLength').innerText = calcLevelLength(lvlObj.data);
+    function launchGame(dataStr, mode) {
+      hubUI.classList.add('hide'); document.getElementById('gameUI').classList.remove('hide');
+      level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
       
-      let faceHTML = '<i data-lucide="circle-dashed" class="w-full h-full text-gray-300"></i>';
-      if (lvlObj.difficulty === 'Easy') faceHTML = '<i data-lucide="smile" class="w-full h-full text-green-400"></i>';
-      else if (lvlObj.difficulty === 'Medium') faceHTML = '<i data-lucide="meh" class="w-full h-full text-yellow-400"></i>';
-      else if (lvlObj.difficulty === 'Hard') faceHTML = '<i data-lucide="frown" class="w-full h-full text-orange-500"></i>';
-      else if (lvlObj.difficulty === 'Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"></i>';
-      else if (lvlObj.difficulty === 'Extreme Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-800 drop-shadow-[0_0_20px_rgba(153,27,27,0.9)]"></i>';
-      else if (lvlObj.difficulty === 'Impossible Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-black drop-shadow-[0_0_25px_rgba(255,0,0,1)]"></i>';
+      historyList = []; historyIndex = -1; saveHistory();
       
-      document.getElementById('prevDiffFace').innerHTML = faceHTML;
-      document.getElementById('prevDiffText').innerText = (lvlObj.difficulty || 'NA').toUpperCase();
-      
-      if (lvlObj.stars) { document.getElementById('prevStarsBadge').classList.remove('hidden'); document.getElementById('prevStarsNum').innerText = lvlObj.stars; } 
-      else { document.getElementById('prevStarsBadge').classList.add('hidden'); }
-
-      let myProg = 0;
-      if (myProfile && myProfile.progress && myProfile.progress[lvlObj.id]) myProg = myProfile.progress[lvlObj.id];
-      document.getElementById('prevProgressBar').style.width = `${myProg}%`;
-      document.getElementById('prevProgressText').innerText = `${myProg}%`;
-
-      if (myProfile && lvlObj.likes && lvlObj.likes.includes(currentUser.uid)) {
-         document.getElementById('iconModalLike').classList.remove('text-yellow-400'); document.getElementById('iconModalLike').classList.add('fill-yellow-400', 'text-yellow-400');
-      } else { document.getElementById('iconModalLike').classList.remove('fill-yellow-400'); }
-      
-      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) { document.getElementById('prevRateBtnContainer').classList.remove('hidden'); } 
-      else { document.getElementById('prevRateBtnContainer').classList.add('hidden'); }
-
-      let coms = lvlObj.comments || [];
-      document.getElementById('prevCommentCount').innerText = coms.length;
-      if (coms.length === 0) { document.getElementById('prevCommentsList').innerHTML = `<p class="text-center text-white/50 text-xs py-4 font-bold">No comments yet. Be the first!</p>`; } 
-      else {
-         document.getElementById('prevCommentsList').innerHTML = coms.map(c => `
-           <div class="bg-black/50 p-2 border border-white/10 rounded flex gap-2">
-             <div class="font-bold text-yellow-400 text-xs shrink-0">${escapeHtml(c.name)}:</div>
-             <div class="text-white text-xs break-words">${escapeHtml(c.text)}</div>
-           </div>
-         `).join('');
+      if (mode === 'edit') { 
+        document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
+        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
+        switchEditorMode('build'); 
+      } else { 
+        document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('gameProgressContainer').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
+        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
       }
       lucide.createIcons();
     }
-
-    document.getElementById('btnClosePreview').addEventListener('click', () => {
-       document.getElementById('levelPreviewModal').classList.add('hide'); currentPreviewLevel = null;
-    });
-
-    document.getElementById('btnModalPlay').addEventListener('click', async () => {
-       if (!currentPreviewLevel) return;
-       const lvlId = currentPreviewLevel.id; const data = currentPreviewLevel.data;
-       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (currentPreviewLevel.plays||0) + 1 }, { merge: true }); } catch(err){}
-       document.getElementById('levelPreviewModal').classList.add('hide'); hubUI.classList.add('opacity-0');
-       setTimeout(() => { launchGame(data, 'play'); }, 300);
-    });
-    
-    document.getElementById('btnModalLike').addEventListener('click', async () => {
-       if (!currentUser || !currentPreviewLevel) return;
-       let likes = currentPreviewLevel.likes || [];
-       let idx = likes.indexOf(currentUser.uid);
-       if (idx > -1) { likes.splice(idx, 1); } else { likes.push(currentUser.uid); }
-       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: likes }, { merge: true }); } catch(err) { }
-    });
-
-    document.getElementById('commentForm').addEventListener('submit', async (e) => {
-       e.preventDefault();
-       if (!currentUser || !myProfile || !currentPreviewLevel) return;
-       const input = document.getElementById('commentInput'); const txt = input.value.trim(); if (!txt) return;
-       let coms = currentPreviewLevel.comments || [];
-       coms.unshift({ uid: currentUser.uid, name: myProfile.username, text: txt, time: Date.now() });
-       if (coms.length > 50) coms = coms.slice(0, 50);
-       try {
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: coms }, { merge: true });
-          input.value = '';
-       } catch(err) {}
-    });
-    
-    document.getElementById('btnModalRate').addEventListener('click', async () => {
-       if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role) || !currentPreviewLevel) return;
-       const lvlObj = currentPreviewLevel;
-       const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)\n5 = Extreme Demon (125⭐)\n6 = Impossible Demon (300⭐)`, "0");
-       if (ratingInput === null) return;
-       
-       let newDiff = 'NA', newStars = 0;
-       if (ratingInput === "1") { newDiff = 'Easy'; newStars = 5; }
-       else if (ratingInput === "2") { newDiff = 'Medium'; newStars = 10; }
-       else if (ratingInput === "3") { newDiff = 'Hard'; newStars = 20; }
-       else if (ratingInput === "4") { newDiff = 'Demon'; newStars = 75; }
-       else if (ratingInput === "5") { newDiff = 'Extreme Demon'; newStars = 125; }
-       else if (ratingInput === "6") { newDiff = 'Impossible Demon'; newStars = 300; }
-       else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
-       
-       const oldStars = lvlObj.stars || 0; const starDiff = newStars - oldStars;
-       
-       try {
-         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlObj.id), { difficulty: newDiff, stars: newStars }, { merge: true });
-         if (starDiff !== 0) {
-           const authorRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', lvlObj.authorId);
-           const authorSnap = await getDoc(authorRef);
-           if (authorSnap.exists()) {
-              const authorData = authorSnap.data();
-              const newScore = Math.max(0, (authorData.score || 0) + starDiff);
-              await setDoc(authorRef, { score: newScore }, { merge: true });
-           }
-         }
-         alert(`Level successfully rated ${newDiff} (${newStars}⭐)!`);
-       } catch(err) { alert("Failed to rate level."); }
-    });
 
     function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
