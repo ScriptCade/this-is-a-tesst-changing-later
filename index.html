@@ -212,8 +212,8 @@
       <div id="buildRotState" class="flex flex-col bg-gray-800 border-2 border-gray-600 rounded-lg pt-2 pb-2 shadow-inner">
         <div class="text-xs text-center text-yellow-200 font-black mb-2" id="lblBuildRot">0°</div>
         <div class="flex gap-2 px-2 h-12">
-           <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></button>
-           <button id="btnBuildRotRight" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-cw" class="w-5 h-5"></i></button>
+           <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-50 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></button>
+           <button id="btnBuildRotRight" class="bg-purple-600 hover:bg-purple-50 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-cw" class="w-5 h-5"></i></button>
         </div>
       </div>
     </div>
@@ -933,7 +933,6 @@
         if (prog > oldProg) {
            currentSaved[currentPreviewLevel.id] = prog;
            let updates = { progress: currentSaved };
-           // Award stars upon 100% completion if the level has them and wasn't completed before
            if (prog === 100 && oldProg < 100 && (currentPreviewLevel.stars || 0) > 0) {
               updates.score = (myProfile.score || 0) + currentPreviewLevel.stars;
            }
@@ -2018,6 +2017,221 @@
       else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
     });
 
+    function renderLevelBrowser() {
+      document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
+      const browserList = document.getElementById('levelBrowserList');
+      if (levelsList.length === 0) { browserList.innerHTML = `<div class="p-8 text-center text-gray-500">No community levels yet. Be the first to build one!</div>`; return; }
+      
+      levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
+      
+      browserList.innerHTML = levelsList.map(lvl => {
+        let diffIcon = '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-400"></i>';
+        if (lvl.difficulty === 'Easy') diffIcon = '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
+        else if (lvl.difficulty === 'Medium') diffIcon = '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
+        else if (lvl.difficulty === 'Hard') diffIcon = '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
+        else if (lvl.difficulty === 'Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>';
+        else if (lvl.difficulty === 'Extreme Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-800 drop-shadow-[0_0_15px_rgba(153,27,27,0.9)]"></i>';
+        else if (lvl.difficulty === 'Impossible Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-black drop-shadow-[0_0_20px_rgba(255,0,0,1)]"></i>';
+
+        return `
+          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-level" data-lvl-id="${lvl.id}">
+            <div class="flex items-center gap-4 pointer-events-none">
+              <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
+                ${diffIcon}
+              </div>
+              <div>
+                <h4 class="text-lg font-bold text-white flex items-center gap-2">
+                  ${escapeHtml(lvl.name)}
+                  ${lvl.stars ? `<span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> ${lvl.stars}</span>` : ''}
+                </h4>
+                <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 pointer-events-none pr-2">
+              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="play-circle" class="w-4 h-4 text-green-400"></i> ${lvl.plays || 0}</span>
+              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4 text-yellow-400"></i> ${(lvl.likes && lvl.likes.length) || 0}</span>
+              <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 pointer-events-auto">View</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+      
+      document.querySelectorAll('.btn-open-level').forEach(el => {
+         el.addEventListener('click', () => {
+            const lObj = levelsList.find(l => l.id === el.dataset.lvlId);
+            if (lObj) openLevelPreview(lObj);
+         });
+      });
+    }
+    
+    // --- GD Level Preview Logic ---
+    function calcLevelLength(dataStr) {
+      let maxGX = 0;
+      let parts = dataStr.split(';');
+      for (let p of parts) { 
+         let x = parseInt(p.split(',')[0]); 
+         if (x && x > maxGX) maxGX = x; 
+      }
+      if (maxGX < 50) return "Tiny";
+      if (maxGX < 150) return "Short";
+      if (maxGX < 300) return "Medium";
+      if (maxGX < 600) return "Long";
+      return "XL";
+    }
+
+    function openLevelPreview(lvlObj) {
+       currentPreviewLevel = lvlObj;
+       populateLevelModal(lvlObj);
+       document.getElementById('levelPreviewModal').classList.remove('hide');
+    }
+
+    function populateLevelModal(lvlObj) {
+      document.getElementById('prevLevelId').innerText = lvlObj.id.substring(0, 6).toUpperCase();
+      document.getElementById('prevLevelName').innerText = lvlObj.name;
+      document.getElementById('prevAuthorName').innerText = lvlObj.authorName;
+      document.getElementById('prevDownloads').innerText = (lvlObj.plays || 0).toLocaleString();
+      document.getElementById('prevLikes').innerText = ((lvlObj.likes && lvlObj.likes.length) || 0).toLocaleString();
+      document.getElementById('prevLength').innerText = calcLevelLength(lvlObj.data);
+      
+      // Face
+      let faceHTML = '<i data-lucide="circle-dashed" class="w-full h-full text-gray-300"></i>';
+      if (lvlObj.difficulty === 'Easy') faceHTML = '<i data-lucide="smile" class="w-full h-full text-green-400"></i>';
+      else if (lvlObj.difficulty === 'Medium') faceHTML = '<i data-lucide="meh" class="w-full h-full text-yellow-400"></i>';
+      else if (lvlObj.difficulty === 'Hard') faceHTML = '<i data-lucide="frown" class="w-full h-full text-orange-500"></i>';
+      else if (lvlObj.difficulty === 'Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"></i>';
+      else if (lvlObj.difficulty === 'Extreme Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-800 drop-shadow-[0_0_20px_rgba(153,27,27,0.9)]"></i>';
+      else if (lvlObj.difficulty === 'Impossible Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-black drop-shadow-[0_0_25px_rgba(255,0,0,1)]"></i>';
+      
+      document.getElementById('prevDiffFace').innerHTML = faceHTML;
+      document.getElementById('prevDiffText').innerText = (lvlObj.difficulty || 'NA').toUpperCase();
+      
+      if (lvlObj.stars) {
+         document.getElementById('prevStarsBadge').classList.remove('hidden');
+         document.getElementById('prevStarsNum').innerText = lvlObj.stars;
+      } else {
+         document.getElementById('prevStarsBadge').classList.add('hidden');
+      }
+
+      // Progress
+      let myProg = 0;
+      if (myProfile && myProfile.progress && myProfile.progress[lvlObj.id]) myProg = myProfile.progress[lvlObj.id];
+      document.getElementById('prevProgressBar').style.width = `${myProg}%`;
+      document.getElementById('prevProgressText').innerText = `${myProg}%`;
+
+      // Like Button state
+      if (myProfile && lvlObj.likes && lvlObj.likes.includes(currentUser.uid)) {
+         document.getElementById('iconModalLike').classList.remove('text-yellow-400');
+         document.getElementById('iconModalLike').classList.add('fill-yellow-400', 'text-yellow-400');
+      } else {
+         document.getElementById('iconModalLike').classList.remove('fill-yellow-400');
+      }
+      
+      // Rating access
+      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) {
+         document.getElementById('prevRateBtnContainer').classList.remove('hidden');
+      } else {
+         document.getElementById('prevRateBtnContainer').classList.add('hidden');
+      }
+
+      // Comments
+      let coms = lvlObj.comments || [];
+      document.getElementById('prevCommentCount').innerText = coms.length;
+      if (coms.length === 0) {
+         document.getElementById('prevCommentsList').innerHTML = `<p class="text-center text-white/50 text-xs py-4 font-bold">No comments yet. Be the first!</p>`;
+      } else {
+         document.getElementById('prevCommentsList').innerHTML = coms.map(c => `
+           <div class="bg-black/50 p-2 border border-white/10 rounded flex gap-2">
+             <div class="font-bold text-yellow-400 text-xs shrink-0">${escapeHtml(c.name)}:</div>
+             <div class="text-white text-xs break-words">${escapeHtml(c.text)}</div>
+           </div>
+         `).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    document.getElementById('btnClosePreview').addEventListener('click', () => {
+       document.getElementById('levelPreviewModal').classList.add('hide');
+       currentPreviewLevel = null;
+    });
+
+    document.getElementById('btnModalPlay').addEventListener('click', async () => {
+       if (!currentPreviewLevel) return;
+       const lvlId = currentPreviewLevel.id;
+       const data = currentPreviewLevel.data;
+       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (currentPreviewLevel.plays||0) + 1 }, { merge: true }); } catch(err){}
+       document.getElementById('levelPreviewModal').classList.add('hide');
+       hubUI.classList.add('opacity-0'); // Smooth transition
+       setTimeout(() => { launchGame(data, 'play'); }, 300);
+    });
+    
+    document.getElementById('btnModalLike').addEventListener('click', async () => {
+       if (!currentUser || !currentPreviewLevel) return;
+       let likes = currentPreviewLevel.likes || [];
+       let idx = likes.indexOf(currentUser.uid);
+       if (idx > -1) { likes.splice(idx, 1); } else { likes.push(currentUser.uid); }
+       
+       try {
+         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: likes }, { merge: true });
+       } catch(err) { console.error("Failed to like"); }
+    });
+
+    document.getElementById('commentForm').addEventListener('submit', async (e) => {
+       e.preventDefault();
+       if (!currentUser || !myProfile || !currentPreviewLevel) return;
+       const input = document.getElementById('commentInput');
+       const txt = input.value.trim();
+       if (!txt) return;
+       
+       let coms = currentPreviewLevel.comments || [];
+       coms.unshift({ uid: currentUser.uid, name: myProfile.username, text: txt, time: Date.now() });
+       if (coms.length > 50) coms = coms.slice(0, 50); // Hard limit to avoid DB bloat
+       
+       try {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: coms }, { merge: true });
+          input.value = '';
+       } catch(err) { alert("Failed to post comment"); }
+    });
+    
+    document.getElementById('btnModalRate').addEventListener('click', async () => {
+       if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role) || !currentPreviewLevel) return;
+       const lvlObj = currentPreviewLevel;
+       const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)\n5 = Extreme Demon (125⭐)\n6 = Impossible Demon (300⭐)`, "0");
+       if (ratingInput === null) return;
+       
+       let newDiff = 'NA', newStars = 0;
+       if (ratingInput === "1") { newDiff = 'Easy'; newStars = 5; }
+       else if (ratingInput === "2") { newDiff = 'Medium'; newStars = 10; }
+       else if (ratingInput === "3") { newDiff = 'Hard'; newStars = 20; }
+       else if (ratingInput === "4") { newDiff = 'Demon'; newStars = 75; }
+       else if (ratingInput === "5") { newDiff = 'Extreme Demon'; newStars = 125; }
+       else if (ratingInput === "6") { newDiff = 'Impossible Demon'; newStars = 300; }
+       else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
+       
+       const oldStars = lvlObj.stars || 0;
+       const starDiff = newStars - oldStars;
+       
+       try {
+         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlObj.id), { difficulty: newDiff, stars: newStars }, { merge: true });
+         
+         if (starDiff !== 0) {
+           const authorRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', lvlObj.authorId);
+           const authorSnap = await getDoc(authorRef);
+           if (authorSnap.exists()) {
+              const authorData = authorSnap.data();
+              const newScore = Math.max(0, (authorData.score || 0) + starDiff);
+              await setDoc(authorRef, { score: newScore }, { merge: true });
+           }
+         }
+         alert(`Level successfully rated ${newDiff} (${newStars}⭐)!`);
+       } catch(err) {
+         alert("Failed to rate level.");
+         console.error(err);
+       }
+    });
+
+    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
     document.getElementById('btnWinReplay').addEventListener('click', () => { state.mode = 'play'; state.attempts = 1; resetPlayer(); });
     document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
 
@@ -2038,236 +2252,139 @@
       lucide.createIcons();
     }
 
-    function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+    document.getElementById('pfpContainer').addEventListener('click', () => { document.getElementById('pfpUpload').click(); });
+    document.getElementById('pfpUpload').addEventListener('change', async (e) => {
+      const file = e.target.files[0]; if (!file || !currentUser || !myProfile) return;
+      if (!file.type.startsWith('image/')) return alert("Images only.");
+      document.getElementById('displayPfp').style.opacity = '0.5';
+      try {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = async () => {
+            const canvas = document.createElement('canvas'); let width = img.width, height = img.height;
+            if (width > height) { if (width > 150) { height *= 150 / width; width = 150; } } else { if (height > 150) { width *= 150 / height; height = 150; } }
+            canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.8);
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { photoURL: compressed }, { merge: true });
+            document.getElementById('displayPfp').style.opacity = '1'; document.getElementById('pfpUpload').value = '';
+          }; img.src = event.target.result;
+        }; reader.readAsDataURL(file);
+      } catch (error) { alert("Failed to upload."); document.getElementById('displayPfp').style.opacity = '1'; } 
+    });
+
+    document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+      if (confirm("Delete your account permanently?")) {
+        try {
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid));
+          await deleteUser(currentUser); alert("Account deleted.");
+        } catch (error) {
+          if (error.code === 'auth/requires-recent-login') alert("Please log out and log back in to verify identity before deleting.");
+          else alert("Failed to delete account.");
+        }
+      }
+    });
+
+    document.getElementById('closeBannerBtn').addEventListener('click', async () => {
+      document.getElementById('globalBanner').classList.add('-translate-y-full');
+      if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
+        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '' }, { merge: true }); } catch(e){}
+      }
+    });
+    
+    document.getElementById('dismissWarningBtn').addEventListener('click', async () => { if (currentUser) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warning: "" }, { merge: true }); });
+
+    document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
+    document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
+
+    cmdAction.addEventListener('change', () => {
+      const act = cmdAction.value; cmdParamNumber.classList.add('hidden'); cmdParamText.classList.add('hidden'); cmdParamRole.classList.add('hidden'); cmdParamContainer.classList.remove('hidden');
+      if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
+      else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
+      else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
+      else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
+    });
 
     function renderAdminPanel() {
       if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
+      const currentTarget = cmdTarget.value;
+      let options = `<option value="GLOBAL" class="font-bold">🌐 EVERYONE (GLOBAL)</option>`;
+      usersData.forEach(p => { let prefix = p.role === 'king' ? '👑 ' : p.role === 'admin' ? '🛡️ ' : p.role === 'mod' ? '⚔️ ' : ''; options += `<option value="${p.id}">${prefix}${escapeHtml(p.username)} (${p.score||0}⭐)${p.banned ? ' [BANNED]' : ''}</option>`; });
+      cmdTarget.innerHTML = options; if (currentTarget && [...cmdTarget.options].some(o => o.value === currentTarget)) cmdTarget.value = currentTarget;
+
       document.getElementById('adminPlayerCount').textContent = `${usersData.length} Players`;
-      const dirList = document.getElementById('adminDirectoryList');
-      const targetSel = document.getElementById('cmdTarget');
-      
-      let selVal = targetSel.value;
-      targetSel.innerHTML = '<option value="GLOBAL">🌐 EVERYONE (GLOBAL)</option>';
-      dirList.innerHTML = '';
-      
-      usersData.forEach(u => {
-        targetSel.innerHTML += `<option value="${u.id}">${escapeHtml(u.username)}</option>`;
-        
-        let roleIcon = u.role === 'king' ? '👑' : u.role === 'admin' ? '🛡️' : u.role === 'mod' ? '⚔️' : '👤';
-        dirList.innerHTML += `
-          <div class="flex items-center justify-between p-2 bg-gray-900 border border-gray-700 rounded mb-1">
-            <div class="flex items-center gap-2">
-              <span title="${u.role}">${roleIcon}</span>
-              <span class="text-white font-bold text-sm">${escapeHtml(u.username)}</span>
-              ${u.banned ? '<span class="text-xs bg-red-900 text-red-300 px-1 rounded">BANNED</span>' : ''}
-            </div>
-            <div class="text-xs text-gray-400 font-mono">UID: ${u.id.substring(0, 5)}... | Stars: ${u.score||0}</div>
-          </div>
-        `;
-      });
-      if ([...targetSel.options].some(o => o.value === selVal)) targetSel.value = selVal;
-    }
-
-    adminCommandForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!currentUser || !myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
-      
-      const target = document.getElementById('cmdTarget').value;
-      const action = document.getElementById('cmdAction').value;
-      const numParam = parseInt(document.getElementById('cmdParamNumber').value) || 0;
-      const txtParam = document.getElementById('cmdParamText').value;
-      const roleParam = document.getElementById('cmdParamRole').value;
-      
-      try {
-        if (target === 'GLOBAL') {
-          if (action === 'globalMsg') await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: txtParam }, { merge: true });
-          if (action.startsWith('troll_') || action === 'troll_clear') await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: action === 'troll_clear' ? '' : action }, { merge: true });
-        } else {
-          const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', target);
-          const uDat = usersData.find(u => u.id === target);
-          if (!uDat) return;
-          
-          if (action === 'addScore') await setDoc(uRef, { score: (uDat.score || 0) + numParam }, { merge: true });
-          if (action === 'subScore') await setDoc(uRef, { score: Math.max(0, (uDat.score || 0) - numParam) }, { merge: true });
-          if (action === 'setScore') await setDoc(uRef, { score: numParam }, { merge: true });
-          if (action === 'warn') await setDoc(uRef, { warning: txtParam }, { merge: true });
-          if (action === 'ban') await setDoc(uRef, { banned: true }, { merge: true });
-          if (action === 'unban') await setDoc(uRef, { banned: false }, { merge: true });
-          if (action === 'role' && myProfile.role === 'king') await setDoc(uRef, { role: roleParam }, { merge: true });
-          if (action.startsWith('troll_') || action === 'troll_clear') await setDoc(uRef, { trollEvent: action === 'troll_clear' ? '' : action }, { merge: true });
-        }
-      } catch(err) { alert("Error: " + err.message); }
-    });
-
-    function renderLevelBrowser() {
-      const list = document.getElementById('levelBrowserList');
-      document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
-      if (levelsList.length === 0) { list.innerHTML = `<div class="p-8 text-center text-gray-500">No levels published yet. Be the first!</div>`; return; }
-      
-      list.innerHTML = levelsList.sort((a,b) => b.createdAt - a.createdAt).map(l => `
-        <div class="bg-gray-900 border border-gray-700 p-4 rounded-xl flex items-center justify-between hover:bg-gray-800 transition-colors cursor-pointer group" onclick="openLevelPreview('${l.id}')">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 flex-shrink-0">${getDifficultySVG(l.difficulty || 'NA')}</div>
-            <div>
-              <h4 class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">${escapeHtml(l.name)}</h4>
-              <p class="text-sm text-yellow-500">By ${escapeHtml(l.authorName)}</p>
-            </div>
-          </div>
-          <div class="flex gap-4 text-gray-400 font-bold text-sm">
-            <span class="flex items-center gap-1"><i data-lucide="play" class="w-4 h-4"></i> ${l.plays || 0}</span>
-            <span class="flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4"></i> ${(l.likes || []).length}</span>
-            ${(l.stars || 0) > 0 ? `<span class="flex items-center gap-1 text-yellow-400"><i data-lucide="star" class="w-4 h-4 fill-yellow-400"></i> ${l.stars}</span>` : ''}
-          </div>
-        </div>
-      `).join('');
+      document.getElementById('adminDirectoryList').innerHTML = usersData.map(p => {
+        let badge = p.role === 'king' ? `<span class="text-yellow-400 text-xs"><i data-lucide="crown" class="w-3 h-3 inline"></i> King</span>` : p.role === 'admin' ? `<span class="text-indigo-400 text-xs"><i data-lucide="shield" class="w-3 h-3 inline"></i> Admin</span>` : p.role === 'mod' ? `<span class="text-green-400 text-xs"><i data-lucide="shield-half" class="w-3 h-3 inline"></i> Mod</span>` : `<span class="text-gray-500 text-xs">User</span>`;
+        return `<div class="flex justify-between items-center bg-gray-800/50 p-2 rounded border border-gray-700/50"><div class="flex items-center gap-2 truncate"><img src="${escapeHtml(p.photoURL || getDefaultAvatar(p.username))}" class="w-6 h-6 rounded-full border border-gray-600"><span class="text-sm font-semibold text-gray-200 truncate">${escapeHtml(p.username)}</span>${p.banned ? `<span class="text-red-500 text-[10px] font-bold ml-1 bg-red-500/20 px-1 rounded">BANNED</span>` : ''}</div><div class="text-right flex flex-col items-end"><span class="font-mono text-sm text-yellow-400">${(p.score||0).toLocaleString()}⭐</span>${badge}</div></div>`;
+      }).join('');
       lucide.createIcons();
     }
 
-    window.openLevelPreview = function(id) {
-      const lvl = levelsList.find(l => l.id === id);
-      if (!lvl) return;
-      currentPreviewLevel = lvl;
-      populateLevelModal(lvl);
-      document.getElementById('levelPreviewModal').classList.remove('hide');
-    };
+    adminCommandForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); if (!myProfile) return;
+      const targetId = cmdTarget.value, act = cmdAction.value, valNum = Number(cmdParamNumber.value), valText = cmdParamText.value.trim(), valRole = cmdParamRole.value;
 
-    document.getElementById('btnClosePreview').addEventListener('click', () => {
-      document.getElementById('levelPreviewModal').classList.add('hide');
-      currentPreviewLevel = null;
-    });
-
-    function populateLevelModal(lvl) {
-      document.getElementById('prevLevelName').innerText = lvl.name;
-      document.getElementById('prevAuthorName').innerText = lvl.authorName;
-      document.getElementById('prevLevelId').innerText = lvl.id.substring(0, 8);
-      document.getElementById('prevDownloads').innerText = lvl.plays || 0;
-      document.getElementById('prevLikes').innerText = (lvl.likes || []).length;
-      
-      document.getElementById('prevDiffFace').innerHTML = getDifficultySVG(lvl.difficulty || 'NA');
-      document.getElementById('prevDiffText').innerText = lvl.difficulty || 'NA';
-      
-      if ((lvl.stars || 0) > 0) {
-          document.getElementById('prevStarsBadge').classList.remove('hidden');
-          document.getElementById('prevStarsNum').innerText = lvl.stars;
-      } else {
-          document.getElementById('prevStarsBadge').classList.add('hidden');
+      if (targetId === 'GLOBAL') {
+        if (myProfile.role !== 'king' && myProfile.role !== 'admin') return alert("Only Admins/King can use GLOBAL commands.");
+        const setRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
+        try {
+          if (act === 'globalMsg') { await setDoc(setRef, { broadcastMsg: valText }, { merge: true }); alert("Message broadcasted."); cmdParamText.value = ''; } 
+          else if (act.startsWith('troll_')) { if (act === 'troll_clear') { await setDoc(setRef, { globalTroll: '' }, { merge: true }); alert("Global trolls cleared."); } else { await setDoc(setRef, { globalTroll: act }, { merge: true }); alert(`Global Troll activated.`); setTimeout(async () => { await setDoc(setRef, { globalTroll: '' }, { merge: true }); }, 10000); } } else alert("Cannot use this command globally yet.");
+        } catch(err) { alert("Failed global command."); } return;
       }
 
-      const rateBtnContainer = document.getElementById('prevRateBtnContainer');
-      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) {
-          rateBtnContainer.classList.remove('hidden');
-      } else {
-          rateBtnContainer.classList.add('hidden');
-      }
-      
-      let lengthStr = 'Tiny';
-      if (lvl.data.length > 5000) lengthStr = 'Short';
-      if (lvl.data.length > 15000) lengthStr = 'Medium';
-      if (lvl.data.length > 30000) lengthStr = 'Long';
-      document.getElementById('prevLength').innerText = lengthStr;
-      
-      const likeIcon = document.getElementById('iconModalLike');
-      if (currentUser && (lvl.likes || []).includes(currentUser.uid)) {
-        likeIcon.classList.add('fill-yellow-400');
-      } else {
-        likeIcon.classList.remove('fill-yellow-400');
-      }
+      const tUser = usersData.find(p => p.id === targetId); if (!tUser) return alert("Target not found.");
+      if (tUser.role === 'king' && myProfile.role !== 'king') return alert("Action Denied: Cannot target King.");
+      if (tUser.role === 'admin' && myProfile.role === 'mod') return alert("Action Denied: Mods cannot target Admins.");
+      if ((act === 'ban' || act === 'unban') && myProfile.role === 'mod') return alert("Action Denied: Mods cannot ban.");
+      if (act === 'role' && myProfile.role !== 'king') return alert("Action Denied: Only King can change roles.");
 
-      let myProg = myProfile && myProfile.progress ? (myProfile.progress[lvl.id] || 0) : 0;
-      document.getElementById('prevProgressBar').style.width = `${myProg}%`;
-      document.getElementById('prevProgressText').innerText = `${myProg}%`;
-
-      document.getElementById('prevCommentCount').innerText = (lvl.comments || []).length;
-      const cList = document.getElementById('prevCommentsList');
-      cList.innerHTML = (lvl.comments || []).slice().reverse().map(c => `
-         <div class="bg-black/40 p-2 rounded border border-white/5">
-            <div class="flex justify-between items-center mb-1">
-               <span class="text-blue-300 font-bold text-xs">${escapeHtml(c.user)}</span>
-               <span class="text-gray-500 text-[10px]">${new Date(c.time).toLocaleDateString()}</span>
-            </div>
-            <p class="text-white text-sm break-words">${escapeHtml(c.text)}</p>
-         </div>
-      `).join('');
-    }
-    
-    document.getElementById('btnModalPlay').addEventListener('click', async () => {
-      if (!currentPreviewLevel) return;
+      const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', targetId);
       try {
-         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { plays: (currentPreviewLevel.plays || 0) + 1 }, { merge: true });
-      } catch(e) {}
-      document.getElementById('levelPreviewModal').classList.add('hide');
-      launchGame(currentPreviewLevel.data, 'play');
-    });
-
-    document.getElementById('btnModalLike').addEventListener('click', async () => {
-      if (!currentUser || !currentPreviewLevel) return;
-      try {
-         let currentLikes = currentPreviewLevel.likes || [];
-         if (currentLikes.includes(currentUser.uid)) {
-            currentLikes = currentLikes.filter(id => id !== currentUser.uid);
-         } else {
-            currentLikes.push(currentUser.uid);
-         }
-         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: currentLikes }, { merge: true });
-      } catch(e) {}
-    });
-
-    document.getElementById('btnModalRate').addEventListener('click', async () => {
-      if (!currentUser || !myProfile || !currentPreviewLevel) return;
-      if (!['king', 'admin', 'mod'].includes(myProfile.role)) return;
-
-      const diffs = ['NA', 'Auto', 'Easy', 'Normal', 'Hard', 'Harder', 'Insane', 'Demon'];
-      let diff = prompt("Enter difficulty (NA, Auto, Easy, Normal, Hard, Harder, Insane, Demon):", currentPreviewLevel.difficulty || "NA");
-      if (!diff) return;
-      diff = diff.charAt(0).toUpperCase() + diff.slice(1).toLowerCase();
-      if (diff === 'Na') diff = 'NA';
-      if (!diffs.includes(diff)) { alert("Invalid difficulty. Using NA."); diff = 'NA'; }
-      
-      const starsStr = prompt("Enter star reward (0-10):", currentPreviewLevel.stars || "0");
-      const stars = parseInt(starsStr) || 0;
-
-      try {
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), {
-          difficulty: diff,
-          stars: stars
-        }, { merge: true });
-        alert("Level rated successfully!");
-      } catch(e) {
-        alert("Error rating level: " + e.message);
-      }
-    });
-
-    document.getElementById('commentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!currentUser || !myProfile || !currentPreviewLevel) return;
-      const input = document.getElementById('commentInput');
-      const txt = input.value.trim();
-      if (!txt) return;
-      try {
-         let comments = currentPreviewLevel.comments || [];
-         comments.push({ user: myProfile.username, text: txt, time: Date.now() });
-         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: comments }, { merge: true });
-         input.value = '';
-      } catch(e) {}
+        let nScore = tUser.score || 0;
+        if (act === 'addScore') nScore += valNum; else if (act === 'subScore') nScore = Math.max(0, nScore - valNum); else if (act === 'setScore') nScore = Math.max(0, valNum);
+        
+        if (act.includes('Score')) { await setDoc(uRef, { score: nScore }, { merge: true }); cmdParamNumber.value = ''; alert("Stars updated.");} 
+        else if (act === 'warn') { await setDoc(uRef, { warning: valText }, { merge: true }); cmdParamText.value = ''; alert(`Warning sent.`); }
+        else if (act === 'ban') { await setDoc(uRef, { banned: true }, { merge: true }); alert("Player banned."); }
+        else if (act === 'unban') { await setDoc(uRef, { banned: false }, { merge: true }); alert("Player unbanned."); }
+        else if (act.startsWith('troll_')) { if (act === 'troll_clear') await setDoc(uRef, { trollEvent: '' }, { merge: true }); else { await setDoc(uRef, { trollEvent: act }, { merge: true }); alert(`Troll sent.`); } }
+        else if (act === 'role') {
+          if (valRole === 'king') { if(!confirm(`WARNING: Transfer crown?`)) return; await setDoc(uRef, { role: 'king' }, { merge: true }); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true }); } else await setDoc(uRef, { role: valRole }, { merge: true });
+        }
+      } catch (err) { alert("Command failed."); }
     });
 
     document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return;
-      const code = prompt("Enter the King Code to claim the crown:");
-      if (code === globalSettings.kingCode) {
+      if (!currentUser || !myProfile) return; 
+      const currentKings = usersData.filter(d => d.role === 'king');
+      
+      const c = prompt("Enter secret code:"); if (!c) return;
+      
+      if (c === 'DASH2026') {
+        for (let k of currentKings) {
+             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
+        }
         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
-        alert("You are now the King!");
-      } else {
-        alert("Invalid code.");
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
+        alert("Bypass activated! Crown stolen and bugs cleared.");
+      } 
+      else if (c === globalSettings.kingCode) {
+        if (currentKings.length > 0) return alert("Crown is already taken!");
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true }); 
+        alert("Crown claimed!");
+      } 
+      else {
+        alert("Incorrect code.");
       }
     });
     
     document.getElementById('changeCodeBtn').addEventListener('click', async () => {
-       if (myProfile?.role === 'king') {
-          const newCode = prompt("Enter new King Code:");
-          if(newCode) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: newCode }, { merge: true });
-       }
+      if (!myProfile || myProfile.role !== 'king') return; const n = prompt("Enter new King Code:", globalSettings.kingCode);
+      if (n && n.trim() !== '') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: n.trim() }, { merge: true }); alert("Code updated."); }
     });
+
+    function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
     level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
   </script>
