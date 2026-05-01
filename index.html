@@ -27,6 +27,14 @@
     @keyframes pulse-play { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(74, 222, 128, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
     .play-pulse { animation: pulse-play 2s infinite; }
 
+    /* Gacha Animations */
+    @keyframes chestShake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-10deg) scale(1.1); } 50% { transform: rotate(10deg) scale(1.1); } 75% { transform: rotate(-10deg) scale(1.1); } 100% { transform: rotate(0deg) scale(1); } }
+    .chest-shaking { animation: chestShake 0.4s ease-in-out infinite; filter: brightness(1.5) drop-shadow(0 0 20px white); }
+    @keyframes whiteFlash { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+    .flash-screen { animation: whiteFlash 1s ease-out forwards; }
+    @keyframes cardFlip { 0% { transform: scale(0) rotateY(180deg); opacity: 0; } 100% { transform: scale(1) rotateY(0deg); opacity: 1; } }
+    .card-flip { animation: cardFlip 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
     /* Editor UI Buttons */
     .ed-btn { background: linear-gradient(180deg, #4ade80, #16a34a); border: 2px solid #000; border-radius: 6px; color: white; font-weight: 900; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2); transition: filter 0.1s; }
     .ed-btn:active { filter: brightness(0.8); }
@@ -34,7 +42,6 @@
     .ed-btn.delete { background: linear-gradient(180deg, #f87171, #dc2626); }
     .ed-btn.delete.active { background: linear-gradient(180deg, #60a5fa, #2563eb); }
     
-    /* Consistently Huge Tool Buttons (~3x larger) */
     .tool-btn { 
       background: #334; border: 3px solid #111; border-radius: 8px; 
       display: flex; justify-content: center; align-items: center; 
@@ -57,9 +64,18 @@
     .troll-spin { animation: spin 2s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* Level Preview Specific Styles */
+    /* Theme Styles */
     .gd-blue-bg { background: linear-gradient(to bottom, #0055ff, #0033aa); }
     .gd-panel { background: #8B4513; border: 3px solid #000; border-radius: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.5); }
+    
+    /* Rarity Glows */
+    .rarity-common { box-shadow: 0 0 10px #9ca3af; border-color: #9ca3af !important; }
+    .rarity-rare { box-shadow: 0 0 15px #3b82f6; border-color: #3b82f6 !important; }
+    .rarity-epic { box-shadow: 0 0 20px #a855f7; border-color: #a855f7 !important; }
+    .rarity-legendary { box-shadow: 0 0 25px #facc15; border-color: #facc15 !important; }
+    .rarity-mythic { box-shadow: 0 0 35px #ef4444; border-color: #ef4444 !important; animation: pulse-mythic 1s infinite alternate; }
+    @keyframes pulse-mythic { from { box-shadow: 0 0 15px #ef4444; } to { box-shadow: 0 0 35px #ff0000, 0 0 15px inset #ef4444; } }
+
   </style>
 </head>
 <body id="mainBody">
@@ -69,7 +85,6 @@
   <!-- ========================================== -->
   <canvas id="gameCanvas"></canvas>
 
-  <!-- In-Game UI Overlay -->
   <div id="gameUI" class="hide absolute top-0 left-0 w-full p-4 pointer-events-none flex justify-between items-start z-40">
     <div class="pointer-events-auto flex gap-2 bg-gray-900/80 p-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl">
       <button id="btnExitGame" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-white font-bold transition-colors shadow flex items-center gap-2">
@@ -78,7 +93,6 @@
       <button id="btnMusic" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow">🎵 Music: OFF</button>
     </div>
     
-    <!-- In-Game Progress Bar -->
     <div id="gameProgressContainer" class="hide pointer-events-auto absolute top-6 left-1/2 -translate-x-1/2 w-64 bg-black/60 rounded-full border-2 border-white/20 p-1 backdrop-blur-md">
       <div id="gameProgressBar" class="h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full w-0 transition-all duration-100 relative">
         <span id="gameProgressText" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white text-shadow-sm">0%</span>
@@ -90,7 +104,6 @@
     </div>
   </div>
 
-  <!-- Editor Top Right Options (Playtest & Publish) -->
   <div id="editorTopRight" class="hide absolute top-4 right-4 z-50 flex gap-2 pointer-events-auto">
     <button id="btnPlaytest" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 border border-blue-400/30 transition-transform hover:scale-105">
       <i data-lucide="play" class="w-5 h-5"></i> Test (Z)
@@ -100,22 +113,15 @@
     </button>
   </div>
 
-  <!-- Advanced Editor Toolbar (Taller for huge buttons) -->
   <div id="editorToolbar" class="hide fixed bottom-0 left-0 w-full bg-black/95 border-t-4 border-gray-700 p-3 pointer-events-auto z-40 flex gap-4 h-[35vh] min-h-[250px] shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
-    
-    <!-- Left: Main Tabs -->
     <div class="flex flex-col gap-2 w-32 flex-shrink-0">
       <button id="tabBuild" class="ed-btn active flex-1 text-lg tracking-wider">BUILD</button>
       <button id="tabEditMode" class="ed-btn flex-1 text-lg tracking-wider">EDIT</button>
       <button id="tabDelete" class="ed-btn delete flex-1 text-lg tracking-wider">DELETE</button>
     </div>
 
-    <!-- Center: Dynamic Content Panels -->
     <div class="flex-1 bg-[#1a1a24] border-4 border-gray-800 rounded-xl flex flex-col overflow-hidden relative shadow-inner">
-      
-      <!-- BUILD PANEL -->
       <div id="panelBuild" class="flex-1 flex flex-col h-full">
-        <!-- Top Categories -->
         <div class="flex px-3 pt-3 border-b-4 border-[#111] bg-[#111] overflow-x-auto custom-scrollbar">
           <button class="cat-btn active whitespace-nowrap" data-cat="blocks">Blocks</button>
           <button class="cat-btn whitespace-nowrap" data-cat="hazards">Hazards</button>
@@ -123,33 +129,27 @@
           <button class="cat-btn whitespace-nowrap" data-cat="portals">Portals</button>
           <button class="cat-btn whitespace-nowrap" data-cat="triggers">Triggers</button>
         </div>
-        <!-- Tool Grids (Categorized) -->
         <div class="p-4 overflow-y-auto custom-scrollbar flex-1 bg-[#223]">
-          
           <div id="cat-blocks" class="flex flex-wrap gap-4 content-start">
             <button class="tool-btn active" data-tool="0" title="Solid Block"><div class="w-5 h-5 border-2 border-white bg-blue-400"></div></button>
             <button class="tool-btn" data-tool="19" title="Half Block"><div class="w-5 h-2.5 border-2 border-white bg-blue-400 mt-2.5"></div></button>
             <button class="tool-btn" data-tool="13" title="Deco Block"><div class="w-5 h-5 border border-gray-500 bg-gray-700"></div></button>
           </div>
-          
           <div id="cat-hazards" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="1" title="Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-red-500"></div></div></button>
             <button class="tool-btn" data-tool="20" title="Small Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[8px] border-b-red-500"></div></div></button>
             <button class="tool-btn" data-tool="21" title="Sawblade"><div class="w-5 h-5 rounded-full border-2 border-gray-400 bg-gray-600 flex items-center justify-center"><div class="w-1 h-1 bg-white rounded-full"></div></div></button>
           </div>
-          
           <div id="cat-interact" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="5" title="Yellow Orb (Normal)"><div class="w-4 h-4 rounded-full border-2 border-yellow-200 bg-yellow-400 shadow-[0_0_8px_#facc15]"></div></button>
             <button class="tool-btn" data-tool="23" title="Pink Orb (Low)"><div class="w-4 h-4 rounded-full border-2 border-pink-200 bg-pink-400 shadow-[0_0_8px_#f472b6]"></div></button>
             <button class="tool-btn" data-tool="25" title="Red Orb (High)"><div class="w-4 h-4 rounded-full border-2 border-red-200 bg-red-500 shadow-[0_0_8px_#ef4444]"></div></button>
             <button class="tool-btn" data-tool="27" title="Blue Orb (Gravity)"><div class="w-4 h-4 rounded-full border-2 border-blue-200 bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div></button>
-            
             <button class="tool-btn" data-tool="2" title="Yellow Pad"><div class="w-5 h-2 border-t-2 border-yellow-200 rounded-t-full bg-yellow-400 mt-3 shadow-[0_0_8px_#facc15]"></div></button>
             <button class="tool-btn" data-tool="22" title="Pink Pad"><div class="w-5 h-2 border-t-2 border-pink-200 rounded-t-full bg-pink-400 mt-3 shadow-[0_0_8px_#f472b6]"></div></button>
             <button class="tool-btn" data-tool="24" title="Red Pad"><div class="w-5 h-2 border-t-2 border-red-200 rounded-t-full bg-red-500 mt-3 shadow-[0_0_8px_#ef4444]"></div></button>
             <button class="tool-btn" data-tool="26" title="Blue Pad"><div class="w-5 h-2 border-t-2 border-blue-200 rounded-t-full bg-blue-500 mt-3 shadow-[0_0_8px_#3b82f6]"></div></button>
           </div>
-          
           <div id="cat-portals" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="7" title="Cube Mode"><div class="w-3 h-5 border-2 border-green-400 rounded-full bg-green-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-green-200">C</span></div></button>
             <button class="tool-btn" data-tool="8" title="Ship Mode"><div class="w-3 h-5 border-2 border-pink-400 rounded-full bg-pink-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-pink-200">S</span></div></button>
@@ -160,7 +160,6 @@
             <button class="tool-btn" data-tool="28" title="Mini Portal"><div class="w-3 h-4 border-2 border-fuchsia-400 rounded bg-fuchsia-400/30"></div></button>
             <button class="tool-btn" data-tool="29" title="Normal Portal"><div class="w-4 h-6 border-2 border-emerald-400 rounded bg-emerald-400/30"></div></button>
           </div>
-          
           <div id="cat-triggers" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="10" title="Slow Speed"><span class="text-orange-400 font-bold text-xs">&lt;</span></button>
             <button class="tool-btn" data-tool="11" title="Normal Speed"><span class="text-green-400 font-bold text-xs">&gt;&gt;</span></button>
@@ -174,7 +173,6 @@
         </div>
       </div>
 
-      <!-- EDIT PANEL -->
       <div id="panelEdit" class="hide flex-1 bg-[#223] flex items-center justify-center gap-12 p-6">
         <div id="editNoSelection" class="text-gray-400 font-bold text-xl">Select objects to edit (or place a block)</div>
         <div id="editControls" class="hide flex gap-12 items-center w-full justify-center">
@@ -200,7 +198,6 @@
         </div>
       </div>
 
-      <!-- DELETE PANEL -->
       <div id="panelDelete" class="hide flex-1 bg-[#223] flex flex-col items-center justify-center gap-6 p-6">
         <p class="text-gray-400 font-bold text-lg">Swipe over objects to delete them.</p>
         <button id="btnDeleteAll" class="px-8 py-4 bg-red-900 border-4 border-red-500 hover:bg-red-800 text-white font-black text-2xl rounded-xl flex items-center gap-3 transition-colors shadow-2xl">
@@ -209,11 +206,9 @@
       </div>
     </div>
 
-    <!-- Right: Toggles & Camera -->
     <div class="flex flex-col gap-2 w-32 flex-shrink-0">
       <button id="btnSwipeToggle" class="ed-btn active flex-1 text-sm tracking-wider border-green-900 shadow">SWIPE<br><span id="swipeStatus" class="text-xs text-green-200">ON</span></button>
       
-      <!-- Build Rotation State -->
       <div id="buildRotState" class="flex flex-col bg-gray-800 border-2 border-gray-600 rounded-lg pt-2 pb-2 shadow-inner">
         <div class="text-xs text-center text-yellow-200 font-black mb-2" id="lblBuildRot">0°</div>
         <div class="flex gap-2 px-2 h-12">
@@ -224,7 +219,6 @@
     </div>
   </div>
 
-  <!-- Win Overlay -->
   <div id="winOverlay" class="hide absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex justify-center items-center">
     <div class="bg-gray-900 border-2 border-yellow-400 p-10 rounded-2xl text-center shadow-[0_0_80px_rgba(250,204,21,0.4)] flex flex-col items-center animate-pop">
       <h1 class="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">LEVEL COMPLETE</h1>
@@ -288,7 +282,10 @@
                 <span id="displayUsername" class="font-bold text-white text-xl truncate max-w-[200px]"></span>
                 <div id="myRoleBadge"></div>
               </div>
-              <div class="text-sm font-bold text-yellow-400 flex items-center gap-1"><span id="displayScore">0</span> <i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> Stars</div>
+              <div class="text-sm font-bold text-yellow-400 flex items-center gap-4">
+                 <span><span id="displayScore">0</span> <i data-lucide="star" class="w-3 h-3 fill-yellow-400 inline"></i></span>
+                 <span class="text-blue-400"><span id="displayKeys">0</span> <i data-lucide="key" class="w-3 h-3 inline"></i> Keys</span>
+              </div>
             </div>
           </div>
           
@@ -300,23 +297,37 @@
           </div>
         </div>
 
-        <!-- MAIN MENU (3 Big Buttons) -->
+        <!-- MAIN MENU (5 Buttons now) -->
         <div id="viewMainMenu" class="w-full flex flex-col items-center gap-6 animate-pop">
+          <!-- Top Row -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+            <button id="btnViewBrowser" class="p-8 bg-blue-600 hover:bg-blue-500 rounded-3xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-transform hover:scale-105 flex items-center justify-center gap-6 border-2 border-blue-400 h-40 relative overflow-hidden group">
+              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              <i data-lucide="globe" class="w-16 h-16 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
+              <span class="text-3xl font-black tracking-widest text-white relative z-10 text-left">BROWSE<br>LEVELS</span>
+            </button>
+            <button id="btnCreateLevel" class="p-8 bg-green-600 hover:bg-green-500 rounded-3xl shadow-[0_0_30px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex items-center justify-center gap-6 border-2 border-green-400 h-40 relative overflow-hidden group">
+              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+              <i data-lucide="hammer" class="w-16 h-16 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
+              <span class="text-3xl font-black tracking-widest text-white relative z-10 text-left">CREATE<br>LEVEL</span>
+            </button>
+          </div>
+          <!-- Bottom Row -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-            <button id="btnViewBrowser" class="p-8 bg-blue-600 hover:bg-blue-500 rounded-3xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-blue-400 h-64 relative overflow-hidden group">
+            <button id="btnViewLeaderboard" class="p-6 bg-yellow-600 hover:bg-yellow-500 rounded-3xl shadow-[0_0_30px_rgba(202,138,4,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-3 border-2 border-yellow-400 h-48 relative overflow-hidden group">
               <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <i data-lucide="globe" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
-              <span class="text-3xl font-black tracking-widest text-white relative z-10">BROWSE<br>LEVELS</span>
+              <i data-lucide="trophy" class="w-12 h-12 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
+              <span class="text-xl font-black tracking-widest text-white relative z-10 text-center">TOP<br>CREATORS</span>
             </button>
-            <button id="btnCreateLevel" class="p-8 bg-green-600 hover:bg-green-500 rounded-3xl shadow-[0_0_30px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-green-400 h-64 relative overflow-hidden group">
+            <button id="btnViewIconKit" class="p-6 bg-purple-600 hover:bg-purple-500 rounded-3xl shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-3 border-2 border-purple-400 h-48 relative overflow-hidden group">
               <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <i data-lucide="hammer" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
-              <span class="text-3xl font-black tracking-widest text-white relative z-10">CREATE<br>LEVEL</span>
+              <i data-lucide="box" class="w-12 h-12 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
+              <span class="text-xl font-black tracking-widest text-white relative z-10 text-center">ICON<br>KIT</span>
             </button>
-            <button id="btnViewLeaderboard" class="p-8 bg-yellow-600 hover:bg-yellow-500 rounded-3xl shadow-[0_0_30px_rgba(202,138,4,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-yellow-400 h-64 relative overflow-hidden group">
+            <button id="btnViewTreasure" class="p-6 bg-red-600 hover:bg-red-500 rounded-3xl shadow-[0_0_30px_rgba(239,68,68,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-3 border-2 border-red-400 h-48 relative overflow-hidden group">
               <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <i data-lucide="trophy" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
-              <span class="text-3xl font-black tracking-widest text-white relative z-10">TOP<br>CREATORS</span>
+              <i data-lucide="key" class="w-12 h-12 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
+              <span class="text-xl font-black tracking-widest text-white relative z-10 text-center">TREASURE<br>ROOM</span>
             </button>
           </div>
         </div>
@@ -345,13 +356,163 @@
           <div id="leaderboardViewList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
         </div>
 
+        <!-- ICON KIT VIEW -->
+        <div id="viewIconKit" class="hidden w-full bg-gray-800/90 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[700px] animate-pop">
+          <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center z-10">
+            <div class="flex items-center gap-4">
+              <button class="btnBackToMain text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+              <h3 class="text-xl font-bold flex items-center gap-2 text-white"><i data-lucide="box" class="w-6 h-6 text-purple-400"></i> Icon Kit</h3>
+            </div>
+          </div>
+          
+          <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
+             <!-- Preview Pane -->
+             <div class="md:w-1/3 bg-gray-900 border-r border-gray-700 p-8 flex flex-col items-center justify-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-blue-900/20"></div>
+                <div class="absolute bottom-0 w-full h-1/3 bg-blue-900/40 border-t-2 border-blue-500/50"></div>
+                
+                <h4 class="absolute top-6 text-gray-400 font-bold tracking-widest text-sm z-10">PREVIEW</h4>
+                <div id="kitPreviewContainer" class="w-32 h-32 relative z-10 drop-shadow-2xl">
+                   <!-- Injected SVG Preview -->
+                </div>
+             </div>
+             
+             <!-- Selection Pane -->
+             <div class="md:w-2/3 flex flex-col bg-gray-800">
+                <div class="flex border-b border-gray-700">
+                   <button class="kit-tab-btn active flex-1 py-4 font-bold text-white border-b-2 border-blue-500" data-tab="icons">Icons (<span id="kitCountIcons">1</span>/30)</button>
+                   <button class="kit-tab-btn flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="col1">Color 1 (<span id="kitCountCol1">1</span>/30)</button>
+                   <button class="kit-tab-btn flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="col2">Color 2 (<span id="kitCountCol2">1</span>/30)</button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-[#1a1a24]">
+                   <div id="kitGridIcons" class="grid grid-cols-4 sm:grid-cols-6 gap-4"></div>
+                   <div id="kitGridCol1" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridCol2" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                </div>
+             </div>
+          </div>
+        </div>
+
+        <!-- TREASURE ROOM VIEW -->
+        <div id="viewTreasure" class="hidden w-full bg-gray-900 backdrop-blur border-[4px] border-red-900 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.3)] flex flex-col min-h-[600px] animate-pop relative">
+          <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0icmdiYSgyNTUsIDAsIDAsIDAuMSkiLz48L3N2Zz4=')] opacity-50 pointer-events-none"></div>
+          
+          <div class="p-5 flex justify-between items-center relative z-10 bg-gradient-to-b from-red-950 to-transparent">
+            <button class="btnBackToMain text-red-400 hover:text-white transition-colors p-2 hover:bg-red-900/50 rounded-lg bg-black/50"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
+            <div class="bg-black/80 border-2 border-blue-500 rounded-xl px-6 py-2 flex items-center gap-3 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+               <span class="text-gray-300 font-bold uppercase text-sm">Your Keys:</span>
+               <span id="treasureKeyCount" class="text-3xl font-black text-blue-400 drop-shadow-md">0</span>
+               <i data-lucide="key" class="w-6 h-6 text-blue-400"></i>
+            </div>
+          </div>
+
+          <div class="flex-1 flex flex-col items-center justify-center p-8 relative z-10" id="treasureMainArea">
+             <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600 drop-shadow-lg text-center uppercase tracking-widest mb-2">Treasure Room</h2>
+             <p class="text-red-300 font-bold text-center mb-12 max-w-lg">Earn 1 Key for every 25 Stars collected! Unlock exclusive icons and colors to customize your cube.</p>
+             
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+                <!-- Wood Chest -->
+                <div class="bg-gray-800/80 border-2 border-gray-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-xl">
+                   <div class="w-32 h-32 bg-yellow-900 border-4 border-yellow-700 rounded-lg flex items-center justify-center shadow-inner mb-4 relative overflow-hidden">
+                      <div class="absolute top-1/2 left-0 w-full h-2 bg-yellow-950 -translate-y-1/2"></div>
+                      <div class="w-6 h-8 bg-gray-400 border-2 border-gray-600 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                   </div>
+                   <h3 class="text-xl font-bold text-white mb-1">Basic Chest</h3>
+                   <p class="text-xs text-gray-400 mb-4 h-8">Drops Common or Rare items.</p>
+                   <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="1" data-tier="wood">
+                      Open: 1 <i data-lucide="key" class="w-4 h-4"></i>
+                   </button>
+                </div>
+
+                <!-- Gold Chest -->
+                <div class="bg-yellow-900/30 border-2 border-yellow-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-[0_0_30px_rgba(202,138,4,0.2)]">
+                   <div class="w-32 h-32 bg-yellow-500 border-4 border-yellow-300 rounded-lg flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] mb-4 relative overflow-hidden">
+                      <div class="absolute top-1/2 left-0 w-full h-2 bg-yellow-700 -translate-y-1/2"></div>
+                      <div class="w-6 h-8 bg-gray-200 border-2 border-white rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                   </div>
+                   <h3 class="text-xl font-bold text-yellow-400 mb-1">Golden Chest</h3>
+                   <p class="text-xs text-yellow-200/70 mb-4 h-8">Drops Rare, Epic, or Legendary items.</p>
+                   <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="5" data-tier="gold">
+                      Open: 5 <i data-lucide="key" class="w-4 h-4"></i>
+                   </button>
+                </div>
+
+                <!-- Demon Chest -->
+                <div class="bg-red-900/30 border-2 border-red-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+                   <div class="w-32 h-32 bg-red-950 border-4 border-red-500 rounded-lg flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(239,68,68,0.5)] mb-4 relative overflow-hidden">
+                      <div class="absolute top-1/2 left-0 w-full h-2 bg-black -translate-y-1/2"></div>
+                      <div class="w-6 h-8 bg-red-600 border-2 border-red-300 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"><div class="w-1 h-2 bg-black rounded-full"></div></div>
+                   </div>
+                   <h3 class="text-xl font-bold text-red-500 mb-1">Demon Chest</h3>
+                   <p class="text-xs text-red-300/70 mb-4 h-8">Drops Epic, Legendary, or Mythic items.</p>
+                   <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="10" data-tier="demon">
+                      Open: 10 <i data-lucide="key" class="w-4 h-4"></i>
+                   </button>
+                </div>
+             </div>
+          </div>
+
+          <!-- Opening Animation Overlay -->
+          <div id="treasureOpenArea" class="hide absolute inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-8 backdrop-blur-md">
+             <div id="flashScreen" class="absolute inset-0 bg-white z-0 pointer-events-none opacity-0"></div>
+             
+             <div id="chestAnimContainer" class="relative z-10 w-48 h-48 mb-12">
+                <!-- Animated dynamically via JS -->
+             </div>
+
+             <div id="rewardsContainer" class="hide z-10 flex gap-6 md:gap-12 items-center justify-center w-full max-w-4xl perspective-1000">
+                <!-- Rewards injected here -->
+             </div>
+             
+             <button id="btnTreasureContinue" class="hide z-10 mt-16 px-12 py-4 bg-green-500 hover:bg-green-400 text-white font-black tracking-widest text-2xl rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-transform hover:scale-105 active:scale-95 animate-slide-up">CONTINUE</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYER PROFILE MODAL -->
+  <div id="profileModal" class="hide fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-gray-900 border-2 border-gray-600 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-md flex flex-col overflow-hidden relative animate-pop">
+      <div class="h-32 bg-gradient-to-br from-indigo-900 to-purple-900 relative">
+         <button id="btnCloseProfile" class="absolute top-4 right-4 text-white/70 hover:text-white bg-black/30 p-2 rounded-full transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="flex flex-col items-center px-6 pb-8 -mt-16 relative z-10">
+         <div class="w-32 h-32 rounded-full border-4 border-gray-900 bg-gray-800 shadow-xl overflow-hidden relative mb-4">
+            <img id="profModalImg" src="" class="w-full h-full object-cover">
+         </div>
+         <h2 id="profModalName" class="text-3xl font-black text-white mb-1 text-center">Username</h2>
+         <div id="profModalBadge" class="mb-4"></div>
+         
+         <div class="w-full bg-black/40 rounded-2xl p-4 border border-white/5 flex justify-around mb-6">
+            <div class="text-center">
+               <p class="text-gray-400 text-xs font-bold mb-1">STARS</p>
+               <p id="profModalStars" class="text-yellow-400 font-mono text-2xl font-bold">0</p>
+            </div>
+            <div class="w-px bg-white/10"></div>
+            <div class="text-center">
+               <p class="text-gray-400 text-xs font-bold mb-1">ICONS</p>
+               <p id="profModalIconCount" class="text-purple-400 font-mono text-2xl font-bold">1/30</p>
+            </div>
+            <div class="w-px bg-white/10"></div>
+            <div class="text-center">
+               <p class="text-gray-400 text-xs font-bold mb-1">COLORS</p>
+               <p id="profModalColorCount" class="text-blue-400 font-mono text-2xl font-bold">2/60</p>
+            </div>
+         </div>
+         
+         <div class="w-full bg-gray-800 rounded-xl p-6 border border-gray-700 flex flex-col items-center shadow-inner">
+            <p class="text-gray-500 text-xs font-bold tracking-widest mb-4">FAVORITE ICON</p>
+            <div id="profModalFavIcon" class="w-24 h-24 drop-shadow-2xl transform transition-transform hover:scale-110"></div>
+         </div>
       </div>
     </div>
   </div>
 
   <!-- GD LEVEL PREVIEW MODAL -->
   <div id="levelPreviewModal" class="hide fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
-    <div class="gd-blue-bg border-[4px] border-[#001155] rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden relative animate-pop shadow-[0_0_50px_rgba(0,85,255,0.4)]">
+    <div class="gd-blue-bg border-[4px] border-[#001155] rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden relative shadow-[0_0_50px_rgba(0,85,255,0.4)]">
       
       <!-- Top Bar: Back & Info -->
       <div class="absolute top-4 left-4 z-10 flex gap-2">
@@ -518,6 +679,99 @@
     const googleProvider = new GoogleAuthProvider();
 
     // ==========================================
+    // 🎨 ASSET DICTIONARIES (ICONS & COLORS)
+    // ==========================================
+    
+    // Generator for SVG paths for our 30 unique icons.
+    function getIconSVG(idStr, c1, c2) {
+       const id = parseInt(idStr.replace('i', ''));
+       let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; // Base Cube
+       
+       switch(id) {
+          // COMMONS (1-10)
+          case 1: content += `<rect x="25" y="30" width="15" height="15" fill="${c2}"/><rect x="60" y="30" width="15" height="15" fill="${c2}"/><rect x="25" y="65" width="50" height="10" fill="${c2}"/>`; break; // Classic Smile
+          case 2: content += `<rect x="25" y="40" width="15" height="10" fill="${c2}"/><rect x="60" y="40" width="15" height="10" fill="${c2}"/><path d="M 25 30 L 40 40 M 75 30 L 60 40" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="10" fill="${c2}"/>`; break; // Angry
+          case 3: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><path d="M 30 65 Q 50 85 70 65" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; // Happy
+          case 4: content += `<rect x="15" y="35" width="70" height="25" fill="#111" rx="5"/><circle cx="50" cy="47" r="8" fill="${c2}"/>`; break; // Cyclops
+          case 5: content += `<rect x="5" y="30" width="90" height="25" fill="${c2}"/><rect x="25" y="35" width="50" height="15" fill="${c1}"/><circle cx="35" cy="42" r="4" fill="${c2}"/><circle cx="65" cy="42" r="4" fill="${c2}"/>`; break; // Ninja
+          case 6: content += `<path d="M 25 30 L 40 45 L 25 60 M 75 30 L 60 45 L 75 60" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; // Dead
+          case 7: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><circle cx="50" cy="65" r="10" fill="${c2}"/>`; break; // Shocked
+          case 8: content += `<rect x="20" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><rect x="55" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 45 42 L 55 42" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="6" fill="${c2}"/>`; break; // Glasses
+          case 9: content += `<path d="M 30 45 L 45 45 L 45 30 L 30 30 Z" fill="${c2}"/><path d="M 55 45 L 70 45 L 70 30 L 55 30 Z" fill="${c2}"/><rect x="45" y="70" width="10" height="10" fill="${c2}"/>`; break; // Minecrafty
+          case 10: content += `<rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="4"/><rect x="25" y="25" width="50" height="50" fill="none" stroke="${c2}" stroke-width="4"/><rect x="35" y="35" width="30" height="30" fill="${c2}"/>`; break; // Tech Box
+          
+          // RARES (11-18)
+          case 11: content += `<circle cx="30" cy="40" r="12" fill="white"/><circle cx="30" cy="40" r="4" fill="${c2}"/><circle cx="70" cy="40" r="12" fill="white"/><circle cx="70" cy="40" r="4" fill="${c2}"/><path d="M 30 70 Q 50 60 70 70" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; // Crazy Eyes
+          case 12: content += `<path d="M 15 15 L 85 85 M 15 85 L 85 15" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; // X-Mark
+          case 13: content += `<rect x="5" y="5" width="45" height="90" fill="${c2}"/><circle cx="30" cy="45" r="10" fill="${c1}"/><circle cx="70" cy="45" r="10" fill="${c2}"/>`; break; // Two-Face
+          case 14: content += `<path d="M 50 15 L 85 85 L 15 85 Z" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="60" r="10" fill="${c2}"/>`; break; // Illuminati
+          case 15: content += `<rect x="20" y="20" width="60" height="60" rx="30" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 35 45 Q 50 20 65 45" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="65" r="8" fill="${c2}"/>`; break; // Alien
+          case 16: content += `<path d="M 5 50 L 95 50 M 50 5 L 50 95" stroke="${c2}" stroke-width="6"/><rect x="30" y="30" width="40" height="40" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; // Target
+          case 17: content += `<path d="M 25 35 Q 50 50 75 35" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><path d="M 35 65 Q 50 50 65 65" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; // Wavy
+          case 18: content += `<rect x="15" y="20" width="70" height="30" fill="${c2}" rx="15"/><rect x="25" y="25" width="50" height="20" fill="#111" rx="10"/><rect x="30" y="25" width="10" height="20" fill="${c1}"/><rect x="60" y="25" width="10" height="20" fill="${c1}"/><rect x="35" y="65" width="30" height="15" fill="${c2}" rx="5"/>`; break; // VR Headset
+          
+          // EPICS (19-24)
+          case 19: content += `<path d="M 20 5 L 35 25 L 15 35 Z M 80 5 L 65 25 L 85 35 Z" fill="${c2}"/><circle cx="35" cy="50" r="8" fill="${c2}"/><circle cx="65" cy="50" r="8" fill="${c2}"/><path d="M 30 75 Q 50 85 70 75" fill="none" stroke="${c2}" stroke-width="6"/>`; break; // Demon Horns
+          case 20: content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="10 5"/><circle cx="50" cy="50" r="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="${c1}"/>`; break; // Gear
+          case 21: content += `<path d="M 15 50 Q 50 15 85 50 Q 50 85 15 50" fill="${c2}"/><circle cx="50" cy="50" r="12" fill="#111"/><circle cx="50" cy="50" r="4" fill="${c1}"/>`; break; // Dragon Eye
+          case 22: content += `<rect x="5" y="5" width="90" height="90" fill="none" stroke="${c2}" stroke-width="8" rx="20"/><path d="M 25 25 L 75 75 M 25 75 L 75 25" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; // Mecha
+          case 23: content += `<path d="M 50 5 L 60 40 L 95 50 L 60 60 L 50 95 L 40 60 L 5 50 L 40 40 Z" fill="${c2}"/><circle cx="50" cy="50" r="10" fill="${c1}"/>`; break; // Starburst
+          case 24: content += `<rect x="25" y="25" width="20" height="20" fill="${c2}"/><rect x="55" y="25" width="20" height="20" fill="${c2}"/><rect x="25" y="55" width="20" height="20" fill="${c2}"/><rect x="55" y="55" width="20" height="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="#111"/>`; break; // Quad-Core
+          
+          // LEGENDARIES (25-28)
+          case 25: content += `<path d="M 15 35 L 30 10 L 50 25 L 70 10 L 85 35 Z" fill="${c2}"/><rect x="25" y="45" width="15" height="15" fill="${c2}"/><rect x="60" y="45" width="15" height="15" fill="${c2}"/><path d="M 40 75 L 60 75" stroke="${c2}" stroke-width="6"/>`; break; // The King
+          case 26: content += `<circle cx="50" cy="50" r="40" fill="none" stroke="${c2}" stroke-width="4"/><path d="M 50 10 L 50 90 M 10 50 L 90 50 M 22 22 L 78 78 M 22 78 L 78 22" stroke="${c2}" stroke-width="4"/><circle cx="50" cy="50" r="15" fill="${c2}"/><circle cx="50" cy="50" r="6" fill="${c1}"/>`; break; // Compass
+          case 27: content += `<path d="M 5 50 Q 50 -10 95 50 Q 50 110 5 50" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c2}"/><path d="M 45 45 L 55 55 M 55 45 L 45 55" stroke="${c1}" stroke-width="4"/>`; break; // Cosmic Eye
+          case 28: content += `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${c2}" stroke-width="8" transform="rotate(45 50 50)"/><rect x="35" y="35" width="30" height="30" fill="${c2}" transform="rotate(45 50 50)"/>`; break; // Diamond Core
+
+          // MYTHICS (29-30) - These contain CSS animations!
+          case 29: content += `
+             <style>.mythic-spin { transform-origin: 50px 50px; animation: m-spin 3s linear infinite; } @keyframes m-spin { 100% { transform: rotate(360deg); } }</style>
+             <circle cx="50" cy="50" r="42" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="15 15" class="mythic-spin"/>
+             <path d="M 50 15 L 60 40 L 95 50 L 60 60 L 50 85 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="mythic-spin" style="animation-direction: reverse; animation-duration: 4s;"/>
+             <circle cx="50" cy="50" r="12" fill="${c2}"/>`; break; // The Void
+          case 30: content += `
+             <style>.mythic-pulse { transform-origin: 50px 50px; animation: m-pulse 1s ease-in-out infinite alternate; } @keyframes m-pulse { 0% { transform: scale(0.8); opacity: 0.8;} 100% { transform: scale(1.1); opacity: 1;} }</style>
+             <rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="35" class="mythic-pulse"/>
+             <rect x="30" y="30" width="40" height="40" fill="${c2}" stroke="${c1}" stroke-width="4" transform="rotate(45 50 50)"/>
+             <circle cx="50" cy="50" r="8" fill="#fff" class="mythic-pulse" style="animation-delay: -0.5s;"/>`; break; // Pulsar
+       }
+       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
+    }
+
+    const ALL_ICONS = Array.from({length: 30}, (_, i) => {
+       let id = `i${i+1}`;
+       let rarity = i < 10 ? 'common' : i < 18 ? 'rare' : i < 24 ? 'epic' : i < 28 ? 'legendary' : 'mythic';
+       return { id, rarity };
+    });
+
+    // 30 Colors generated programmatically
+    const BASE_HUES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
+    const ALL_COLORS = [];
+    // Commons (Basic Brights)
+    BASE_HUES.forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 50%)`, rarity: 'common' }));
+    // Rares (Pastels)
+    BASE_HUES.slice(0, 8).forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 80%)`, rarity: 'rare' }));
+    // Epics (Darks)
+    BASE_HUES.slice(0, 6).forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 25%)`, rarity: 'epic' }));
+    // Legendaries (Pure/Neutrals)
+    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#ffffff', rarity: 'legendary' });
+    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#aaaaaa', rarity: 'legendary' });
+    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#222222', rarity: 'legendary' });
+    // Mythic (Special Neons)
+    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#ff00ff', rarity: 'mythic' });
+
+    // Caching the player sprite for the game loop
+    let cachedPlayerImg = new Image();
+    function updatePlayerSprite() {
+       if (!myProfile) return;
+       const c1 = ALL_COLORS.find(c => c.id === myProfile.equippedCol1)?.val || '#00f0ff';
+       const c2 = ALL_COLORS.find(c => c.id === myProfile.equippedCol2)?.val || '#ffffff';
+       const svg = getIconSVG(myProfile.equippedIcon, c1, c2);
+       cachedPlayerImg.src = "data:image/svg+xml;base64," + btoa(svg);
+    }
+
+    // ==========================================
     // 🌐 APP STATE (TOP LEVEL VARIABLES)
     // ==========================================
     let currentUser = null, myProfile = null;
@@ -566,121 +820,6 @@
     }
 
     // ==========================================
-    // UTILS & TROLL EVENTS
-    // ==========================================
-    function getDefaultAvatar(username) { 
-      return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`; 
-    }
-
-    function applyTrollEffect(trollType) {
-      if (myProfile && (myProfile.role === 'king' || myProfile.role === 'admin') && trollType !== '') return; 
-      if (!trollType) { clearTrollEffects(); return; } 
-
-      clearTrollEffects();
-      const b = document.getElementById('mainBody');
-      if (trollType === 'troll_earthquake') b.classList.add('troll-earthquake');
-      else if (trollType === 'troll_spin') b.classList.add('troll-spin');
-      else if (trollType === 'troll_tiny') b.classList.add('troll-tiny');
-      else if (trollType === 'troll_invert') b.classList.add('troll-invert');
-      
-      if (activeTrollTimeout) clearTimeout(activeTrollTimeout);
-      activeTrollTimeout = setTimeout(async () => {
-        clearTrollEffects();
-        if (myProfile && myProfile.trollEvent) { 
-          try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { trollEvent: '' }, { merge: true }); } catch(e){} 
-        }
-        if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
-          try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: '' }, { merge: true }); } catch(e){} 
-        }
-      }, 10000);
-    }
-
-    function clearTrollEffects() { 
-      document.getElementById('mainBody').classList.remove('troll-earthquake', 'troll-spin', 'troll-tiny', 'troll-invert'); 
-    }
-
-    // ==========================================
-    // 🎵 AUDIO ENGINE
-    // ==========================================
-    let audioCtx, noiseBuffer, isMusicOn = false, nextNoteTime = 0, current16thNote = 0, tempo = 140;
-
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
-        const out = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < out.length; i++) out[i] = Math.random() * 2 - 1;
-      }
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
-    function playKick(time) {
-      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.frequency.setValueAtTime(150, time); osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
-      gain.gain.setValueAtTime(1, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
-      osc.start(time); osc.stop(time + 0.5);
-    }
-    function playSnare(time) {
-      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.frequency.setValueAtTime(250, time); osc.frequency.exponentialRampToValueAtTime(100, time + 0.1);
-      gain.gain.setValueAtTime(0.6, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
-      osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.1);
-      if (noiseBuffer) {
-        const ns = audioCtx.createBufferSource(), nf = audioCtx.createBiquadFilter(), ng = audioCtx.createGain();
-        ns.buffer = noiseBuffer; nf.type = 'highpass'; nf.frequency.value = 1000;
-        ng.gain.setValueAtTime(0.6, time); ng.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
-        ns.connect(nf); nf.connect(ng); ng.connect(audioCtx.destination); ns.start(time); ns.stop(time + 0.2);
-      }
-    }
-    function playHiHat(time, isOpen) {
-      if (!noiseBuffer || !audioCtx) return; const dur = isOpen ? 0.25 : 0.05;
-      const ns = audioCtx.createBufferSource(), nf = audioCtx.createBiquadFilter(), ng = audioCtx.createGain();
-      ns.buffer = noiseBuffer; nf.type = 'highpass'; nf.frequency.value = 6000;
-      ng.gain.setValueAtTime(0.3, time); ng.gain.exponentialRampToValueAtTime(0.01, time + dur);
-      ns.connect(nf); nf.connect(ng); ng.connect(audioCtx.destination); ns.start(time); ns.stop(time + dur);
-    }
-    function playBass(time, note, filterFreq) {
-      if (!note || !audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(), filter = audioCtx.createBiquadFilter();
-      osc.type = 'sawtooth'; osc.frequency.value = 440 * Math.pow(2, (note - 69) / 12);
-      filter.type = 'lowpass'; filter.frequency.setValueAtTime(filterFreq, time); filter.frequency.exponentialRampToValueAtTime(200, time + 0.2);
-      gain.gain.setValueAtTime(0.3, time); gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
-      osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.25);
-    }
-    function playArp(time, note) {
-      if(!audioCtx) return; const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-      osc.type = 'square'; osc.frequency.value = 440 * Math.pow(2, (note - 69) / 12);
-      gain.gain.setValueAtTime(0.08, time); gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
-      osc.connect(gain); gain.connect(audioCtx.destination); osc.start(time); osc.stop(time + 0.1);
-    }
-    function scheduleAudio() {
-      if (!isMusicOn || !audioCtx) return;
-      while (nextNoteTime < audioCtx.currentTime + 0.1) {
-        const loopPos = current16thNote % 512, bar = Math.floor(loopPos / 16), step = loopPos % 16; 
-        const isBuild = bar >= 8 && bar < 16, isDrop = bar >= 16 && bar < 24, isBreak = bar >= 24;
-
-        if (!isBreak && step % 4 === 0) playKick(nextNoteTime);
-        if (isBuild && bar === 15 && step >= 8 && step % 2 === 0) playKick(nextNoteTime);
-        if ((isBuild || isDrop) && (step === 4 || step === 12)) playSnare(nextNoteTime);
-        if (isBuild && bar === 15 && step >= 8) playSnare(nextNoteTime);
-        if (isDrop) { if (step % 2 !== 0) playHiHat(nextNoteTime, true); else playHiHat(nextNoteTime, false); } 
-        else if (isBuild || isBreak) { if (step % 2 === 0) playHiHat(nextNoteTime, false); }
-
-        const seqA = [36, 0, 36, 36, 48, 0, 36, 0, 39, 0, 39, 39, 51, 0, 39, 0], seqB = [44, 0, 44, 44, 56, 0, 44, 0, 41, 0, 41, 41, 53, 0, 41, 0], seqDrop = [36, 36, 48, 36, 39, 39, 51, 39, 44, 44, 56, 44, 41, 41, 53, 41];
-        let currentSeq = (bar % 4 >= 2) ? seqB : seqA; if (isDrop) currentSeq = (bar % 2 === 0) ? seqDrop : seqB;
-        
-        let filterFreq = 1500;
-        if (isBuild) filterFreq = 1000 + ((loopPos - 128) / 128) * 4000; else if (isDrop) filterFreq = 5000; else if (isBreak) filterFreq = 800;
-        if (currentSeq[step] > 0) playBass(nextNoteTime, currentSeq[step], filterFreq);
-
-        if (isBuild || isDrop || isBreak) {
-          const arpNotes = [60, 63, 67, 72, 67, 63]; let arpNote = arpNotes[step % arpNotes.length];
-          if (isDrop) arpNote += 12; if (isDrop || step % 2 === 0) playArp(nextNoteTime, arpNote);
-        }
-        nextNoteTime += 0.25 * (60.0 / tempo); current16thNote++;
-      }
-    }
-
-    // ==========================================
     // 🎮 GAME ENGINE CORE & EDITOR STATE
     // ==========================================
     const canvas = document.getElementById('gameCanvas');
@@ -692,7 +831,7 @@
     const SHIP_GRAVITY = 0.55, SHIP_THRUST = -1.0;
     
     let groundY = 0;
-    const DEFAULT_BG = [26, 26, 36], C_BLOCK = '#1a5f7a', C_BLOCK_OUTLINE = '#22d3ee', C_SPIKE = '#ff2a6d', C_PLAYER = '#00f0ff', C_PLAYER_TRAIL = 'rgba(0, 240, 255, 0.3)';
+    const DEFAULT_BG = [26, 26, 36], C_BLOCK = '#1a5f7a', C_BLOCK_OUTLINE = '#22d3ee', C_SPIKE = '#ff2a6d';
 
     let state = { mode: 'menu', isPlaytesting: false, cameraX: 0, cameraY: 0, attempts: 1, particles: [], trail: [], currentPath: [], savedPath: [], bgColor: [...DEFAULT_BG], targetBgColor: [...DEFAULT_BG], win: false };
     let bgParticles = Array.from({length: 60}, () => ({ x: Math.random() * 2000, y: Math.random() * 2000, s: Math.random() * 4 + 2, spd: Math.random() * 0.4 + 0.1, op: Math.random() * 0.3 + 0.1 }));
@@ -718,7 +857,6 @@
       state.cameraX = 0; state.cameraY = 0; state.particles = []; state.trail = []; state.currentPath = []; state.bgColor = [...DEFAULT_BG]; state.targetBgColor = [...DEFAULT_BG]; state.win = false;
       document.getElementById('winOverlay').classList.add('hide');
       
-      // Calculate max X for progress bar
       levelMaxX = 1;
       for (let o of level) if (o.gx > levelMaxX) levelMaxX = o.gx;
       levelMaxX *= GRID_SIZE;
@@ -728,12 +866,12 @@
     function die() {
       if (player.dead) return; player.dead = true; state.savedPath = [...state.currentPath]; 
       let pSize = 30 * player.sizeMultiplier;
-      for(let i=0; i<30; i++) state.particles.push({ x: player.x + pSize/2, y: player.y + pSize/2, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 1.0, color: Math.random() > 0.5 ? C_PLAYER : '#ffffff' });
+      let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
+      let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
       
-      // Save progress if it's the real game mode
-      if (state.mode === 'play' && !state.isPlaytesting && currentPreviewLevel) {
-         saveProgress(player.progress);
-      }
+      for(let i=0; i<30; i++) state.particles.push({ x: player.x + pSize/2, y: player.y + pSize/2, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 1.0, color: Math.random() > 0.5 ? c1 : c2 });
+      
+      if (state.mode === 'play' && !state.isPlaytesting && currentPreviewLevel) saveProgress(player.progress);
       setTimeout(() => { state.attempts++; document.getElementById('stats').innerText = `Attempt ${state.attempts}`; resetPlayer(); }, 500);
     }
 
@@ -757,7 +895,7 @@
            currentSaved[currentPreviewLevel.id] = prog;
            await setDoc(uRef, { progress: currentSaved }, { merge: true });
         }
-      } catch(e) { console.log("Progress save failed"); }
+      } catch(e) {}
     }
 
     function updateProgressBar(pct) {
@@ -822,7 +960,6 @@
 
         player.x += BASE_MOVE_SPEED * player.speedMultiplier;
         
-        // Progress tracking
         if (!state.isPlaytesting) {
           let curPct = Math.min(100, Math.floor((player.x / levelMaxX) * 100));
           if (curPct > player.progress) {
@@ -873,13 +1010,12 @@
               if (obj.type === 10) player.speedMultiplier = 0.75; if (obj.type === 11) player.speedMultiplier = 1.0; if (obj.type === 12) player.speedMultiplier = 1.35;
             }
           }
-          else if (obj.type === 28 || obj.type === 29) { // Size Portals
+          else if (obj.type === 28 || obj.type === 29) { 
             if (checkRectCollision(pBox, { x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 })) {
               let oldSize = player.sizeMultiplier;
               if (obj.type === 28) player.sizeMultiplier = 0.5;
               if (obj.type === 29) player.sizeMultiplier = 1.0;
               if (oldSize !== player.sizeMultiplier) {
-                 // Adjust Y position slightly so we don't clip into ground when growing
                  let nSize = 30 * player.sizeMultiplier;
                  if (player.grounded) nextY = player.y + (30*oldSize) - nSize;
                  pSize = nSize;
@@ -889,15 +1025,15 @@
           else if (obj.type === 1 || obj.type === 20) { 
             let sBox = { x: objX + 10, y: objY + 10, w: GRID_SIZE - 20, h: GRID_SIZE - 20 };
             if (obj.rot === 0 || !obj.rot) sBox = { x: objX + 8, y: objY + 16, w: GRID_SIZE - 16, h: GRID_SIZE - 16 };
-            if (obj.type === 20) sBox = { x: objX + 12, y: objY + 24, w: GRID_SIZE - 24, h: GRID_SIZE - 24 }; // Mini spike
+            if (obj.type === 20) sBox = { x: objX + 12, y: objY + 24, w: GRID_SIZE - 24, h: GRID_SIZE - 24 };
             if (checkRectCollision(pBox, sBox)) hitDeath = true;
           } 
-          else if (obj.type === 21) { // Sawblade circle collision
+          else if (obj.type === 21) {
              let sCx = objX + GRID_SIZE/2, sCy = objY + GRID_SIZE/2;
              let pCx = pBox.x + pBox.w/2, pCy = pBox.y + pBox.h/2;
              if (Math.hypot(pCx - sCx, pCy - sCy) < (GRID_SIZE/2 - 4) + pBox.w/2 - 2) hitDeath = true;
           }
-          else if ([2, 22, 24, 26].includes(obj.type)) { // Pads
+          else if ([2, 22, 24, 26].includes(obj.type)) { 
             let padBox = { x: objX, y: objY + GRID_SIZE - 10, w: GRID_SIZE, h: 10 };
             if (obj.rot === 90) padBox = { x: objX, y: objY, w: 10, h: GRID_SIZE }; if (obj.rot === 180) padBox = { x: objX, y: objY, w: GRID_SIZE, h: 10 }; if (obj.rot === 270) padBox = { x: objX + GRID_SIZE - 10, y: objY, w: 10, h: GRID_SIZE };
             if (checkRectCollision(pBox, padBox)) {
@@ -924,7 +1060,7 @@
             }
           }
           else if (obj.type === 0 || obj.type === 19) { 
-            if (obj.type === 19) oBox = { x: objX, y: objY + GRID_SIZE/2, w: GRID_SIZE, h: GRID_SIZE/2 }; // Half block
+            if (obj.type === 19) oBox = { x: objX, y: objY + GRID_SIZE/2, w: GRID_SIZE, h: GRID_SIZE/2 };
             if (checkRectCollision(pBox, oBox)) {
               if (player.gamemode === 1) hitDeath = true;
               else {
@@ -1012,12 +1148,7 @@
 
         ctx.save(); ctx.translate(px + GRID_SIZE/2, py + GRID_SIZE/2); 
         
-        // Custom animation for sawblades
-        if (obj.type === 21) {
-           ctx.rotate(((Date.now() / 150) % (Math.PI * 2)));
-        } else if (obj.rot) {
-           ctx.rotate(obj.rot * Math.PI / 180);
-        }
+        if (obj.type === 21) { ctx.rotate(((Date.now() / 150) % (Math.PI * 2))); } else if (obj.rot) { ctx.rotate(obj.rot * Math.PI / 180); }
         
         let s2 = GRID_SIZE / 2;
 
@@ -1028,8 +1159,8 @@
         else if (obj.type >= 10 && obj.type <= 12) { ctx.fillStyle = obj.type === 10 ? 'rgba(249, 115, 22, 0.3)' : (obj.type === 11 ? 'rgba(74, 222, 128, 0.3)' : 'rgba(236, 72, 153, 0.3)'); ctx.strokeStyle = obj.type === 10 ? '#f97316' : (obj.type === 11 ? '#4ade80' : '#ec4899'); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, -GRID_SIZE); ctx.lineTo(15, 0); ctx.lineTo(0, GRID_SIZE); ctx.lineTo(-15, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = ctx.strokeStyle; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(obj.type === 10 ? '<' : (obj.type === 11 ? '>>' : '>>>'), 0, 0); } 
         else if (obj.type === 18) { ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; ctx.fillRect(-s2, -GRID_SIZE*10, GRID_SIZE, GRID_SIZE*20); ctx.fillStyle = 'rgba(250, 204, 21, 0.3)'; ctx.fillRect(-s2 - 10, -GRID_SIZE*10, GRID_SIZE + 20, GRID_SIZE*20); ctx.strokeStyle = '#facc15'; ctx.lineWidth = 4; ctx.strokeRect(-s2, -GRID_SIZE*10, GRID_SIZE, GRID_SIZE*20); } 
         else if (obj.type === 1) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, -s2); ctx.lineTo(s2, s2); ctx.lineTo(-s2, s2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#ff7b9f'; ctx.beginPath(); ctx.moveTo(0, -s2 + 8); ctx.lineTo(s2 - 6, s2 - 2); ctx.lineTo(-s2 + 6, s2 - 2); ctx.closePath(); ctx.fill(); } 
-        else if (obj.type === 20) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(12, s2); ctx.lineTo(-12, s2); ctx.closePath(); ctx.fill(); } // Mini spike 
-        else if (obj.type === 21) { ctx.fillStyle = '#4b5563'; ctx.beginPath(); ctx.arc(0, 0, s2-4, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -s2+8, 3, 0, Math.PI*2); ctx.fill(); } // Sawblade
+        else if (obj.type === 20) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(12, s2); ctx.lineTo(-12, s2); ctx.closePath(); ctx.fill(); } 
+        else if (obj.type === 21) { ctx.fillStyle = '#4b5563'; ctx.beginPath(); ctx.arc(0, 0, s2-4, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -s2+8, 3, 0, Math.PI*2); ctx.fill(); } 
         else if ([2, 22, 24, 26].includes(obj.type)) { 
             let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#facc15';
             let pDark = obj.type===22?'#db2777':obj.type===24?'#b91c1c':obj.type===26?'#1d4ed8':'#b45309';
@@ -1046,8 +1177,8 @@
           if (obj.type === 7) { pColorStr = '#4ade80'; pFillStr = 'rgba(74, 222, 128, 0.3)'; } 
           if (obj.type === 8) { pColorStr = '#ec4899'; pFillStr = 'rgba(236, 72, 153, 0.3)'; } 
           if (obj.type === 9) { pColorStr = '#a855f7'; pFillStr = 'rgba(168, 85, 247, 0.3)'; } 
-          if (obj.type === 28) { pColorStr = '#e879f9'; pFillStr = 'rgba(232, 121, 249, 0.3)'; wMult=0.7; } // Mini portal
-          if (obj.type === 29) { pColorStr = '#34d399'; pFillStr = 'rgba(52, 211, 153, 0.3)'; wMult=0.8; } // Normal portal
+          if (obj.type === 28) { pColorStr = '#e879f9'; pFillStr = 'rgba(232, 121, 249, 0.3)'; wMult=0.7; } 
+          if (obj.type === 29) { pColorStr = '#34d399'; pFillStr = 'rgba(52, 211, 153, 0.3)'; wMult=0.8; } 
           
           ctx.strokeStyle = pColorStr; ctx.fillStyle = pFillStr; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(0, 0, 12*wMult, GRID_SIZE*(obj.type>=28?0.7:1), 0, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 6*wMult, (GRID_SIZE - 8)*(obj.type>=28?0.7:1), 0, 0, Math.PI * 2); ctx.stroke();
         }
@@ -1055,8 +1186,11 @@
       }
 
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
+        let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
+        let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
+
         if (player.gamemode === 1) { 
-          ctx.strokeStyle = C_PLAYER_TRAIL; ctx.lineWidth = (30 * player.sizeMultiplier) - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+          ctx.strokeStyle = c1 + '55'; ctx.lineWidth = (30 * player.sizeMultiplier) - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
           for (let i = 0; i < state.trail.length; i++) { 
              let t = state.trail[i]; let ts = 30*t.size;
              if (i === 0) ctx.moveTo(t.x + ts/2, t.y + ts/2); else ctx.lineTo(t.x + ts/2, t.y + ts/2); 
@@ -1066,7 +1200,8 @@
         } else {
           state.trail.forEach((t, i) => { 
              let ts = 30*t.size;
-             ctx.save(); ctx.translate(t.x + ts/2, t.y + ts/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); ctx.fillStyle = `rgba(0, 240, 255, ${i / 15})`; ctx.fillRect(-ts/2, -ts/2, ts, ts); ctx.restore(); 
+             ctx.save(); ctx.translate(t.x + ts/2, t.y + ts/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); 
+             ctx.fillStyle = c1; ctx.globalAlpha = i / 30; ctx.fillRect(-ts/2, -ts/2, ts, ts); ctx.restore(); 
           });
         }
       }
@@ -1074,11 +1209,36 @@
       if (!player.dead) {
         let pSize = 30 * player.sizeMultiplier;
         ctx.save(); ctx.translate(player.x + pSize/2, player.y + pSize/2); ctx.rotate(player.rotation * Math.PI / 180); ctx.scale(player.sizeMultiplier, player.gravityDir * player.sizeMultiplier); 
-        const drawFace = () => { ctx.fillStyle = '#111'; ctx.fillRect(-8, -6, 4, 4); ctx.fillRect(4, -6, 4, 4); ctx.fillRect(-6, 2, 12, 3); };
-        if (player.gamemode === 1) { ctx.fillStyle = C_PLAYER; ctx.beginPath(); ctx.moveTo(30/2, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/4, 0); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke(); } 
-        else if (player.gamemode === 2) { ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.moveTo(30/2 + 5, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
-        else if (player.gamemode === 3) { ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.ellipse(0, 0, 30/1.2, 30/3, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(0, -30/6, 30/2.5, Math.PI, 0); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
-        else { ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/2, -30/2, 30, 30); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(-30/2, -30/2, 30, 30); drawFace(); }
+        
+        let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
+        let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
+
+        if (player.gamemode === 1) { 
+           ctx.fillStyle = c1; ctx.beginPath(); ctx.moveTo(30/2, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/4, 0); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); 
+           ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.stroke(); 
+           if(cachedPlayerImg.complete && cachedPlayerImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-20, -15); ctx.drawImage(cachedPlayerImg, 0, 0, 30, 30); ctx.restore(); }
+        } 
+        else if (player.gamemode === 2) { 
+           ctx.fillStyle = c2; ctx.beginPath(); ctx.moveTo(30/2 + 5, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); 
+           ctx.fillStyle = c1; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.strokeRect(-30/4, -30/4, 30/2, 30/2); 
+           if(cachedPlayerImg.complete && cachedPlayerImg.src) { ctx.save(); ctx.scale(0.5, 0.5); ctx.translate(-15, -15); ctx.drawImage(cachedPlayerImg, 0, 0, 30, 30); ctx.restore(); }
+        } 
+        else if (player.gamemode === 3) { 
+           ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(0, 0, 30/1.2, 30/3, 0, 0, Math.PI*2); ctx.fill(); 
+           ctx.fillStyle = c1+'aa'; ctx.beginPath(); ctx.arc(0, -30/6, 30/2.5, Math.PI, 0); ctx.fill(); 
+           if(cachedPlayerImg.complete && cachedPlayerImg.src) { ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); ctx.translate(-15, -15); ctx.drawImage(cachedPlayerImg, 0, 0, 30, 30); ctx.restore(); }
+        } 
+        else { 
+           if (cachedPlayerImg.complete && cachedPlayerImg.src) {
+              // Pulse effect for Mythics
+              let r = ALL_ICONS.find(i=>i.id===(myProfile?myProfile.equippedIcon:'i1'))?.rarity;
+              if (r==='mythic') { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 15 + Math.sin(Date.now()/150)*5; }
+              ctx.drawImage(cachedPlayerImg, -15, -15, 30, 30); 
+              ctx.shadowBlur = 0;
+           } else {
+              ctx.fillStyle = c1; ctx.fillRect(-30/2, -30/2, 30, 30); ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.strokeRect(-30/2, -30/2, 30, 30); 
+           }
+        }
         ctx.restore();
       }
 
@@ -1160,6 +1320,7 @@
       
       if (editor.swipeEnabled) {
         if (editor.mode === 'edit') {
+          editor.selectedObjs = []; updateEditPanelUI();
           const p = getGridPos(e.clientX, e.clientY);
           editor.selBox = { sx: p.worldX, sy: p.worldY, ex: p.worldX, ey: p.worldY };
         } else {
@@ -1219,23 +1380,17 @@
     });
 
     document.addEventListener('keydown', (e) => {
-      // Don't intercept typing in inputs or textareas
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
       if (e.code === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); return; }
       if (e.code === 'KeyT') { document.getElementById('btnSwipeToggle').click(); e.preventDefault(); return; }
 
-      // Z to Playtest/Exit
       if (e.code === 'KeyZ' && !e.ctrlKey && !e.metaKey) {
-          if (state.mode === 'edit') {
-              document.getElementById('btnPlaytest').click();
-          } else if (state.isPlaytesting) {
-              document.getElementById('btnExitGame').click();
-          }
+          if (state.mode === 'edit') document.getElementById('btnPlaytest').click();
+          else if (state.isPlaytesting) document.getElementById('btnExitGame').click();
           return;
       }
 
-      // Undo / Redo / Duplicate Shortcuts
       if (e.ctrlKey || e.metaKey) {
           if (e.code === 'KeyZ') { undo(); e.preventDefault(); return; }
           if (e.code === 'KeyY') { redo(); e.preventDefault(); return; }
@@ -1247,7 +1402,6 @@
       } 
       else if (state.mode === 'edit') {
           let isWASD = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code);
-          
           if (editor.selectedObjs.length > 0 && isWASD) {
              if (e.code === 'KeyW') document.getElementById('btnNudgeUp').click();
              if (e.code === 'KeyA') document.getElementById('btnNudgeLeft').click();
@@ -1260,7 +1414,6 @@
              if(e.code === 'ArrowDown' || (!editor.selectedObjs.length && e.code === 'KeyS')) state.cameraY += GRID_SIZE;
              state.cameraX = Math.max(0, state.cameraX);
           }
-          
           if (editor.selectedObjs.length > 0) {
              if (e.code === 'KeyQ') document.getElementById('btnEditRotLeft').click();
              if (e.code === 'KeyE') document.getElementById('btnEditRotRight').click();
@@ -1337,48 +1490,32 @@
     
     document.getElementById('btnEditRotLeft').addEventListener('click', () => { 
        if(editor.selectedObjs.length === 0) return;
-       if(editor.selectedObjs.length === 1) {
-          editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) - 90 + 360) % 360;
-       } else {
-          // Group Rotation Math
-          let minX = Math.min(...editor.selectedObjs.map(o => o.gx));
-          let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
-          let minY = Math.min(...editor.selectedObjs.map(o => o.gy));
-          let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
-          let cx = (minX + maxX) / 2;
-          let cy = (minY + maxY) / 2;
+       if(editor.selectedObjs.length === 1) { editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) - 90 + 360) % 360; } 
+       else {
+          let minX = Math.min(...editor.selectedObjs.map(o => o.gx)); let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
+          let minY = Math.min(...editor.selectedObjs.map(o => o.gy)); let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
+          let cx = (minX + maxX) / 2; let cy = (minY + maxY) / 2;
           editor.selectedObjs.forEach(o => {
-              let dx = o.gx - cx;
-              let dy = o.gy - cy;
-              o.gx = cx - dy; // Rotate Left (Counter-Clockwise)
-              o.gy = cy + dx; 
+              let dx = o.gx - cx; let dy = o.gy - cy;
+              o.gx = cx - dy; o.gy = cy + dx; 
               o.rot = ((o.rot||0) - 90 + 360) % 360;
           });
-       }
-       saveHistory();
+       } saveHistory();
     });
 
     document.getElementById('btnEditRotRight').addEventListener('click', () => { 
        if(editor.selectedObjs.length === 0) return;
-       if(editor.selectedObjs.length === 1) {
-          editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) + 90) % 360;
-       } else {
-          // Group Rotation Math
-          let minX = Math.min(...editor.selectedObjs.map(o => o.gx));
-          let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
-          let minY = Math.min(...editor.selectedObjs.map(o => o.gy));
-          let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
-          let cx = (minX + maxX) / 2;
-          let cy = (minY + maxY) / 2;
+       if(editor.selectedObjs.length === 1) { editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) + 90) % 360; } 
+       else {
+          let minX = Math.min(...editor.selectedObjs.map(o => o.gx)); let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
+          let minY = Math.min(...editor.selectedObjs.map(o => o.gy)); let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
+          let cx = (minX + maxX) / 2; let cy = (minY + maxY) / 2;
           editor.selectedObjs.forEach(o => {
-              let dx = o.gx - cx;
-              let dy = o.gy - cy;
-              o.gx = cx + dy; // Rotate Right (Clockwise)
-              o.gy = cy - dx; 
+              let dx = o.gx - cx; let dy = o.gy - cy;
+              o.gx = cx + dy; o.gy = cy - dx; 
               o.rot = ((o.rot||0) + 90) % 360;
           });
-       }
-       saveHistory();
+       } saveHistory();
     });
 
     document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear entire level?")) { level = []; editor.selectedObjs = []; updateEditPanelUI(); saveHistory(); } });
@@ -1416,15 +1553,10 @@
     });
 
     document.getElementById('btnMusic').addEventListener('click', () => {
-      initAudio();
-      isMusicOn = !isMusicOn;
+      initAudio(); isMusicOn = !isMusicOn;
       document.getElementById('btnMusic').innerText = isMusicOn ? '🎵 Music: ON' : '🎵 Music: OFF';
       document.getElementById('btnMusic').className = isMusicOn ? 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-white font-bold transition-colors shadow' : 'px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow';
-      
-      // Reset the note timer to current time so we don't play a massive backlog of notes at once
-      if (isMusicOn && audioCtx) {
-         nextNoteTime = audioCtx.currentTime + 0.1;
-      }
+      if (isMusicOn && audioCtx) { nextNoteTime = audioCtx.currentTime + 0.1; }
     });
 
     document.getElementById('btnPublish').addEventListener('click', async () => {
@@ -1436,7 +1568,7 @@
         const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
         await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, difficulty: 'NA', stars: 0, likes: [], comments: [], createdAt: Date.now() });
         alert("Level published successfully!"); document.getElementById('btnExitGame').click(); 
-      } catch(e) { alert("Failed to publish."); console.error(e); }
+      } catch(e) { alert("Failed to publish."); }
     });
 
     // ==========================================
@@ -1448,11 +1580,18 @@
     const adminPanelModal = document.getElementById('adminPanelModal'), adminCommandForm = document.getElementById('adminCommandForm');
     const loggedInSection = document.getElementById('loggedInSection');
     const viewMainMenu = document.getElementById('viewMainMenu'), viewBrowser = document.getElementById('viewBrowser'), viewLeaderboard = document.getElementById('viewLeaderboard');
+    const viewIconKit = document.getElementById('viewIconKit'), viewTreasure = document.getElementById('viewTreasure');
 
     document.getElementById('btnViewBrowser').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewBrowser.classList.remove('hidden'); });
     document.getElementById('btnViewLeaderboard').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewLeaderboard.classList.remove('hidden'); });
+    document.getElementById('btnViewIconKit').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewIconKit.classList.remove('hidden'); renderIconKit(); });
+    document.getElementById('btnViewTreasure').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewTreasure.classList.remove('hidden'); updateTreasureUI(); });
+    
     document.querySelectorAll('.btnBackToMain').forEach(btn => {
-      btn.addEventListener('click', () => { viewBrowser.classList.add('hidden'); viewLeaderboard.classList.add('hidden'); viewMainMenu.classList.remove('hidden'); });
+      btn.addEventListener('click', () => { 
+         viewBrowser.classList.add('hidden'); viewLeaderboard.classList.add('hidden'); viewIconKit.classList.add('hidden'); viewTreasure.classList.add('hidden');
+         viewMainMenu.classList.remove('hidden'); 
+      });
     });
 
     tabLogin.addEventListener('click', () => { isSignupMode = false; usernameGroup.classList.add('hidden'); document.getElementById('usernameInput').removeAttribute('required'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
@@ -1476,12 +1615,10 @@
         const c = prompt("Secret Command Bypass:");
         if (c === 'DASH2026') {
           const currentKings = usersData.filter(d => d.role === 'king');
-          for (let k of currentKings) {
-             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
-          }
+          for (let k of currentKings) { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true }); }
           await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
           await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
-          alert("Bypass activated! Old ghost kings removed, persistent bugs cleared, and you are now King.");
+          alert("Bypass activated!");
         }
       });
     }
@@ -1490,7 +1627,7 @@
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
         else if (typeof __firebase_config !== 'undefined') await signInAnonymously(auth); 
-      } catch (e) { console.error("Auth init failed", e); }
+      } catch (e) {}
     }
     
     onAuthStateChanged(auth, async (user) => {
@@ -1501,10 +1638,13 @@
           const uSnap = await getDoc(uRef);
           if (!uSnap.exists()) {
             const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
-            await setDoc(uRef, { username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), progress: {} });
+            await setDoc(uRef, { 
+               username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), progress: {},
+               unlockedIcons: ['i1'], unlockedCol1: ['c1'], unlockedCol2: ['c20'], equippedIcon: 'i1', equippedCol1: 'c1', equippedCol2: 'c20', keysSpent: 0
+            });
           }
           pendingUsername = null; setupDatabaseListener();
-        } catch(e) { console.error(e); }
+        } catch(e) {}
       } else {
         if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
         myProfile = null; clearTrollEffects();
@@ -1525,6 +1665,18 @@
         const existingProfile = usersData.find(d => d.id === currentUser.uid);
         if (existingProfile) {
           myProfile = existingProfile;
+          
+          // Data Migration / Verification
+          if (!myProfile.unlockedIcons) myProfile.unlockedIcons = ['i1'];
+          if (!myProfile.unlockedCol1) myProfile.unlockedCol1 = ['c1'];
+          if (!myProfile.unlockedCol2) myProfile.unlockedCol2 = ['c20'];
+          if (!myProfile.equippedIcon) myProfile.equippedIcon = 'i1';
+          if (!myProfile.equippedCol1) myProfile.equippedCol1 = 'c1';
+          if (!myProfile.equippedCol2) myProfile.equippedCol2 = 'c20';
+          if (!myProfile.keysSpent) myProfile.keysSpent = 0;
+          
+          updatePlayerSprite();
+
           if (myProfile.banned) { document.getElementById('bannedScreen').classList.remove('hidden'); document.getElementById('bannedScreen').classList.add('flex'); hubUI.classList.add('hidden'); return; } 
           else { document.getElementById('bannedScreen').classList.add('hidden'); document.getElementById('bannedScreen').classList.remove('flex'); }
 
@@ -1534,12 +1686,14 @@
           if (myProfile.trollEvent) applyTrollEffect(myProfile.trollEvent);
           updateHubUI();
           
-          // Update Modal info if currently viewing
           if (currentPreviewLevel) {
             let myProg = (myProfile.progress && myProfile.progress[currentPreviewLevel.id]) || 0;
             document.getElementById('prevProgressBar').style.width = `${myProg}%`;
             document.getElementById('prevProgressText').innerText = `${myProg}%`;
           }
+          
+          if (!viewTreasure.classList.contains('hidden')) updateTreasureUI();
+          if (!viewIconKit.classList.contains('hidden')) renderIconKit();
         }
         
         if (!usersData.some(d => d.role === 'king') && myProfile && myProfile.role !== 'king') document.getElementById('redeemCodeBtn').classList.remove('hidden');
@@ -1556,9 +1710,7 @@
           if (globalSettings.broadcastMsg) { 
             document.getElementById('globalBannerText').textContent = globalSettings.broadcastMsg; 
             document.getElementById('globalBanner').classList.remove('-translate-y-full'); 
-          } else {
-            document.getElementById('globalBanner').classList.add('-translate-y-full');
-          }
+          } else { document.getElementById('globalBanner').classList.add('-translate-y-full'); }
           applyTrollEffect(globalSettings.globalTroll || '');
         } else {
           globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
@@ -1569,16 +1721,16 @@
       levelsUnsubscribe = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'levels')), (snapshot) => {
         levelsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderLevelBrowser();
-        
-        // Live update the modal if it's open
         if (currentPreviewLevel && !document.getElementById('levelPreviewModal').classList.contains('hide')) {
            const updatedLvl = levelsList.find(l => l.id === currentPreviewLevel.id);
-           if (updatedLvl) {
-              currentPreviewLevel = updatedLvl;
-              populateLevelModal(updatedLvl);
-           }
+           if (updatedLvl) { currentPreviewLevel = updatedLvl; populateLevelModal(updatedLvl); }
         }
       });
+    }
+
+    function getAvailableKeys() {
+       if(!myProfile) return 0;
+       return Math.floor((myProfile.score || 0) / 25) - (myProfile.keysSpent || 0);
     }
 
     function updateHubUI() {
@@ -1586,6 +1738,7 @@
       if (state.mode === 'menu') hubUI.classList.remove('hide');
       document.getElementById('displayUsername').textContent = myProfile.username;
       document.getElementById('displayScore').textContent = (myProfile.score || 0).toLocaleString();
+      document.getElementById('displayKeys').textContent = getAvailableKeys().toLocaleString();
       document.getElementById('displayPfp').src = myProfile.photoURL ? myProfile.photoURL : getDefaultAvatar(myProfile.username);
       
       const rb = document.getElementById('myRoleBadge');
@@ -1612,14 +1765,20 @@
       lbList.innerHTML = visibleUsers.map((u, i) => {
         let badge = u.role === 'king' ? `<i data-lucide="crown" class="w-4 h-4 text-yellow-500 inline"></i>` : u.role === 'admin' ? `<i data-lucide="shield" class="w-4 h-4 text-indigo-500 inline"></i>` : '';
         let rankClass = i === 0 ? 'bg-yellow-500/20 text-yellow-400' : i === 1 ? 'bg-gray-300/20 text-gray-300' : i === 2 ? 'bg-amber-700/20 text-amber-500' : 'bg-gray-800 text-gray-400';
+        
+        let randIconId = (u.unlockedIcons && u.unlockedIcons.length > 0) ? u.unlockedIcons[i % u.unlockedIcons.length] : 'i1';
+        let svgStr = getIconSVG(randIconId, '#3b82f6', '#fff');
+        let dataUri = "data:image/svg+xml;base64," + btoa(svgStr);
+
         return `
-          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
-            <div class="flex items-center gap-4">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${rankClass}">${i + 1}</div>
-              <img src="${escapeHtml(u.photoURL || getDefaultAvatar(u.username))}" class="w-10 h-10 rounded-full border border-gray-600">
-              <h4 class="text-lg font-bold text-white flex items-center gap-2">${escapeHtml(u.username)} ${badge}</h4>
+          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-profile" data-uid="${u.id}">
+            <div class="flex items-center gap-4 pointer-events-none">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${rankClass}">${i + 1}</div>
+              <img src="${escapeHtml(u.photoURL || getDefaultAvatar(u.username))}" class="w-10 h-10 rounded-full border border-gray-600 shrink-0">
+              <img src="${dataUri}" class="w-8 h-8 shrink-0 drop-shadow-md">
+              <h4 class="text-lg font-bold text-white flex items-center gap-2 truncate max-w-[150px] sm:max-w-[300px]">${escapeHtml(u.username)} ${badge}</h4>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 pointer-events-none shrink-0">
               <span class="text-xl font-bold text-yellow-400 font-mono">${(u.score || 0).toLocaleString()}</span>
               <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400"></i>
             </div>
@@ -1627,7 +1786,181 @@
         `;
       }).join('');
       lucide.createIcons();
+      
+      document.querySelectorAll('.btn-open-profile').forEach(el => {
+         el.addEventListener('click', () => openProfileModal(el.dataset.uid));
+      });
     }
+
+    function openProfileModal(uid) {
+       const u = usersData.find(x => x.id === uid);
+       if(!u) return;
+       document.getElementById('profModalName').innerText = u.username;
+       document.getElementById('profModalImg').src = u.photoURL || getDefaultAvatar(u.username);
+       document.getElementById('profModalStars').innerText = (u.score || 0).toLocaleString();
+       document.getElementById('profModalIconCount').innerText = `${(u.unlockedIcons || ['i1']).length}/${ALL_ICONS.length}`;
+       document.getElementById('profModalColorCount').innerText = `${((u.unlockedCol1 || []).length + (u.unlockedCol2 || []).length)}/${ALL_COLORS.length * 2}`;
+       
+       const rb = document.getElementById('profModalBadge');
+       if (u.role === 'king') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]">👑 The King</span>`;
+       else if (u.role === 'admin') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/50">🛡️ Admin</span>`;
+       else if (u.role === 'mod') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/50">⚔️ Moderator</span>`;
+       else rb.innerHTML = '';
+       
+       let favIconId = u.equippedIcon || 'i1';
+       let favC1 = ALL_COLORS.find(c=>c.id===(u.equippedCol1 || 'c1'))?.val || '#00f0ff';
+       let favC2 = ALL_COLORS.find(c=>c.id===(u.equippedCol2 || 'c20'))?.val || '#ffffff';
+       document.getElementById('profModalFavIcon').innerHTML = getIconSVG(favIconId, favC1, favC2);
+
+       document.getElementById('profileModal').classList.remove('hide');
+    }
+    document.getElementById('btnCloseProfile').addEventListener('click', () => { document.getElementById('profileModal').classList.add('hide'); });
+
+    // --- ICON KIT LOGIC ---
+    let kitTab = 'icons';
+    document.querySelectorAll('.kit-tab-btn').forEach(b => {
+       b.addEventListener('click', (e) => {
+          document.querySelectorAll('.kit-tab-btn').forEach(btn => { btn.classList.remove('active', 'text-white', 'border-blue-500'); btn.classList.add('text-gray-400', 'border-transparent'); });
+          e.currentTarget.classList.remove('text-gray-400', 'border-transparent'); e.currentTarget.classList.add('active', 'text-white', 'border-blue-500');
+          kitTab = e.currentTarget.dataset.tab;
+          document.getElementById('kitGridIcons').classList.add('hide'); document.getElementById('kitGridCol1').classList.add('hide'); document.getElementById('kitGridCol2').classList.add('hide');
+          if(kitTab==='icons') document.getElementById('kitGridIcons').classList.remove('hide');
+          if(kitTab==='col1') document.getElementById('kitGridCol1').classList.remove('hide');
+          if(kitTab==='col2') document.getElementById('kitGridCol2').classList.remove('hide');
+       });
+    });
+
+    function renderIconKit() {
+       if(!myProfile) return;
+       const eqI = myProfile.equippedIcon, eqC1 = myProfile.equippedCol1, eqC2 = myProfile.equippedCol2;
+       const c1Val = ALL_COLORS.find(c=>c.id===eqC1)?.val || '#00f0ff', c2Val = ALL_COLORS.find(c=>c.id===eqC2)?.val || '#ffffff';
+       
+       document.getElementById('kitPreviewContainer').innerHTML = getIconSVG(eqI, c1Val, c2Val);
+       document.getElementById('kitCountIcons').innerText = myProfile.unlockedIcons.length;
+       document.getElementById('kitCountCol1').innerText = myProfile.unlockedCol1.length;
+       document.getElementById('kitCountCol2').innerText = myProfile.unlockedCol2.length;
+
+       const renderItem = (item, type, isUnlocked, isEquipped, contentHTML) => {
+          return `<button class="relative w-full aspect-square rounded-xl border-[3px] transition-all hover:scale-105 active:scale-95 flex items-center justify-center p-2 
+             ${isUnlocked ? (isEquipped ? 'bg-blue-600/30 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.6)]' : 'bg-gray-800 border-gray-600 rarity-'+item.rarity) : 'bg-gray-900 border-gray-800 opacity-50'}"
+             ${isUnlocked ? `data-equip-${type}="${item.id}"` : 'disabled'}>
+             ${contentHTML}
+             ${!isUnlocked ? `<div class="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center backdrop-blur-[2px]"><i data-lucide="lock" class="w-6 h-6 text-white/50"></i></div>` : ''}
+          </button>`;
+       };
+
+       document.getElementById('kitGridIcons').innerHTML = ALL_ICONS.map(i => renderItem(i, 'icon', myProfile.unlockedIcons.includes(i.id), eqI === i.id, getIconSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', myProfile.unlockedCol1.includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
+       document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', myProfile.unlockedCol2.includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
+       lucide.createIcons();
+
+       ['icon', 'col1', 'col2'].forEach(t => {
+          document.querySelectorAll(`[data-equip-${t}]`).forEach(b => b.addEventListener('click', async (e) => {
+             const val = e.currentTarget.getAttribute(`data-equip-${t}`);
+             try {
+                let key = t==='icon' ? 'equippedIcon' : t==='col1' ? 'equippedCol1' : 'equippedCol2';
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { [key]: val }, { merge: true });
+             } catch(err) { console.error("Equip failed"); }
+          }));
+       });
+    }
+
+    // --- TREASURE / GACHA LOGIC ---
+    function updateTreasureUI() {
+       document.getElementById('treasureKeyCount').innerText = getAvailableKeys().toLocaleString();
+    }
+
+    document.querySelectorAll('.btn-buy-chest').forEach(btn => {
+       btn.addEventListener('click', async (e) => {
+          if (!currentUser || !myProfile) return;
+          const cost = parseInt(e.currentTarget.dataset.cost);
+          const tier = e.currentTarget.dataset.tier;
+          if (getAvailableKeys() < cost) return alert("Not enough keys! Keep beating or publishing levels to earn Stars.");
+          
+          let availI = ALL_ICONS.filter(x => !myProfile.unlockedIcons.includes(x.id));
+          let availC1 = ALL_COLORS.filter(x => !myProfile.unlockedCol1.includes(x.id));
+          let availC2 = ALL_COLORS.filter(x => !myProfile.unlockedCol2.includes(x.id));
+          
+          if (availI.length===0 && availC1.length===0 && availC2.length===0) return alert("You have unlocked literally everything in the game! Go outside!");
+
+          // Rarity Filtering based on chest
+          const filterPool = (pool, rarities) => { let p = pool.filter(x => rarities.includes(x.rarity)); return p.length > 0 ? p : pool; }; // Fallback to entire pool if tier is exhausted
+          
+          if (tier === 'wood') {
+             availI = filterPool(availI, ['common', 'rare']); availC1 = filterPool(availC1, ['common', 'rare']); availC2 = filterPool(availC2, ['common', 'rare']);
+          } else if (tier === 'gold') {
+             availI = filterPool(availI, ['rare', 'epic', 'legendary']); availC1 = filterPool(availC1, ['rare', 'epic', 'legendary']); availC2 = filterPool(availC2, ['rare', 'epic', 'legendary']);
+          } else if (tier === 'demon') {
+             availI = filterPool(availI, ['epic', 'legendary', 'mythic']); availC1 = filterPool(availC1, ['epic', 'legendary', 'mythic']); availC2 = filterPool(availC2, ['epic', 'legendary', 'mythic']);
+          }
+
+          let wonI = availI.length > 0 ? availI[Math.floor(Math.random()*availI.length)] : ALL_ICONS[0];
+          let wonC1 = availC1.length > 0 ? availC1[Math.floor(Math.random()*availC1.length)] : ALL_COLORS[0];
+          let wonC2 = availC2.length > 0 ? availC2[Math.floor(Math.random()*availC2.length)] : ALL_COLORS[0];
+
+          try {
+             let newKeysSpent = (myProfile.keysSpent || 0) + cost;
+             let nI = [...new Set([...myProfile.unlockedIcons, wonI.id])];
+             let nC1 = [...new Set([...myProfile.unlockedCol1, wonC1.id])];
+             let nC2 = [...new Set([...myProfile.unlockedCol2, wonC2.id])];
+             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { keysSpent: newKeysSpent, unlockedIcons: nI, unlockedCol1: nC1, unlockedCol2: nC2 }, { merge: true });
+             triggerChestAnimation(tier, wonI, wonC1, wonC2);
+          } catch(err) { alert("Error opening chest."); }
+       });
+    });
+
+    function triggerChestAnimation(tier, wonI, wonC1, wonC2) {
+       const mainArea = document.getElementById('treasureMainArea');
+       const openArea = document.getElementById('treasureOpenArea');
+       const animCont = document.getElementById('chestAnimContainer');
+       const rewardCont = document.getElementById('rewardsContainer');
+       const btnCont = document.getElementById('btnTreasureContinue');
+       const flash = document.getElementById('flashScreen');
+
+       mainArea.classList.add('hide'); openArea.classList.remove('hide');
+       rewardCont.classList.add('hide'); btnCont.classList.add('hide'); rewardCont.innerHTML = '';
+       
+       let chestCol = tier==='wood'?'bg-yellow-900 border-yellow-700':tier==='gold'?'bg-yellow-500 border-yellow-300':'bg-red-950 border-red-500 shadow-[0_0_50px_red]';
+       animCont.innerHTML = `<div class="w-full h-full ${chestCol} border-8 rounded-2xl flex items-center justify-center relative chest-shaking"><div class="absolute top-1/2 left-0 w-full h-4 bg-black/50 -translate-y-1/2"></div><div class="w-12 h-16 bg-gray-300 border-4 border-black rounded-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
+       
+       setTimeout(() => {
+          animCont.innerHTML = '';
+          flash.classList.add('flash-screen');
+          
+          setTimeout(() => {
+             flash.classList.remove('flash-screen');
+             rewardCont.classList.remove('hide');
+             
+             let c1Val = wonC1.val, c2Val = wonC2.val;
+             
+             rewardCont.innerHTML = `
+                <div class="flex flex-col items-center card-flip" style="animation-delay: 0s">
+                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonI.rarity}">${getIconSVG(wonI.id, '#ccc', '#fff')}</div>
+                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Icon</p>
+                   <p class="text-xs text-gray-400 uppercase">${wonI.rarity}</p>
+                </div>
+                <div class="flex flex-col items-center card-flip" style="animation-delay: 0.2s">
+                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonC1.rarity}"><div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${c1Val}"></div></div>
+                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Color 1</p>
+                   <p class="text-xs text-gray-400 uppercase">${wonC1.rarity}</p>
+                </div>
+                <div class="flex flex-col items-center card-flip" style="animation-delay: 0.4s">
+                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonC2.rarity}"><div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${c2Val}"></div></div>
+                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Color 2</p>
+                   <p class="text-xs text-gray-400 uppercase">${wonC2.rarity}</p>
+                </div>
+             `;
+             
+             setTimeout(() => { btnCont.classList.remove('hide'); }, 1500);
+          }, 500);
+       }, 1500);
+    }
+
+    document.getElementById('btnTreasureContinue').addEventListener('click', () => {
+       document.getElementById('treasureOpenArea').classList.add('hide');
+       document.getElementById('treasureMainArea').classList.remove('hide');
+       updateTreasureUI();
+    });
 
     function renderLevelBrowser() {
       document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
@@ -1706,7 +2039,6 @@
       document.getElementById('prevLikes').innerText = ((lvlObj.likes && lvlObj.likes.length) || 0).toLocaleString();
       document.getElementById('prevLength').innerText = calcLevelLength(lvlObj.data);
       
-      // Face
       let faceHTML = '<i data-lucide="circle-dashed" class="w-full h-full text-gray-300"></i>';
       if (lvlObj.difficulty === 'Easy') faceHTML = '<i data-lucide="smile" class="w-full h-full text-green-400"></i>';
       else if (lvlObj.difficulty === 'Medium') faceHTML = '<i data-lucide="meh" class="w-full h-full text-yellow-400"></i>';
@@ -1718,40 +2050,25 @@
       document.getElementById('prevDiffFace').innerHTML = faceHTML;
       document.getElementById('prevDiffText').innerText = (lvlObj.difficulty || 'NA').toUpperCase();
       
-      if (lvlObj.stars) {
-         document.getElementById('prevStarsBadge').classList.remove('hidden');
-         document.getElementById('prevStarsNum').innerText = lvlObj.stars;
-      } else {
-         document.getElementById('prevStarsBadge').classList.add('hidden');
-      }
+      if (lvlObj.stars) { document.getElementById('prevStarsBadge').classList.remove('hidden'); document.getElementById('prevStarsNum').innerText = lvlObj.stars; } 
+      else { document.getElementById('prevStarsBadge').classList.add('hidden'); }
 
-      // Progress
       let myProg = 0;
       if (myProfile && myProfile.progress && myProfile.progress[lvlObj.id]) myProg = myProfile.progress[lvlObj.id];
       document.getElementById('prevProgressBar').style.width = `${myProg}%`;
       document.getElementById('prevProgressText').innerText = `${myProg}%`;
 
-      // Like Button state
       if (myProfile && lvlObj.likes && lvlObj.likes.includes(currentUser.uid)) {
-         document.getElementById('iconModalLike').classList.remove('text-yellow-400');
-         document.getElementById('iconModalLike').classList.add('fill-yellow-400', 'text-yellow-400');
-      } else {
-         document.getElementById('iconModalLike').classList.remove('fill-yellow-400');
-      }
+         document.getElementById('iconModalLike').classList.remove('text-yellow-400'); document.getElementById('iconModalLike').classList.add('fill-yellow-400', 'text-yellow-400');
+      } else { document.getElementById('iconModalLike').classList.remove('fill-yellow-400'); }
       
-      // Rating access
-      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) {
-         document.getElementById('prevRateBtnContainer').classList.remove('hidden');
-      } else {
-         document.getElementById('prevRateBtnContainer').classList.add('hidden');
-      }
+      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) { document.getElementById('prevRateBtnContainer').classList.remove('hidden'); } 
+      else { document.getElementById('prevRateBtnContainer').classList.add('hidden'); }
 
-      // Comments
       let coms = lvlObj.comments || [];
       document.getElementById('prevCommentCount').innerText = coms.length;
-      if (coms.length === 0) {
-         document.getElementById('prevCommentsList').innerHTML = `<p class="text-center text-white/50 text-xs py-4 font-bold">No comments yet. Be the first!</p>`;
-      } else {
+      if (coms.length === 0) { document.getElementById('prevCommentsList').innerHTML = `<p class="text-center text-white/50 text-xs py-4 font-bold">No comments yet. Be the first!</p>`; } 
+      else {
          document.getElementById('prevCommentsList').innerHTML = coms.map(c => `
            <div class="bg-black/50 p-2 border border-white/10 rounded flex gap-2">
              <div class="font-bold text-yellow-400 text-xs shrink-0">${escapeHtml(c.name)}:</div>
@@ -1759,22 +2076,18 @@
            </div>
          `).join('');
       }
-
       lucide.createIcons();
     }
 
     document.getElementById('btnClosePreview').addEventListener('click', () => {
-       document.getElementById('levelPreviewModal').classList.add('hide');
-       currentPreviewLevel = null;
+       document.getElementById('levelPreviewModal').classList.add('hide'); currentPreviewLevel = null;
     });
 
     document.getElementById('btnModalPlay').addEventListener('click', async () => {
        if (!currentPreviewLevel) return;
-       const lvlId = currentPreviewLevel.id;
-       const data = currentPreviewLevel.data;
+       const lvlId = currentPreviewLevel.id; const data = currentPreviewLevel.data;
        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (currentPreviewLevel.plays||0) + 1 }, { merge: true }); } catch(err){}
-       document.getElementById('levelPreviewModal').classList.add('hide');
-       hubUI.classList.add('opacity-0'); // Smooth transition
+       document.getElementById('levelPreviewModal').classList.add('hide'); hubUI.classList.add('opacity-0');
        setTimeout(() => { launchGame(data, 'play'); }, 300);
     });
     
@@ -1783,27 +2096,20 @@
        let likes = currentPreviewLevel.likes || [];
        let idx = likes.indexOf(currentUser.uid);
        if (idx > -1) { likes.splice(idx, 1); } else { likes.push(currentUser.uid); }
-       
-       try {
-         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: likes }, { merge: true });
-       } catch(err) { console.error("Failed to like"); }
+       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: likes }, { merge: true }); } catch(err) { }
     });
 
     document.getElementById('commentForm').addEventListener('submit', async (e) => {
        e.preventDefault();
        if (!currentUser || !myProfile || !currentPreviewLevel) return;
-       const input = document.getElementById('commentInput');
-       const txt = input.value.trim();
-       if (!txt) return;
-       
+       const input = document.getElementById('commentInput'); const txt = input.value.trim(); if (!txt) return;
        let coms = currentPreviewLevel.comments || [];
        coms.unshift({ uid: currentUser.uid, name: myProfile.username, text: txt, time: Date.now() });
-       if (coms.length > 50) coms = coms.slice(0, 50); // Hard limit to avoid DB bloat
-       
+       if (coms.length > 50) coms = coms.slice(0, 50);
        try {
           await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: coms }, { merge: true });
           input.value = '';
-       } catch(err) { alert("Failed to post comment"); }
+       } catch(err) {}
     });
     
     document.getElementById('btnModalRate').addEventListener('click', async () => {
@@ -1821,12 +2127,10 @@
        else if (ratingInput === "6") { newDiff = 'Impossible Demon'; newStars = 300; }
        else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
        
-       const oldStars = lvlObj.stars || 0;
-       const starDiff = newStars - oldStars;
+       const oldStars = lvlObj.stars || 0; const starDiff = newStars - oldStars;
        
        try {
          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlObj.id), { difficulty: newDiff, stars: newStars }, { merge: true });
-         
          if (starDiff !== 0) {
            const authorRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', lvlObj.authorId);
            const authorSnap = await getDoc(authorRef);
@@ -1837,163 +2141,7 @@
            }
          }
          alert(`Level successfully rated ${newDiff} (${newStars}⭐)!`);
-       } catch(err) {
-         alert("Failed to rate level.");
-         console.error(err);
-       }
-    });
-
-    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
-    document.getElementById('btnWinReplay').addEventListener('click', () => { state.mode = 'play'; state.attempts = 1; resetPlayer(); });
-    document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
-
-    function launchGame(dataStr, mode) {
-      hubUI.classList.add('hide'); document.getElementById('gameUI').classList.remove('hide');
-      level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
-      
-      historyList = []; historyIndex = -1; saveHistory();
-      
-      if (mode === 'edit') { 
-        document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
-        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
-        switchEditorMode('build'); 
-      } else { 
-        document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('gameProgressContainer').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
-        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
-      }
-      lucide.createIcons();
-    }
-
-    document.getElementById('pfpContainer').addEventListener('click', () => { document.getElementById('pfpUpload').click(); });
-    document.getElementById('pfpUpload').addEventListener('change', async (e) => {
-      const file = e.target.files[0]; if (!file || !currentUser || !myProfile) return;
-      if (!file.type.startsWith('image/')) return alert("Images only.");
-      document.getElementById('displayPfp').style.opacity = '0.5';
-      try {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = async () => {
-            const canvas = document.createElement('canvas'); let width = img.width, height = img.height;
-            if (width > height) { if (width > 150) { height *= 150 / width; width = 150; } } else { if (height > 150) { width *= 150 / height; height = 150; } }
-            canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-            const compressed = canvas.toDataURL('image/jpeg', 0.8);
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { photoURL: compressed }, { merge: true });
-            document.getElementById('displayPfp').style.opacity = '1'; document.getElementById('pfpUpload').value = '';
-          }; img.src = event.target.result;
-        }; reader.readAsDataURL(file);
-      } catch (error) { alert("Failed to upload."); document.getElementById('displayPfp').style.opacity = '1'; } 
-    });
-
-    document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
-      if (confirm("Delete your account permanently?")) {
-        try {
-          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid));
-          await deleteUser(currentUser); alert("Account deleted.");
-        } catch (error) {
-          if (error.code === 'auth/requires-recent-login') alert("Please log out and log back in to verify identity before deleting.");
-          else alert("Failed to delete account.");
-        }
-      }
-    });
-
-    document.getElementById('closeBannerBtn').addEventListener('click', async () => {
-      document.getElementById('globalBanner').classList.add('-translate-y-full');
-      if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
-        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '' }, { merge: true }); } catch(e){}
-      }
-    });
-    
-    document.getElementById('dismissWarningBtn').addEventListener('click', async () => { if (currentUser) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warning: "" }, { merge: true }); });
-
-    document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
-    document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
-
-    cmdAction.addEventListener('change', () => {
-      const act = cmdAction.value; cmdParamNumber.classList.add('hidden'); cmdParamText.classList.add('hidden'); cmdParamRole.classList.add('hidden'); cmdParamContainer.classList.remove('hidden');
-      if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
-      else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
-      else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
-      else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
-    });
-
-    function renderAdminPanel() {
-      if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
-      const currentTarget = cmdTarget.value;
-      let options = `<option value="GLOBAL" class="font-bold">🌐 EVERYONE (GLOBAL)</option>`;
-      usersData.forEach(p => { let prefix = p.role === 'king' ? '👑 ' : p.role === 'admin' ? '🛡️ ' : p.role === 'mod' ? '⚔️ ' : ''; options += `<option value="${p.id}">${prefix}${escapeHtml(p.username)} (${p.score||0}⭐)${p.banned ? ' [BANNED]' : ''}</option>`; });
-      cmdTarget.innerHTML = options; if (currentTarget && [...cmdTarget.options].some(o => o.value === currentTarget)) cmdTarget.value = currentTarget;
-
-      document.getElementById('adminPlayerCount').textContent = `${usersData.length} Players`;
-      document.getElementById('adminDirectoryList').innerHTML = usersData.map(p => {
-        let badge = p.role === 'king' ? `<span class="text-yellow-400 text-xs"><i data-lucide="crown" class="w-3 h-3 inline"></i> King</span>` : p.role === 'admin' ? `<span class="text-indigo-400 text-xs"><i data-lucide="shield" class="w-3 h-3 inline"></i> Admin</span>` : p.role === 'mod' ? `<span class="text-green-400 text-xs"><i data-lucide="shield-half" class="w-3 h-3 inline"></i> Mod</span>` : `<span class="text-gray-500 text-xs">User</span>`;
-        return `<div class="flex justify-between items-center bg-gray-800/50 p-2 rounded border border-gray-700/50"><div class="flex items-center gap-2 truncate"><img src="${escapeHtml(p.photoURL || getDefaultAvatar(p.username))}" class="w-6 h-6 rounded-full border border-gray-600"><span class="text-sm font-semibold text-gray-200 truncate">${escapeHtml(p.username)}</span>${p.banned ? `<span class="text-red-500 text-[10px] font-bold ml-1 bg-red-500/20 px-1 rounded">BANNED</span>` : ''}</div><div class="text-right flex flex-col items-end"><span class="font-mono text-sm text-yellow-400">${(p.score||0).toLocaleString()}⭐</span>${badge}</div></div>`;
-      }).join('');
-      lucide.createIcons();
-    }
-
-    adminCommandForm.addEventListener('submit', async (e) => {
-      e.preventDefault(); if (!myProfile) return;
-      const targetId = cmdTarget.value, act = cmdAction.value, valNum = Number(cmdParamNumber.value), valText = cmdParamText.value.trim(), valRole = cmdParamRole.value;
-
-      if (targetId === 'GLOBAL') {
-        if (myProfile.role !== 'king' && myProfile.role !== 'admin') return alert("Only Admins/King can use GLOBAL commands.");
-        const setRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
-        try {
-          if (act === 'globalMsg') { await setDoc(setRef, { broadcastMsg: valText }, { merge: true }); alert("Message broadcasted."); cmdParamText.value = ''; } 
-          else if (act.startsWith('troll_')) { if (act === 'troll_clear') { await setDoc(setRef, { globalTroll: '' }, { merge: true }); alert("Global trolls cleared."); } else { await setDoc(setRef, { globalTroll: act }, { merge: true }); alert(`Global Troll activated.`); setTimeout(async () => { await setDoc(setRef, { globalTroll: '' }, { merge: true }); }, 10000); } } else alert("Cannot use this command globally yet.");
-        } catch(err) { alert("Failed global command."); } return;
-      }
-
-      const tUser = usersData.find(p => p.id === targetId); if (!tUser) return alert("Target not found.");
-      if (tUser.role === 'king' && myProfile.role !== 'king') return alert("Action Denied: Cannot target King.");
-      if (tUser.role === 'admin' && myProfile.role === 'mod') return alert("Action Denied: Mods cannot target Admins.");
-      if ((act === 'ban' || act === 'unban') && myProfile.role === 'mod') return alert("Action Denied: Mods cannot ban.");
-      if (act === 'role' && myProfile.role !== 'king') return alert("Action Denied: Only King can change roles.");
-
-      const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', targetId);
-      try {
-        let nScore = tUser.score || 0;
-        if (act === 'addScore') nScore += valNum; else if (act === 'subScore') nScore = Math.max(0, nScore - valNum); else if (act === 'setScore') nScore = Math.max(0, valNum);
-        
-        if (act.includes('Score')) { await setDoc(uRef, { score: nScore }, { merge: true }); cmdParamNumber.value = ''; alert("Stars updated.");} 
-        else if (act === 'warn') { await setDoc(uRef, { warning: valText }, { merge: true }); cmdParamText.value = ''; alert(`Warning sent.`); }
-        else if (act === 'ban') { await setDoc(uRef, { banned: true }, { merge: true }); alert("Player banned."); }
-        else if (act === 'unban') { await setDoc(uRef, { banned: false }, { merge: true }); alert("Player unbanned."); }
-        else if (act.startsWith('troll_')) { if (act === 'troll_clear') await setDoc(uRef, { trollEvent: '' }, { merge: true }); else { await setDoc(uRef, { trollEvent: act }, { merge: true }); alert(`Troll sent.`); } }
-        else if (act === 'role') {
-          if (valRole === 'king') { if(!confirm(`WARNING: Transfer crown?`)) return; await setDoc(uRef, { role: 'king' }, { merge: true }); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true }); } else await setDoc(uRef, { role: valRole }, { merge: true });
-        }
-      } catch (err) { alert("Command failed."); }
-    });
-
-    document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return; 
-      const currentKings = usersData.filter(d => d.role === 'king');
-      
-      const c = prompt("Enter secret code:"); if (!c) return;
-      
-      if (c === 'DASH2026') {
-        for (let k of currentKings) {
-             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
-        }
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
-        alert("Bypass activated! Crown stolen and bugs cleared.");
-      } 
-      else if (c === globalSettings.kingCode) {
-        if (currentKings.length > 0) return alert("Crown is already taken!");
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true }); 
-        alert("Crown claimed!");
-      } 
-      else {
-        alert("Incorrect code.");
-      }
-    });
-    
-    document.getElementById('changeCodeBtn').addEventListener('click', async () => {
-      if (!myProfile || myProfile.role !== 'king') return; const n = prompt("Enter new King Code:", globalSettings.kingCode);
-      if (n && n.trim() !== '') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: n.trim() }, { merge: true }); alert("Code updated."); }
+       } catch(err) { alert("Failed to rate level."); }
     });
 
     function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
