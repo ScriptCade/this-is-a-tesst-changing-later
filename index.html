@@ -369,7 +369,7 @@
         <div class="flex w-full mt-6 flex-1 max-h-[300px]">
           <!-- Left: Face -->
           <div class="w-1/3 flex flex-col items-center justify-center pt-8">
-            <div id="prevDiffFace" class="w-24 h-24 mb-2 drop-shadow-[0_5px_5px_rgba(0,0,0,0.6)]">
+            <div id="prevDiffFace" class="w-24 h-24 mb-2 drop-shadow-[0_5px_5px_rgba(0,0,0,0.6)] flex items-center justify-center">
               <!-- Rendered via JS -->
             </div>
             <span id="prevDiffText" class="text-white font-black text-xl tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] uppercase">NA</span>
@@ -1641,7 +1641,9 @@
         if (lvl.difficulty === 'Easy') diffIcon = '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
         else if (lvl.difficulty === 'Medium') diffIcon = '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
         else if (lvl.difficulty === 'Hard') diffIcon = '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
-        else if (lvl.difficulty === 'Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-600"></i>';
+        else if (lvl.difficulty === 'Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>';
+        else if (lvl.difficulty === 'Extreme Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-800 drop-shadow-[0_0_15px_rgba(153,27,27,0.9)]"></i>';
+        else if (lvl.difficulty === 'Impossible Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-black drop-shadow-[0_0_20px_rgba(255,0,0,1)]"></i>';
 
         return `
           <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-level" data-lvl-id="${lvl.id}">
@@ -1709,7 +1711,10 @@
       if (lvlObj.difficulty === 'Easy') faceHTML = '<i data-lucide="smile" class="w-full h-full text-green-400"></i>';
       else if (lvlObj.difficulty === 'Medium') faceHTML = '<i data-lucide="meh" class="w-full h-full text-yellow-400"></i>';
       else if (lvlObj.difficulty === 'Hard') faceHTML = '<i data-lucide="frown" class="w-full h-full text-orange-500"></i>';
-      else if (lvlObj.difficulty === 'Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]"></i>';
+      else if (lvlObj.difficulty === 'Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"></i>';
+      else if (lvlObj.difficulty === 'Extreme Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-800 drop-shadow-[0_0_20px_rgba(153,27,27,0.9)]"></i>';
+      else if (lvlObj.difficulty === 'Impossible Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-black drop-shadow-[0_0_25px_rgba(255,0,0,1)]"></i>';
+      
       document.getElementById('prevDiffFace').innerHTML = faceHTML;
       document.getElementById('prevDiffText').innerText = (lvlObj.difficulty || 'NA').toUpperCase();
       
@@ -1804,7 +1809,7 @@
     document.getElementById('btnModalRate').addEventListener('click', async () => {
        if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role) || !currentPreviewLevel) return;
        const lvlObj = currentPreviewLevel;
-       const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)`, "0");
+       const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)\n5 = Extreme Demon (125⭐)\n6 = Impossible Demon (300⭐)`, "0");
        if (ratingInput === null) return;
        
        let newDiff = 'NA', newStars = 0;
@@ -1812,6 +1817,8 @@
        else if (ratingInput === "2") { newDiff = 'Medium'; newStars = 10; }
        else if (ratingInput === "3") { newDiff = 'Hard'; newStars = 20; }
        else if (ratingInput === "4") { newDiff = 'Demon'; newStars = 75; }
+       else if (ratingInput === "5") { newDiff = 'Extreme Demon'; newStars = 125; }
+       else if (ratingInput === "6") { newDiff = 'Impossible Demon'; newStars = 300; }
        else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
        
        const oldStars = lvlObj.stars || 0;
