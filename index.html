@@ -374,13 +374,27 @@
                 <div id="kitPreviewContainer" class="w-32 h-32 relative z-10 drop-shadow-2xl"></div>
              </div>
              <div class="md:w-2/3 flex flex-col bg-gray-800">
-                <div class="flex border-b border-gray-700">
-                   <button class="kit-tab-btn active flex-1 py-4 font-bold text-white border-b-2 border-blue-500" data-tab="icons">Icons (<span id="kitCountIcons">1</span>/30)</button>
-                   <button class="kit-tab-btn flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="col1">Color 1 (<span id="kitCountCol1">1</span>/30)</button>
-                   <button class="kit-tab-btn flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="col2">Color 2 (<span id="kitCountCol2">1</span>/30)</button>
+                <div class="flex border-b border-gray-700 overflow-x-auto custom-scrollbar">
+                   <button class="kit-tab-btn active shrink-0 px-4 py-4 font-bold text-white border-b-2 border-blue-500" data-tab="icons">Cube (<span id="kitCountIcons">1</span>/<span id="kitTotalIcons">40</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="ships">Ship (<span id="kitCountShips">1</span>/<span id="kitTotalShips">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="ufos">UFO (<span id="kitCountUfos">1</span>/<span id="kitTotalUfos">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="waves">Wave (<span id="kitCountWaves">1</span>/<span id="kitTotalWaves">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="balls">Ball (<span id="kitCountBalls">1</span>/<span id="kitTotalBalls">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="robots">Robot (<span id="kitCountRobots">1</span>/<span id="kitTotalRobots">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="spiders">Spider (<span id="kitCountSpiders">1</span>/<span id="kitTotalSpiders">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="swings">Swing (<span id="kitCountSwings">1</span>/<span id="kitTotalSwings">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="col1">Col 1 (<span id="kitCountCol1">1</span>/<span id="kitTotalCol1">30</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white" data-tab="col2">Col 2 (<span id="kitCountCol2">1</span>/<span id="kitTotalCol2">30</span>)</button>
                 </div>
                 <div class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-[#1a1a24]">
                    <div id="kitGridIcons" class="grid grid-cols-4 sm:grid-cols-6 gap-4"></div>
+                   <div id="kitGridShips" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridUfos" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridWaves" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridBalls" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridRobots" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridSpiders" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridSwings" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridCol1" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridCol2" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                 </div>
@@ -402,7 +416,7 @@
           <div class="flex-1 flex flex-col items-center justify-center p-8 relative z-10" id="treasureMainArea">
              <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600 drop-shadow-lg text-center uppercase tracking-widest mb-2">Treasure Room</h2>
              <p class="text-red-300 font-bold text-center mb-12 max-w-lg">Earn 1 Key for every 25 Stars collected! Unlock exclusive icons and colors to customize your cube.</p>
-             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-6xl">
                 <!-- Wood Chest -->
                 <div class="bg-gray-800/80 border-2 border-gray-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-xl">
                    <div class="w-32 h-32 bg-yellow-900 border-4 border-yellow-700 rounded-lg flex items-center justify-center shadow-inner mb-4 relative overflow-hidden">
@@ -425,6 +439,18 @@
                    <p class="text-xs text-yellow-200/70 mb-4 h-8">Drops Rare, Epic, or Legendary items.</p>
                    <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="5" data-tier="gold">
                       Open: 5 <i data-lucide="key" class="w-4 h-4"></i>
+                   </button>
+                </div>
+                <!-- Vehicle Chest -->
+                <div class="bg-blue-900/30 border-2 border-blue-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+                   <div class="w-32 h-32 bg-blue-950 border-4 border-blue-500 rounded-lg flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(59,130,246,0.5)] mb-4 relative overflow-hidden">
+                      <div class="absolute top-1/2 left-0 w-full h-2 bg-black -translate-y-1/2"></div>
+                      <div class="w-6 h-8 bg-blue-600 border-2 border-blue-300 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"><div class="w-1 h-2 bg-black rounded-full"></div></div>
+                   </div>
+                   <h3 class="text-xl font-bold text-blue-400 mb-1">Vehicle Chest</h3>
+                   <p class="text-xs text-blue-200/70 mb-4 h-8">Drops Ships, UFOs, Waves, etc.</p>
+                   <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="15" data-tier="vehicle">
+                      Open: 15 <i data-lucide="key" class="w-4 h-4"></i>
                    </button>
                 </div>
                 <!-- Demon Chest -->
@@ -580,6 +606,9 @@
                   <option value="subScore">➖ Subtract Stars</option>
                   <option value="setScore">🎯 Set Exact Stars</option>
                 </optgroup>
+                <optgroup label="Cheats & Rewards">
+                  <option value="iconHack">🔓 Unlock All Gamemodes & Colors</option>
+                </optgroup>
                 <optgroup label="Moderation">
                   <option value="warn">⚠️ Send Warning Message</option>
                   <option value="ban">🔨 Ban Player</option>
@@ -682,122 +711,146 @@
           case 28: content += `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${c2}" stroke-width="8" transform="rotate(45 50 50)"/><rect x="35" y="35" width="30" height="30" fill="${c2}" transform="rotate(45 50 50)"/>`; break; 
           case 29: content += `<style>.mythic-spin { transform-origin: 50px 50px; animation: m-spin 3s linear infinite; } @keyframes m-spin { 100% { transform: rotate(360deg); } }</style><circle cx="50" cy="50" r="42" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="15 15" class="mythic-spin"/><path d="M 50 15 L 60 40 L 95 50 L 60 60 L 50 85 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="mythic-spin" style="animation-direction: reverse; animation-duration: 4s;"/><circle cx="50" cy="50" r="12" fill="${c2}"/>`; break; 
           case 30: content += `<style>.mythic-pulse { transform-origin: 50px 50px; animation: m-pulse 1s ease-in-out infinite alternate; } @keyframes m-pulse { 0% { transform: scale(0.8); opacity: 0.8;} 100% { transform: scale(1.1); opacity: 1;} }</style><rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="35" class="mythic-pulse"/><rect x="30" y="30" width="40" height="40" fill="${c2}" stroke="${c1}" stroke-width="4" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="8" fill="#fff" class="mythic-pulse" style="animation-delay: -0.5s;"/>`; break; 
+          case 31: content += `<style>.m-1 { animation: m1 1.5s ease-in-out infinite alternate; transform-origin: center; } @keyframes m1 { to { transform: scale(1.1) rotate(10deg); } }</style><rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="20" class="m-1"/><circle cx="50" cy="50" r="15" fill="${c1}" class="m-1" style="animation-delay: -0.75s"/>`; break;
+          case 32: content += `<style>.m-2 { animation: m2 2s linear infinite; transform-origin: 50px 50px; } @keyframes m2 { to { transform: rotate(360deg); } }</style><polygon points="50,5 95,50 50,95 5,50" fill="${c1}" stroke="${c2}" stroke-width="8" class="m-2"/><circle cx="50" cy="50" r="12" fill="${c2}"/>`; break;
+          case 33: content += `<style>.m-3 { animation: m3 0.5s steps(2, end) infinite; } @keyframes m3 { 50% { opacity: 0.5; filter: hue-rotate(90deg); } }</style><path d="M 20 20 L 80 80 M 20 80 L 80 20" stroke="${c2}" stroke-width="12" stroke-linecap="round" class="m-3"/><circle cx="50" cy="50" r="20" fill="${c1}" stroke="${c2}" stroke-width="4"/>`; break;
+          case 34: content += `<style>.m-4 { animation: m4 3s linear infinite; transform-origin: 50px 50px; } @keyframes m4 { 100% { transform: rotate(-360deg); } }</style><circle cx="50" cy="50" r="40" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="20 10" class="m-4"/><rect x="35" y="35" width="30" height="30" fill="${c1}" class="m-4" style="animation-direction: reverse; animation-duration: 1.5s;"/>`; break;
+          case 35: content += `<style>.m-5 { animation: m5 1s infinite alternate ease-in-out; transform-origin: 50% 100%; } @keyframes m5 { 100% { transform: scaleY(0.6) scaleX(1.2); } }</style><path d="M 10 90 Q 50 10 90 90 Z" fill="${c1}" stroke="${c2}" stroke-width="6" class="m-5"/><circle cx="50" cy="70" r="10" fill="${c2}"/>`; break;
+          case 36: content += `<style>.m-6 { animation: m6 4s infinite linear; transform-origin: 50px 50px; } @keyframes m6 { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(0.5); } 100% { transform: rotate(360deg) scale(1); } }</style><rect x="10" y="10" width="80" height="80" fill="none" stroke="${c2}" stroke-width="4" class="m-6"/><rect x="25" y="25" width="50" height="50" fill="${c1}" class="m-6" style="animation-direction: reverse;"/>`; break;
+          case 37: content += `<style>.m-7 { animation: m7 0.8s ease-in-out infinite alternate; } @keyframes m7 { 100% { transform: translateY(-10px); } }</style><path d="M 20 40 Q 50 -10 80 40 Q 80 90 50 90 Q 20 90 20 40 Z" fill="${c1}" stroke="${c2}" stroke-width="6" class="m-7"/><circle cx="35" cy="40" r="6" fill="${c2}" class="m-7"/><circle cx="65" cy="40" r="6" fill="${c2}" class="m-7"/>`; break;
+          case 38: content += `<style>.m-8 { animation: m8 2s infinite ease-in-out; transform-origin: center; } @keyframes m8 { 50% { transform: scale(0.8) rotate(45deg); border-radius: 50%; } }</style><rect x="15" y="15" width="70" height="70" fill="${c1}" stroke="${c2}" stroke-width="8" class="m-8"/><path d="M 35 35 L 65 65 M 35 65 L 65 35" stroke="${c2}" stroke-width="6" class="m-8"/>`; break;
+          case 39: content += `<style>.m-9 { animation: m9 0.5s infinite alternate; } @keyframes m9 { 100% { fill: ${c2}; stroke: ${c1}; } }</style><polygon points="50,10 90,90 10,90" fill="${c1}" stroke="${c2}" stroke-width="8" class="m-9"/><circle cx="50" cy="65" r="10" fill="#fff"/>`; break;
+          case 40: content += `<style>.m-10 { animation: m10 5s linear infinite; transform-origin: center; } @keyframes m10 { 100% { transform: rotate(360deg); } }</style><path d="M 50 5 L 60 40 L 95 50 L 60 60 L 50 95 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="m-10"/><path d="M 50 15 L 55 45 L 85 50 L 55 55 L 50 85 L 45 55 L 15 50 L 45 45 Z" fill="${c2}" class="m-10" style="animation-direction: reverse; animation-duration: 2.5s;"/>`; break;
        }
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     function getShipSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('sh', '')); let content = `<path d="M 20 30 L 80 50 L 20 70 Z" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; 
-       if(id===2) content = `<rect x="15" y="30" width="70" height="40" rx="20" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===3) content = `<path d="M 10 20 L 60 50 L 10 80 Z M 50 30 L 90 50 L 50 70 Z" fill="${c1}" stroke="${c2}" stroke-width="4"/>`;
-       if(id===4) content = `<ellipse cx="50" cy="50" rx="40" ry="20" fill="${c1}" stroke="${c2}" stroke-width="6"/><circle cx="60" cy="50" r="10" fill="${c2}"/>`;
-       if(id===5) content = `<polygon points="20,10 90,50 20,90 40,50" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===6) content = `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${c2}" stroke-width="8"/><polygon points="30,30 70,50 30,70" fill="${c1}"/>`;
-       if(id===7) content = `<path d="M 10 50 Q 50 0 90 50 Q 50 100 10 50 Z" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===8) content = `<path d="M 20 40 L 80 40 M 20 60 L 80 60 M 30 50 L 90 50" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`;
-       if(id===9) content = `<polygon points="10,20 40,50 10,80 80,80 50,50 80,20" fill="${c1}" stroke="${c2}" stroke-width="4"/>`;
-       if(id===10) content = `<circle cx="50" cy="50" r="30" fill="${c1}" stroke="${c2}" stroke-width="6"/><path d="M 10 50 L 90 50" stroke="${c2}" stroke-width="8"/>`;
+       const id = parseInt(idStr.replace('sh', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
+       let content = `<path d="M 20 30 L 80 50 L 20 70 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`; 
+       if(bid===2) content = `<rect x="15" y="30" width="70" height="40" rx="20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===3) content = `<path d="M 10 20 L 60 50 L 10 80 Z M 50 30 L 90 50 L 50 70 Z" fill="${rC1}" stroke="${rC2}" stroke-width="4"/>`;
+       if(bid===4) content = `<ellipse cx="50" cy="50" rx="40" ry="20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="60" cy="50" r="10" fill="${rC2}"/>`;
+       if(bid===5) content = `<polygon points="20,10 90,50 20,90 40,50" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===6) content = `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${rC2}" stroke-width="8"/><polygon points="30,30 70,50 30,70" fill="${rC1}"/>`;
+       if(bid===7) content = `<path d="M 10 50 Q 50 0 90 50 Q 50 100 10 50 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===8) content = `<path d="M 20 40 L 80 40 M 20 60 L 80 60 M 30 50 L 90 50" stroke="${rC2}" stroke-width="8" stroke-linecap="round"/>`;
+       if(bid===9) content = `<polygon points="10,20 40,50 10,80 80,80 50,50 80,20" fill="${rC1}" stroke="${rC2}" stroke-width="4"/>`;
+       if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 10 50 L 90 50" stroke="${rC2}" stroke-width="8"/>`;
+       if(id > 10) content += `<circle cx="25" cy="50" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     function getUfoSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('u', '')); let content = `<ellipse cx="50" cy="65" rx="40" ry="15" fill="${c1}" stroke="${c2}" stroke-width="6"/><path d="M 30 65 Q 50 10 70 65" fill="${c2}"/>`;
-       if(id===2) content = `<rect x="20" y="55" width="60" height="20" rx="10" fill="${c1}" stroke="${c2}" stroke-width="6"/><circle cx="50" cy="40" r="20" fill="${c2}"/>`;
-       if(id===3) content = `<polygon points="10,70 90,70 70,40 30,40" fill="${c1}" stroke="${c2}" stroke-width="6"/><circle cx="50" cy="40" r="15" fill="${c2}"/>`;
-       if(id===4) content = `<ellipse cx="50" cy="50" rx="45" ry="30" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}"/>`;
-       if(id===5) content = `<rect x="15" y="45" width="70" height="30" fill="${c1}" stroke="${c2}" stroke-width="6"/><rect x="35" y="25" width="30" height="20" fill="${c2}"/>`;
-       if(id===6) content = `<path d="M 20 60 Q 50 20 80 60 Q 50 90 20 60" fill="${c1}" stroke="${c2}" stroke-width="6"/><circle cx="50" cy="45" r="10" fill="${c2}"/>`;
-       if(id===7) content = `<ellipse cx="50" cy="60" rx="40" ry="15" fill="${c1}" stroke="${c2}" stroke-width="6" stroke-dasharray="10 5"/><path d="M 35 60 L 50 20 L 65 60 Z" fill="${c2}"/>`;
-       if(id===8) content = `<path d="M 10 60 L 90 60 M 30 40 L 70 40" stroke="${c2}" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="50" r="15" fill="${c1}"/>`;
-       if(id===9) content = `<polygon points="20,70 50,40 80,70 50,20" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===10) content = `<circle cx="50" cy="50" r="30" fill="${c1}" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="10" fill="#111"/>`;
+       const id = parseInt(idStr.replace('u', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
+       let content = `<ellipse cx="50" cy="65" rx="40" ry="15" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 30 65 Q 50 10 70 65" fill="${rC2}"/>`;
+       if(bid===2) content = `<rect x="20" y="55" width="60" height="20" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="40" r="20" fill="${rC2}"/>`;
+       if(bid===3) content = `<polygon points="10,70 90,70 70,40 30,40" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="40" r="15" fill="${rC2}"/>`;
+       if(bid===4) content = `<ellipse cx="50" cy="50" rx="45" ry="30" fill="none" stroke="${rC2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${rC1}"/>`;
+       if(bid===5) content = `<rect x="15" y="45" width="70" height="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><rect x="35" y="25" width="30" height="20" fill="${rC2}"/>`;
+       if(bid===6) content = `<path d="M 20 60 Q 50 20 80 60 Q 50 90 20 60" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="45" r="10" fill="${rC2}"/>`;
+       if(bid===7) content = `<ellipse cx="50" cy="60" rx="40" ry="15" fill="${rC1}" stroke="${rC2}" stroke-width="6" stroke-dasharray="10 5"/><path d="M 35 60 L 50 20 L 65 60 Z" fill="${rC2}"/>`;
+       if(bid===8) content = `<path d="M 10 60 L 90 60 M 30 40 L 70 40" stroke="${rC2}" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="50" r="15" fill="${rC1}"/>`;
+       if(bid===9) content = `<polygon points="20,70 50,40 80,70 50,20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="8"/><circle cx="50" cy="50" r="10" fill="#111"/>`;
+       if(id > 10) content += `<circle cx="50" cy="25" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     function getWaveSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('w', '')); let content = `<polygon points="10,50 50,10 90,50 50,90" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===2) content = `<path d="M 20 50 L 60 20 L 60 80 Z" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===3) content = `<polygon points="10,50 40,20 90,50 40,80" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===4) content = `<path d="M 10 10 L 90 50 L 10 90 Z" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===5) content = `<rect x="30" y="30" width="40" height="40" fill="${c1}" stroke="${c2}" stroke-width="6" transform="rotate(45 50 50)"/>`;
-       if(id===6) content = `<path d="M 20 20 L 50 50 L 20 80 L 80 50 Z" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===7) content = `<polygon points="30,50 60,10 90,50 60,90" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="60" cy="50" r="10" fill="${c1}"/>`;
-       if(id===8) content = `<path d="M 10 50 Q 50 10 90 50 Q 50 90 10 50 Z" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===9) content = `<polygon points="10,50 30,30 50,50 70,30 90,50 50,90" fill="${c1}" stroke="${c2}" stroke-width="4"/>`;
-       if(id===10) content = `<circle cx="50" cy="50" r="30" fill="${c1}" stroke="${c2}" stroke-width="6"/><polygon points="40,30 70,50 40,70" fill="${c2}"/>`;
+       const id = parseInt(idStr.replace('w', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
+       let content = `<polygon points="10,50 50,10 90,50 50,90" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===2) content = `<path d="M 20 50 L 60 20 L 60 80 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===3) content = `<polygon points="10,50 40,20 90,50 40,80" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===4) content = `<path d="M 10 10 L 90 50 L 10 90 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===5) content = `<rect x="30" y="30" width="40" height="40" fill="${rC1}" stroke="${rC2}" stroke-width="6" transform="rotate(45 50 50)"/>`;
+       if(bid===6) content = `<path d="M 20 20 L 50 50 L 20 80 L 80 50 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===7) content = `<polygon points="30,50 60,10 90,50 60,90" fill="none" stroke="${rC2}" stroke-width="8"/><circle cx="60" cy="50" r="10" fill="${rC1}"/>`;
+       if(bid===8) content = `<path d="M 10 50 Q 50 10 90 50 Q 50 90 10 50 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===9) content = `<polygon points="10,50 30,30 50,50 70,30 90,50 50,90" fill="${rC1}" stroke="${rC2}" stroke-width="4"/>`;
+       if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><polygon points="40,30 70,50 40,70" fill="${rC2}"/>`;
+       if(id > 10) content += `<circle cx="50" cy="50" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     function getBallSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('b', '')); let content = `<circle cx="50" cy="50" r="45" fill="${c1}" stroke="${c2}" stroke-width="6"/>`;
-       if(id===1) content += `<circle cx="50" cy="50" r="20" fill="${c2}"/>`;
-       if(id===2) content += `<path d="M 50 5 L 95 50 L 50 95 L 5 50 Z" fill="${c2}"/>`;
-       if(id===3) content += `<circle cx="35" cy="50" r="10" fill="${c2}"/><circle cx="65" cy="50" r="10" fill="${c2}"/>`;
-       if(id===4) content += `<rect x="30" y="30" width="40" height="40" fill="${c2}"/>`;
-       if(id===5) content += `<path d="M 5 50 Q 50 5 95 50 Q 50 95 5 50 Z" fill="${c2}"/>`;
-       if(id===6) content += `<circle cx="50" cy="50" r="30" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="10" fill="${c2}"/>`;
-       if(id===7) content += `<path d="M 50 5 L 50 95 M 5 50 L 95 50" stroke="${c2}" stroke-width="8"/>`;
-       if(id===8) content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="10 5"/>`;
-       if(id===9) content += `<polygon points="50,15 85,85 15,85" fill="${c2}"/>`;
-       if(id===10) content += `<circle cx="50" cy="50" r="45" fill="none" stroke="${c2}" stroke-width="12"/><circle cx="50" cy="50" r="25" fill="${c2}"/>`;
+       const id = parseInt(idStr.replace('b', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
+       let content = `<circle cx="50" cy="50" r="45" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===1) content += `<circle cx="50" cy="50" r="20" fill="${rC2}"/>`;
+       if(bid===2) content += `<path d="M 50 5 L 95 50 L 50 95 L 5 50 Z" fill="${rC2}"/>`;
+       if(bid===3) content += `<circle cx="35" cy="50" r="10" fill="${rC2}"/><circle cx="65" cy="50" r="10" fill="${rC2}"/>`;
+       if(bid===4) content += `<rect x="30" y="30" width="40" height="40" fill="${rC2}"/>`;
+       if(bid===5) content += `<path d="M 5 50 Q 50 5 95 50 Q 50 95 5 50 Z" fill="${rC2}"/>`;
+       if(bid===6) content += `<circle cx="50" cy="50" r="30" fill="none" stroke="${rC2}" stroke-width="8"/><circle cx="50" cy="50" r="10" fill="${rC2}"/>`;
+       if(bid===7) content += `<path d="M 50 5 L 50 95 M 5 50 L 95 50" stroke="${rC2}" stroke-width="8"/>`;
+       if(bid===8) content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${rC2}" stroke-width="6" stroke-dasharray="10 5"/>`;
+       if(bid===9) content += `<polygon points="50,15 85,85 15,85" fill="${rC2}"/>`;
+       if(bid===10) content += `<circle cx="50" cy="50" r="45" fill="none" stroke="${rC2}" stroke-width="12"/><circle cx="50" cy="50" r="25" fill="${rC2}"/>`;
+       if(id > 10) content += `<circle cx="50" cy="20" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     function getRobotSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('r', '')); let content = `<rect x="25" y="10" width="50" height="40" rx="10" fill="${c1}" stroke="${c2}" stroke-width="6"/><rect x="35" y="55" width="10" height="35" fill="${c2}"/><rect x="55" y="55" width="10" height="35" fill="${c2}"/>`;
-       if(id===1) content += `<rect x="35" y="25" width="30" height="15" fill="${c2}"/>`;
-       if(id===2) content += `<circle cx="50" cy="30" r="10" fill="${c2}"/>`;
-       if(id===3) content += `<path d="M 35 25 L 65 25 L 50 40 Z" fill="${c2}"/>`;
-       if(id===4) content += `<circle cx="40" cy="30" r="6" fill="${c2}"/><circle cx="60" cy="30" r="6" fill="${c2}"/>`;
-       if(id===5) content += `<rect x="30" y="20" width="40" height="10" fill="${c2}"/><rect x="40" y="35" width="20" height="10" fill="${c2}"/>`;
-       if(id===6) content += `<path d="M 25 30 L 75 30" stroke="${c2}" stroke-width="6"/>`;
-       if(id===7) content += `<polygon points="30,40 50,20 70,40" fill="${c2}"/>`;
-       if(id===8) content += `<rect x="35" y="25" width="10" height="10" fill="${c2}"/><rect x="55" y="25" width="10" height="10" fill="${c2}"/>`;
-       if(id===9) content += `<circle cx="50" cy="30" r="12" fill="none" stroke="${c2}" stroke-width="4"/>`;
-       if(id===10) content += `<path d="M 30 20 L 70 40 M 30 40 L 70 20" stroke="${c2}" stroke-width="6"/>`;
+       const id = parseInt(idStr.replace('r', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
+       let content = `<rect x="25" y="10" width="50" height="40" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><rect x="35" y="55" width="10" height="35" fill="${rC2}"/><rect x="55" y="55" width="10" height="35" fill="${rC2}"/>`;
+       if(bid===1) content += `<rect x="35" y="25" width="30" height="15" fill="${rC2}"/>`;
+       if(bid===2) content += `<circle cx="50" cy="30" r="10" fill="${rC2}"/>`;
+       if(bid===3) content += `<path d="M 35 25 L 65 25 L 50 40 Z" fill="${rC2}"/>`;
+       if(bid===4) content += `<circle cx="40" cy="30" r="6" fill="${rC2}"/><circle cx="60" cy="30" r="6" fill="${rC2}"/>`;
+       if(bid===5) content += `<rect x="30" y="20" width="40" height="10" fill="${rC2}"/><rect x="40" y="35" width="20" height="10" fill="${rC2}"/>`;
+       if(bid===6) content += `<path d="M 25 30 L 75 30" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===7) content += `<polygon points="30,40 50,20 70,40" fill="${rC2}"/>`;
+       if(bid===8) content += `<rect x="35" y="25" width="10" height="10" fill="${rC2}"/><rect x="55" y="25" width="10" height="10" fill="${rC2}"/>`;
+       if(bid===9) content += `<circle cx="50" cy="30" r="12" fill="none" stroke="${rC2}" stroke-width="4"/>`;
+       if(bid===10) content += `<path d="M 30 20 L 70 40 M 30 40 L 70 20" stroke="${rC2}" stroke-width="6"/>`;
+       if(id > 10) content += `<circle cx="50" cy="18" r="4" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     function getSpiderSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('sp', '')); let content = `<ellipse cx="50" cy="40" rx="35" ry="25" fill="${c1}" stroke="${c2}" stroke-width="6"/><path d="M 20 40 L 5 70 M 35 55 L 25 85 M 65 55 L 75 85 M 80 40 L 95 70" stroke="${c2}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
-       if(id===1) content += `<circle cx="35" cy="35" r="5" fill="${c2}"/><circle cx="65" cy="35" r="5" fill="${c2}"/>`;
-       if(id===2) content += `<rect x="30" y="30" width="40" height="10" fill="${c2}"/>`;
-       if(id===3) content += `<ellipse cx="50" cy="40" rx="15" ry="10" fill="${c2}"/>`;
-       if(id===4) content += `<polygon points="50,25 65,45 35,45" fill="${c2}"/>`;
-       if(id===5) content += `<circle cx="40" cy="40" r="8" fill="${c2}"/><circle cx="60" cy="40" r="8" fill="${c2}"/>`;
-       if(id===6) content += `<path d="M 30 40 Q 50 20 70 40" stroke="${c2}" stroke-width="6" fill="none"/>`;
-       if(id===7) content += `<circle cx="50" cy="40" r="12" fill="none" stroke="${c2}" stroke-width="4"/>`;
-       if(id===8) content += `<rect x="40" y="25" width="20" height="20" fill="${c2}"/>`;
-       if(id===9) content += `<path d="M 25 40 L 75 40" stroke="${c2}" stroke-width="8"/>`;
-       if(id===10) content += `<circle cx="50" cy="40" r="15" fill="${c2}"/><circle cx="50" cy="40" r="5" fill="${c1}"/>`;
+       const id = parseInt(idStr.replace('sp', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
+       let content = `<ellipse cx="50" cy="40" rx="35" ry="25" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 20 40 L 5 70 M 35 55 L 25 85 M 65 55 L 75 85 M 80 40 L 95 70" stroke="${rC2}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+       if(bid===1) content += `<circle cx="35" cy="35" r="5" fill="${rC2}"/><circle cx="65" cy="35" r="5" fill="${rC2}"/>`;
+       if(bid===2) content += `<rect x="30" y="30" width="40" height="10" fill="${rC2}"/>`;
+       if(bid===3) content += `<ellipse cx="50" cy="40" rx="15" ry="10" fill="${rC2}"/>`;
+       if(bid===4) content += `<polygon points="50,25 65,45 35,45" fill="${rC2}"/>`;
+       if(bid===5) content += `<circle cx="40" cy="40" r="8" fill="${rC2}"/><circle cx="60" cy="40" r="8" fill="${rC2}"/>`;
+       if(bid===6) content += `<path d="M 30 40 Q 50 20 70 40" stroke="${rC2}" stroke-width="6" fill="none"/>`;
+       if(bid===7) content += `<circle cx="50" cy="40" r="12" fill="none" stroke="${rC2}" stroke-width="4"/>`;
+       if(bid===8) content += `<rect x="40" y="25" width="20" height="20" fill="${rC2}"/>`;
+       if(bid===9) content += `<path d="M 25 40 L 75 40" stroke="${rC2}" stroke-width="8"/>`;
+       if(bid===10) content += `<circle cx="50" cy="40" r="15" fill="${rC2}"/><circle cx="50" cy="40" r="5" fill="${rC1}"/>`;
+       if(id > 10) content += `<circle cx="50" cy="25" r="4" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     function getSwingSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('sw', '')); let content = `<ellipse cx="50" cy="50" rx="40" ry="30" fill="${c1}" stroke="${c2}" stroke-width="6"/><circle cx="15" cy="50" r="12" fill="${c2}"/><circle cx="85" cy="50" r="12" fill="${c2}"/>`;
-       if(id===1) content += `<circle cx="50" cy="50" r="15" fill="${c2}"/>`;
-       if(id===2) content += `<rect x="30" y="40" width="40" height="20" fill="${c2}"/>`;
-       if(id===3) content += `<polygon points="35,40 65,40 50,65" fill="${c2}"/>`;
-       if(id===4) content += `<path d="M 30 50 L 70 50" stroke="${c2}" stroke-width="8"/>`;
-       if(id===5) content += `<circle cx="40" cy="45" r="6" fill="${c2}"/><circle cx="60" cy="45" r="6" fill="${c2}"/>`;
-       if(id===6) content += `<path d="M 35 45 Q 50 65 65 45" stroke="${c2}" stroke-width="6" fill="none"/>`;
-       if(id===7) content += `<rect x="40" y="35" width="20" height="30" fill="${c2}" rx="10"/>`;
-       if(id===8) content += `<circle cx="50" cy="50" r="20" fill="none" stroke="${c2}" stroke-width="6"/>`;
-       if(id===9) content += `<path d="M 40 35 L 60 65 M 40 65 L 60 35" stroke="${c2}" stroke-width="6"/>`;
-       if(id===10) content += `<circle cx="35" cy="50" r="8" fill="${c2}"/><circle cx="65" cy="50" r="8" fill="${c2}"/>`;
+       const id = parseInt(idStr.replace('sw', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
+       let content = `<ellipse cx="50" cy="50" rx="40" ry="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="15" cy="50" r="12" fill="${rC2}"/><circle cx="85" cy="50" r="12" fill="${rC2}"/>`;
+       if(bid===1) content += `<circle cx="50" cy="50" r="15" fill="${rC2}"/>`;
+       if(bid===2) content += `<rect x="30" y="40" width="40" height="20" fill="${rC2}"/>`;
+       if(bid===3) content += `<polygon points="35,40 65,40 50,65" fill="${rC2}"/>`;
+       if(bid===4) content += `<path d="M 30 50 L 70 50" stroke="${rC2}" stroke-width="8"/>`;
+       if(bid===5) content += `<circle cx="40" cy="45" r="6" fill="${rC2}"/><circle cx="60" cy="45" r="6" fill="${rC2}"/>`;
+       if(bid===6) content += `<path d="M 35 45 Q 50 65 65 45" stroke="${rC2}" stroke-width="6" fill="none"/>`;
+       if(bid===7) content += `<rect x="40" y="35" width="20" height="30" fill="${rC2}" rx="10"/>`;
+       if(bid===8) content += `<circle cx="50" cy="50" r="20" fill="none" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===9) content += `<path d="M 40 35 L 60 65 M 40 65 L 60 35" stroke="${rC2}" stroke-width="6"/>`;
+       if(bid===10) content += `<circle cx="35" cy="50" r="8" fill="${rC2}"/><circle cx="65" cy="50" r="8" fill="${rC2}"/>`;
+       if(id > 10) content += `<circle cx="50" cy="30" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
     }
 
     const ALL_ICONS = Array.from({length: 40}, (_, i) => {
        let id = `i${i+1}`; let rarity = i < 10 ? 'common' : i < 18 ? 'rare' : i < 24 ? 'epic' : i < 30 ? 'legendary' : 'mythic'; return { id, rarity };
     });
-    const ALL_SHIPS = Array.from({length: 10}, (_, i) => ({ id: `sh${i+1}`, rarity: i<4?'common':i<7?'rare':'epic' }));
-    const ALL_UFOS = Array.from({length: 10}, (_, i) => ({ id: `u${i+1}`, rarity: i<4?'common':i<7?'rare':'epic' }));
-    const ALL_WAVES = Array.from({length: 10}, (_, i) => ({ id: `w${i+1}`, rarity: i<4?'common':i<7?'rare':'epic' }));
-    const ALL_BALLS = Array.from({length: 10}, (_, i) => ({ id: `b${i+1}`, rarity: i<4?'common':i<7?'rare':'epic' }));
-    const ALL_ROBOTS = Array.from({length: 10}, (_, i) => ({ id: `r${i+1}`, rarity: i<4?'common':i<7?'rare':'epic' }));
-    const ALL_SPIDERS = Array.from({length: 10}, (_, i) => ({ id: `sp${i+1}`, rarity: i<4?'common':i<7?'rare':'epic' }));
-    const ALL_SWINGS = Array.from({length: 10}, (_, i) => ({ id: `sw${i+1}`, rarity: i<4?'common':i<7?'rare':'epic' }));
+    const ALL_SHIPS = Array.from({length: 20}, (_, i) => ({ id: `sh${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
+    const ALL_UFOS = Array.from({length: 20}, (_, i) => ({ id: `u${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
+    const ALL_WAVES = Array.from({length: 20}, (_, i) => ({ id: `w${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
+    const ALL_BALLS = Array.from({length: 20}, (_, i) => ({ id: `b${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
+    const ALL_ROBOTS = Array.from({length: 20}, (_, i) => ({ id: `r${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
+    const ALL_SPIDERS = Array.from({length: 20}, (_, i) => ({ id: `sp${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
+    const ALL_SWINGS = Array.from({length: 20}, (_, i) => ({ id: `sw${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
 
     const BASE_HUES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
     const ALL_COLORS = [];
@@ -2041,22 +2094,66 @@
           document.querySelectorAll('.kit-tab-btn').forEach(btn => { btn.classList.remove('active', 'text-white', 'border-blue-500'); btn.classList.add('text-gray-400', 'border-transparent'); });
           e.currentTarget.classList.remove('text-gray-400', 'border-transparent'); e.currentTarget.classList.add('active', 'text-white', 'border-blue-500');
           kitTab = e.currentTarget.dataset.tab;
-          document.getElementById('kitGridIcons').classList.add('hide'); document.getElementById('kitGridCol1').classList.add('hide'); document.getElementById('kitGridCol2').classList.add('hide');
+          
+          ['kitGridIcons', 'kitGridShips', 'kitGridUfos', 'kitGridWaves', 'kitGridBalls', 'kitGridRobots', 'kitGridSpiders', 'kitGridSwings', 'kitGridCol1', 'kitGridCol2'].forEach(id => {
+             document.getElementById(id).classList.add('hide');
+          });
+          
           if(kitTab==='icons') document.getElementById('kitGridIcons').classList.remove('hide');
+          if(kitTab==='ships') document.getElementById('kitGridShips').classList.remove('hide');
+          if(kitTab==='ufos') document.getElementById('kitGridUfos').classList.remove('hide');
+          if(kitTab==='waves') document.getElementById('kitGridWaves').classList.remove('hide');
+          if(kitTab==='balls') document.getElementById('kitGridBalls').classList.remove('hide');
+          if(kitTab==='robots') document.getElementById('kitGridRobots').classList.remove('hide');
+          if(kitTab==='spiders') document.getElementById('kitGridSpiders').classList.remove('hide');
+          if(kitTab==='swings') document.getElementById('kitGridSwings').classList.remove('hide');
           if(kitTab==='col1') document.getElementById('kitGridCol1').classList.remove('hide');
           if(kitTab==='col2') document.getElementById('kitGridCol2').classList.remove('hide');
+          
+          renderIconKit();
        });
     });
 
     function renderIconKit() {
        if(!myProfile) return;
-       const eqI = myProfile.equippedIcon, eqC1 = myProfile.equippedCol1, eqC2 = myProfile.equippedCol2;
+       const eqI = myProfile.equippedIcon || 'i1', eqSh = myProfile.equippedShip || 'sh1', eqU = myProfile.equippedUfo || 'u1', eqW = myProfile.equippedWave || 'w1';
+       const eqB = myProfile.equippedBall || 'b1', eqR = myProfile.equippedRobot || 'r1', eqSp = myProfile.equippedSpider || 'sp1', eqSw = myProfile.equippedSwing || 'sw1';
+       const eqC1 = myProfile.equippedCol1 || 'c1', eqC2 = myProfile.equippedCol2 || 'c20';
        const c1Val = ALL_COLORS.find(c=>c.id===eqC1)?.val || '#00f0ff', c2Val = ALL_COLORS.find(c=>c.id===eqC2)?.val || '#ffffff';
        
-       document.getElementById('kitPreviewContainer').innerHTML = getIconSVG(eqI, c1Val, c2Val);
-       document.getElementById('kitCountIcons').innerText = myProfile.unlockedIcons.length;
-       document.getElementById('kitCountCol1').innerText = myProfile.unlockedCol1.length;
-       document.getElementById('kitCountCol2').innerText = myProfile.unlockedCol2.length;
+       let previewSVG = '';
+       if (kitTab === 'icons' || kitTab === 'col1' || kitTab === 'col2') previewSVG = getIconSVG(eqI, c1Val, c2Val);
+       if (kitTab === 'ships') previewSVG = getShipSVG(eqSh, c1Val, c2Val);
+       if (kitTab === 'ufos') previewSVG = getUfoSVG(eqU, c1Val, c2Val);
+       if (kitTab === 'waves') previewSVG = getWaveSVG(eqW, c1Val, c2Val);
+       if (kitTab === 'balls') previewSVG = getBallSVG(eqB, c1Val, c2Val);
+       if (kitTab === 'robots') previewSVG = getRobotSVG(eqR, c1Val, c2Val);
+       if (kitTab === 'spiders') previewSVG = getSpiderSVG(eqSp, c1Val, c2Val);
+       if (kitTab === 'swings') previewSVG = getSwingSVG(eqSw, c1Val, c2Val);
+
+       document.getElementById('kitPreviewContainer').innerHTML = previewSVG;
+       
+       document.getElementById('kitTotalIcons').innerText = ALL_ICONS.length;
+       document.getElementById('kitTotalShips').innerText = ALL_SHIPS.length;
+       document.getElementById('kitTotalUfos').innerText = ALL_UFOS.length;
+       document.getElementById('kitTotalWaves').innerText = ALL_WAVES.length;
+       document.getElementById('kitTotalBalls').innerText = ALL_BALLS.length;
+       document.getElementById('kitTotalRobots').innerText = ALL_ROBOTS.length;
+       document.getElementById('kitTotalSpiders').innerText = ALL_SPIDERS.length;
+       document.getElementById('kitTotalSwings').innerText = ALL_SWINGS.length;
+       document.getElementById('kitTotalCol1').innerText = ALL_COLORS.length;
+       document.getElementById('kitTotalCol2').innerText = ALL_COLORS.length;
+
+       document.getElementById('kitCountIcons').innerText = (myProfile.unlockedIcons || ['i1']).length;
+       document.getElementById('kitCountShips').innerText = (myProfile.unlockedShips || ['sh1']).length;
+       document.getElementById('kitCountUfos').innerText = (myProfile.unlockedUfos || ['u1']).length;
+       document.getElementById('kitCountWaves').innerText = (myProfile.unlockedWaves || ['w1']).length;
+       document.getElementById('kitCountBalls').innerText = (myProfile.unlockedBalls || ['b1']).length;
+       document.getElementById('kitCountRobots').innerText = (myProfile.unlockedRobots || ['r1']).length;
+       document.getElementById('kitCountSpiders').innerText = (myProfile.unlockedSpiders || ['sp1']).length;
+       document.getElementById('kitCountSwings').innerText = (myProfile.unlockedSwings || ['sw1']).length;
+       document.getElementById('kitCountCol1').innerText = (myProfile.unlockedCol1 || ['c1']).length;
+       document.getElementById('kitCountCol2').innerText = (myProfile.unlockedCol2 || ['c20']).length;
 
        const renderItem = (item, type, isUnlocked, isEquipped, contentHTML) => {
           return `<button class="relative w-full aspect-square rounded-xl border-[3px] transition-all hover:scale-105 active:scale-95 flex items-center justify-center p-2 
@@ -2067,16 +2164,23 @@
           </button>`;
        };
 
-       document.getElementById('kitGridIcons').innerHTML = ALL_ICONS.map(i => renderItem(i, 'icon', myProfile.unlockedIcons.includes(i.id), eqI === i.id, getIconSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', myProfile.unlockedCol1.includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', myProfile.unlockedCol2.includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
+       document.getElementById('kitGridIcons').innerHTML = ALL_ICONS.map(i => renderItem(i, 'icon', (myProfile.unlockedIcons || ['i1']).includes(i.id), eqI === i.id, getIconSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridShips').innerHTML = ALL_SHIPS.map(i => renderItem(i, 'ship', (myProfile.unlockedShips || ['sh1']).includes(i.id), eqSh === i.id, getShipSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridUfos').innerHTML = ALL_UFOS.map(i => renderItem(i, 'ufo', (myProfile.unlockedUfos || ['u1']).includes(i.id), eqU === i.id, getUfoSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridWaves').innerHTML = ALL_WAVES.map(i => renderItem(i, 'wave', (myProfile.unlockedWaves || ['w1']).includes(i.id), eqW === i.id, getWaveSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridBalls').innerHTML = ALL_BALLS.map(i => renderItem(i, 'ball', (myProfile.unlockedBalls || ['b1']).includes(i.id), eqB === i.id, getBallSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridRobots').innerHTML = ALL_ROBOTS.map(i => renderItem(i, 'robot', (myProfile.unlockedRobots || ['r1']).includes(i.id), eqR === i.id, getRobotSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridSpiders').innerHTML = ALL_SPIDERS.map(i => renderItem(i, 'spider', (myProfile.unlockedSpiders || ['sp1']).includes(i.id), eqSp === i.id, getSpiderSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridSwings').innerHTML = ALL_SWINGS.map(i => renderItem(i, 'swing', (myProfile.unlockedSwings || ['sw1']).includes(i.id), eqSw === i.id, getSwingSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', (myProfile.unlockedCol1 || ['c1']).includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
+       document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', (myProfile.unlockedCol2 || ['c20']).includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
        lucide.createIcons();
 
-       ['icon', 'col1', 'col2'].forEach(t => {
+       ['icon', 'ship', 'ufo', 'wave', 'ball', 'robot', 'spider', 'swing', 'col1', 'col2'].forEach(t => {
           document.querySelectorAll(`[data-equip-${t}]`).forEach(b => b.addEventListener('click', async (e) => {
              const val = e.currentTarget.getAttribute(`data-equip-${t}`);
              try {
-                let key = t==='icon' ? 'equippedIcon' : t==='col1' ? 'equippedCol1' : 'equippedCol2';
+                let key = t==='icon' ? 'equippedIcon' : t==='ship' ? 'equippedShip' : t==='ufo' ? 'equippedUfo' : t==='wave' ? 'equippedWave' : t==='ball' ? 'equippedBall' : t==='robot' ? 'equippedRobot' : t==='spider' ? 'equippedSpider' : t==='swing' ? 'equippedSwing' : t==='col1' ? 'equippedCol1' : 'equippedCol2';
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { [key]: val }, { merge: true });
              } catch(err) {}
           }));
@@ -2095,38 +2199,61 @@
           const tier = e.currentTarget.dataset.tier;
           if (getAvailableKeys() < cost) return alert("Not enough keys! Keep beating or publishing levels to earn Stars.");
           
-          let availI = ALL_ICONS.filter(x => !myProfile.unlockedIcons.includes(x.id));
-          let availC1 = ALL_COLORS.filter(x => !myProfile.unlockedCol1.includes(x.id));
-          let availC2 = ALL_COLORS.filter(x => !myProfile.unlockedCol2.includes(x.id));
+          let availI = ALL_ICONS.filter(x => !(myProfile.unlockedIcons || []).includes(x.id));
+          let availSh = ALL_SHIPS.filter(x => !(myProfile.unlockedShips || []).includes(x.id));
+          let availU = ALL_UFOS.filter(x => !(myProfile.unlockedUfos || []).includes(x.id));
+          let availW = ALL_WAVES.filter(x => !(myProfile.unlockedWaves || []).includes(x.id));
+          let availB = ALL_BALLS.filter(x => !(myProfile.unlockedBalls || []).includes(x.id));
+          let availR = ALL_ROBOTS.filter(x => !(myProfile.unlockedRobots || []).includes(x.id));
+          let availSp = ALL_SPIDERS.filter(x => !(myProfile.unlockedSpiders || []).includes(x.id));
+          let availSw = ALL_SWINGS.filter(x => !(myProfile.unlockedSwings || []).includes(x.id));
+          let availC1 = ALL_COLORS.filter(x => !(myProfile.unlockedCol1 || []).includes(x.id));
+          let availC2 = ALL_COLORS.filter(x => !(myProfile.unlockedCol2 || []).includes(x.id));
           
-          if (availI.length===0 && availC1.length===0 && availC2.length===0) return alert("You have unlocked literally everything in the game! Go outside!");
+          let allAvail = [];
+          if (tier === 'vehicle') {
+             allAvail = [...availSh.map(x=>({...x, type:'ship'})), ...availU.map(x=>({...x, type:'ufo'})), ...availW.map(x=>({...x, type:'wave'})), ...availB.map(x=>({...x, type:'ball'})), ...availR.map(x=>({...x, type:'robot'})), ...availSp.map(x=>({...x, type:'spider'})), ...availSw.map(x=>({...x, type:'swing'}))];
+          } else {
+             allAvail = [...availI.map(x=>({...x, type:'icon'})), ...availC1.map(x=>({...x, type:'col1'})), ...availC2.map(x=>({...x, type:'col2'}))];
+          }
+
+          if (allAvail.length===0) return alert("You have unlocked everything in this chest tier!");
 
           const filterPool = (pool, rarities) => { let p = pool.filter(x => rarities.includes(x.rarity)); return p.length > 0 ? p : pool; }; 
           
           if (tier === 'wood') {
-             availI = filterPool(availI, ['common', 'rare']); availC1 = filterPool(availC1, ['common', 'rare']); availC2 = filterPool(availC2, ['common', 'rare']);
+             allAvail = filterPool(allAvail, ['common', 'rare']);
           } else if (tier === 'gold') {
-             availI = filterPool(availI, ['rare', 'epic', 'legendary']); availC1 = filterPool(availC1, ['rare', 'epic', 'legendary']); availC2 = filterPool(availC2, ['rare', 'epic', 'legendary']);
+             allAvail = filterPool(allAvail, ['rare', 'epic', 'legendary']);
           } else if (tier === 'demon') {
-             availI = filterPool(availI, ['epic', 'legendary', 'mythic']); availC1 = filterPool(availC1, ['epic', 'legendary', 'mythic']); availC2 = filterPool(availC2, ['epic', 'legendary', 'mythic']);
+             allAvail = filterPool(allAvail, ['epic', 'legendary', 'mythic']);
           }
 
-          let wonI = availI.length > 0 ? availI[Math.floor(Math.random()*availI.length)] : ALL_ICONS[0];
-          let wonC1 = availC1.length > 0 ? availC1[Math.floor(Math.random()*availC1.length)] : ALL_COLORS[0];
-          let wonC2 = availC2.length > 0 ? availC2[Math.floor(Math.random()*availC2.length)] : ALL_COLORS[0];
+          let rewards = [];
+          for(let k=0; k< (tier==='vehicle'?1:3); k++) {
+              if (allAvail.length === 0) break;
+              let idx = Math.floor(Math.random() * allAvail.length);
+              rewards.push(allAvail[idx]);
+              allAvail.splice(idx, 1);
+          }
 
           try {
              let newKeysSpent = (myProfile.keysSpent || 0) + cost;
-             let nI = [...new Set([...myProfile.unlockedIcons, wonI.id])];
-             let nC1 = [...new Set([...myProfile.unlockedCol1, wonC1.id])];
-             let nC2 = [...new Set([...myProfile.unlockedCol2, wonC2.id])];
-             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { keysSpent: newKeysSpent, unlockedIcons: nI, unlockedCol1: nC1, unlockedCol2: nC2 }, { merge: true });
-             triggerChestAnimation(tier, wonI, wonC1, wonC2);
+             let updates = { keysSpent: newKeysSpent };
+             
+             rewards.forEach(rw => {
+                 let arrKey = rw.type === 'icon' ? 'unlockedIcons' : rw.type === 'ship' ? 'unlockedShips' : rw.type === 'ufo' ? 'unlockedUfos' : rw.type === 'wave' ? 'unlockedWaves' : rw.type === 'ball' ? 'unlockedBalls' : rw.type === 'robot' ? 'unlockedRobots' : rw.type === 'spider' ? 'unlockedSpiders' : rw.type === 'swing' ? 'unlockedSwings' : rw.type === 'col1' ? 'unlockedCol1' : 'unlockedCol2';
+                 updates[arrKey] = [...new Set([...(myProfile[arrKey] || []), rw.id])];
+                 myProfile[arrKey] = updates[arrKey]; 
+             });
+             
+             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), updates, { merge: true });
+             triggerChestAnimation(tier, rewards);
           } catch(err) { alert("Error opening chest."); }
        });
     });
 
-    function triggerChestAnimation(tier, wonI, wonC1, wonC2) {
+    function triggerChestAnimation(tier, rewards) {
        const mainArea = document.getElementById('treasureMainArea');
        const openArea = document.getElementById('treasureOpenArea');
        const animCont = document.getElementById('chestAnimContainer');
@@ -2137,7 +2264,7 @@
        mainArea.classList.add('hide'); openArea.classList.remove('hide');
        rewardCont.classList.add('hide'); btnCont.classList.add('hide'); rewardCont.innerHTML = '';
        
-       let chestCol = tier==='wood'?'bg-yellow-900 border-yellow-700':tier==='gold'?'bg-yellow-500 border-yellow-300':'bg-red-950 border-red-500 shadow-[0_0_50px_red]';
+       let chestCol = tier==='wood'?'bg-yellow-900 border-yellow-700':tier==='gold'?'bg-yellow-500 border-yellow-300':tier==='vehicle'?'bg-blue-950 border-blue-500 shadow-[0_0_50px_blue]':'bg-red-950 border-red-500 shadow-[0_0_50px_red]';
        animCont.innerHTML = `<div class="w-full h-full ${chestCol} border-8 rounded-2xl flex items-center justify-center relative chest-shaking"><div class="absolute top-1/2 left-0 w-full h-4 bg-black/50 -translate-y-1/2"></div><div class="w-12 h-16 bg-gray-300 border-4 border-black rounded-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
        
        setTimeout(() => {
@@ -2148,25 +2275,26 @@
              flash.classList.remove('flash-screen');
              rewardCont.classList.remove('hide');
              
-             let c1Val = wonC1.val, c2Val = wonC2.val;
-             
-             rewardCont.innerHTML = `
-                <div class="flex flex-col items-center card-flip" style="animation-delay: 0s">
-                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonI.rarity}">${getIconSVG(wonI.id, '#ccc', '#fff')}</div>
-                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Icon</p>
-                   <p class="text-xs text-gray-400 uppercase">${wonI.rarity}</p>
-                </div>
-                <div class="flex flex-col items-center card-flip" style="animation-delay: 0.2s">
-                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonC1.rarity}"><div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${c1Val}"></div></div>
-                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Color 1</p>
-                   <p class="text-xs text-gray-400 uppercase">${wonC1.rarity}</p>
-                </div>
-                <div class="flex flex-col items-center card-flip" style="animation-delay: 0.4s">
-                   <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${wonC2.rarity}"><div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${c2Val}"></div></div>
-                   <p class="text-white font-bold mt-4 tracking-widest uppercase">Color 2</p>
-                   <p class="text-xs text-gray-400 uppercase">${wonC2.rarity}</p>
-                </div>
-             `;
+             rewardCont.innerHTML = rewards.map((rw, i) => {
+                 let svgHTML = '';
+                 if(rw.type === 'icon') svgHTML = getIconSVG(rw.id, '#ccc', '#fff');
+                 else if(rw.type === 'ship') svgHTML = getShipSVG(rw.id, '#ccc', '#fff');
+                 else if(rw.type === 'ufo') svgHTML = getUfoSVG(rw.id, '#ccc', '#fff');
+                 else if(rw.type === 'wave') svgHTML = getWaveSVG(rw.id, '#ccc', '#fff');
+                 else if(rw.type === 'ball') svgHTML = getBallSVG(rw.id, '#ccc', '#fff');
+                 else if(rw.type === 'robot') svgHTML = getRobotSVG(rw.id, '#ccc', '#fff');
+                 else if(rw.type === 'spider') svgHTML = getSpiderSVG(rw.id, '#ccc', '#fff');
+                 else if(rw.type === 'swing') svgHTML = getSwingSVG(rw.id, '#ccc', '#fff');
+                 else if(rw.type === 'col1' || rw.type === 'col2') svgHTML = `<div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${rw.val}"></div>`;
+
+                 return `
+                    <div class="flex flex-col items-center card-flip" style="animation-delay: ${i*0.2}s">
+                       <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${rw.rarity}">${svgHTML}</div>
+                       <p class="text-white font-bold mt-4 tracking-widest uppercase">${rw.type}</p>
+                       <p class="text-xs text-gray-400 uppercase">${rw.rarity}</p>
+                    </div>
+                 `;
+             }).join('');
              
              setTimeout(() => { btnCont.classList.remove('hide'); }, 1500);
           }, 500);
