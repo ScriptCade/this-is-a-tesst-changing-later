@@ -1103,6 +1103,7 @@
       levelMaxX = 1;
       for (let o of level) if (o.gx > levelMaxX) levelMaxX = o.gx;
       levelMaxX *= GRID_SIZE;
+      for (let o of level) o.hasBeenHit = false;
       updateProgressBar(0);
     }
 
@@ -1154,27 +1155,26 @@
 
     function jump() { 
       if ((state.mode === 'play' || state.isPlaytesting) && player.grounded && !player.dead) { 
-        if (player.gamemode === 0) {
-           let jf = JUMP_FORCE; if (player.sizeMultiplier < 1) jf *= 0.85;
+        if (player.gamemode === 0 || player.gamemode === 5) {
+           let jf = player.gamemode === 5 ? JUMP_FORCE * 0.45 : JUMP_FORCE; 
+           if (player.sizeMultiplier < 1) jf *= 0.85;
            player.vy = jf * player.gravityDir; player.grounded = false; 
-        } else if (player.gamemode === 5) {
-           let jf = JUMP_FORCE * 0.45; if (player.sizeMultiplier < 1) jf *= 0.85;
-           player.vy = jf * player.gravityDir; player.grounded = false;
-           player.robotJumpFrames = 24;
+           if (player.gamemode === 5) player.robotJumpFrames = 24;
         }
       } 
     }
 
     function triggerAction() {
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
-        input.jumpHeld = true; let hitOrb = false;
+        let hitOrb = false;
         let pSize = 30 * player.sizeMultiplier;
         
         for (let obj of level) {
-          if ([5, 23, 25, 27, 34].includes(obj.type) && (player.gamemode === 0 || player.gamemode === 3 || player.gamemode === 4 || player.gamemode === 5 || player.gamemode === 6 || player.gamemode === 7)) {
+          if ([5, 23, 25, 27, 34].includes(obj.type) && !obj.hasBeenHit && [0, 3, 4, 5, 6, 7].includes(player.gamemode)) {
             let ox = obj.gx * GRID_SIZE + GRID_SIZE/2, oy = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE/2;
             if (Math.hypot((player.x + pSize/2) - ox, (player.y + pSize/2) - oy) < GRID_SIZE * 1.5) {
               
+              obj.hasBeenHit = true;
               let force = JUMP_FORCE;
               if (obj.type === 23) force *= 0.7; // Pink
               if (obj.type === 25) force *= 1.4; // Red
@@ -1185,6 +1185,7 @@
                 player.gravityFlipBoost = Math.abs(force) * 0.3;
               } else if (obj.type === 34) { // Green
                 player.gravityDir *= -1;
+                if (player.sizeMultiplier < 1) force *= 0.85;
                 player.vy = force * player.gravityDir;
               } else {
                 if (player.sizeMultiplier < 1) force *= 0.85;
@@ -1241,6 +1242,16 @@
     }
 
     function checkRectCollision(r1, r2) { return r1.x < r2.x + r2.w && r1.x + r1.w > r2.x && r1.y < r2.y + r2.h && r1.y + r1.h > r2.y; }
+
+    function getRotatedBox(box, rot, cx, cy) {
+      if (!rot) return box;
+      let bx = box.x + box.w/2, by = box.y + box.h/2;
+      let nx = bx, ny = by, nw = box.w, nh = box.h;
+      if (rot === 90) { nx = cx - (by - cy); ny = cy + (bx - cx); nw = box.h; nh = box.w; }
+      else if (rot === 180) { nx = cx - (bx - cx); ny = cy - (by - cy); }
+      else if (rot === 270) { nx = cx + (by - cy); ny = cy - (bx - cx); nw = box.h; nh = box.w; }
+      return { x: nx - nw/2, y: ny - nh/2, w: nw, h: nh };
+    }
 
     function update() {
       state.bgColor[0] += (state.targetBgColor[0] - state.bgColor[0]) * 0.05; state.bgColor[1] += (state.targetBgColor[1] - state.bgColor[1]) * 0.05; state.bgColor[2] += (state.targetBgColor[2] - state.bgColor[2]) * 0.05;
@@ -1302,10 +1313,10 @@
 
         let nextY = player.y + player.vy; player.grounded = false;
 
-        if (player.gamemode === 0 && !player.grounded) player.rotation += 8 * player.gravityDir; 
+        if ((player.gamemode === 0 || player.gamemode === 5) && !player.grounded) player.rotation += 8 * player.gravityDir; 
         else if (player.gamemode === 1) player.rotation = (input.jumpHeld ? -45 : 45) * player.gravityDir;
         else if (player.gamemode === 2 || player.gamemode === 7) player.rotation = player.vy * 3 * player.gravityDir;
-        else if (player.gamemode === 3 || player.gamemode === 5 || player.gamemode === 6) player.rotation = 0; 
+        else if (player.gamemode === 3 || player.gamemode === 6) player.rotation = 0; 
         else if (player.gamemode === 4) player.rotation += 10 * player.gravityDir;
 
         let pBox = { x: player.x, y: nextY, w: pSize, h: pSize };
@@ -1319,22 +1330,26 @@
           if (objX < player.x - 200 || objX > player.x + 800) continue;
 
           let oBox = { x: objX, y: objY, w: GRID_SIZE, h: GRID_SIZE };
+          let cx = objX + GRID_SIZE/2, cy = objY + GRID_SIZE/2;
 
           if (obj.type === 13) continue; 
           else if (obj.type === 18) { if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE*20, w: GRID_SIZE, h: GRID_SIZE*40 })) winGame(); }
           else if (obj.type >= 14 && obj.type <= 17) {
-            if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE*10, w: GRID_SIZE, h: GRID_SIZE*20 })) {
+            let bgBox = getRotatedBox({ x: objX, y: objY - GRID_SIZE*10, w: GRID_SIZE, h: GRID_SIZE*20 }, obj.rot, cx, cy);
+            if (checkRectCollision(pBox, bgBox)) {
               if (obj.type === 14) state.targetBgColor = [90, 20, 20]; if (obj.type === 15) state.targetBgColor = [20, 30, 90];
               if (obj.type === 16) state.targetBgColor = [20, 80, 30]; if (obj.type === 17) state.targetBgColor = [...DEFAULT_BG]; 
             }
           }
           else if (obj.type >= 10 && obj.type <= 12) {
-            if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE, w: GRID_SIZE, h: GRID_SIZE * 3 })) {
+            let speedBox = getRotatedBox({ x: objX, y: objY - GRID_SIZE, w: GRID_SIZE, h: GRID_SIZE * 3 }, obj.rot, cx, cy);
+            if (checkRectCollision(pBox, speedBox)) {
               if (obj.type === 10) player.speedMultiplier = 0.75; if (obj.type === 11) player.speedMultiplier = 1.0; if (obj.type === 12) player.speedMultiplier = 1.35;
             }
           }
           else if (obj.type === 28 || obj.type === 29) { 
-            if (checkRectCollision(pBox, { x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 })) {
+            let portBox = getRotatedBox({ x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 }, obj.rot, cx, cy);
+            if (checkRectCollision(pBox, portBox)) {
               let oldSize = player.sizeMultiplier;
               if (obj.type === 28) player.sizeMultiplier = 0.5;
               if (obj.type === 29) player.sizeMultiplier = 1.0;
@@ -1346,9 +1361,9 @@
             }
           }
           else if (obj.type === 1 || obj.type === 20) { 
-            let sBox = { x: objX + 10, y: objY + 10, w: GRID_SIZE - 20, h: GRID_SIZE - 20 };
-            if (obj.rot === 0 || !obj.rot) sBox = { x: objX + 8, y: objY + 16, w: GRID_SIZE - 16, h: GRID_SIZE - 16 };
+            let sBox = { x: objX + 8, y: objY + 16, w: GRID_SIZE - 16, h: GRID_SIZE - 16 };
             if (obj.type === 20) sBox = { x: objX + 12, y: objY + 24, w: GRID_SIZE - 24, h: GRID_SIZE - 24 };
+            sBox = getRotatedBox(sBox, obj.rot, cx, cy);
             if (checkRectCollision(pBox, sBox)) hitDeath = true;
           } 
           else if (obj.type === 21) {
@@ -1357,40 +1372,42 @@
              if (Math.hypot(pCx - sCx, pCy - sCy) < (GRID_SIZE/2 - 4) + pBox.w/2 - 2) hitDeath = true;
           }
           else if ([2, 22, 24, 26].includes(obj.type)) { 
-            let padBox = { x: objX, y: objY + GRID_SIZE - 20, w: GRID_SIZE, h: 20 };
-            if (obj.rot === 90) padBox = { x: objX, y: objY, w: 20, h: GRID_SIZE }; 
-            if (obj.rot === 180) padBox = { x: objX, y: objY, w: GRID_SIZE, h: 20 }; 
-            if (obj.rot === 270) padBox = { x: objX + GRID_SIZE - 20, y: objY, w: 20, h: GRID_SIZE };
+            let padBox = getRotatedBox({ x: objX, y: objY + GRID_SIZE - 20, w: GRID_SIZE, h: 20 }, obj.rot, cx, cy);
             if (checkRectCollision(pBox, padBox)) {
               let force = PAD_FORCE;
               if (obj.type === 22) force *= 0.7;
               if (obj.type === 24) force *= 1.4;
               
               if (obj.type === 26) {
-                 player.vy = PAD_FORCE * 0.25 * player.gravityDir;
-                 player.gravityFlipTimer = 3;
-                 player.gravityFlipBoost = Math.abs(PAD_FORCE) * 0.25;
+                 player.gravityDir *= -1;
+                 player.vy = PAD_FORCE * 0.3 * player.gravityDir;
               } else {
                  if (obj.rot === 0 || !obj.rot) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 180) { player.vy = -force; player.gravityDir = -1; }
+                 else if (obj.rot === 90) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 270) { player.vy = force; player.gravityDir = 1; }
               }
-              
+
               if (obj.rot === 0 || !obj.rot) { nextY = padBox.y - pSize; pBox.y = nextY; }
               else if (obj.rot === 180) { nextY = padBox.y + padBox.h; pBox.y = nextY; }
-
+              else if (obj.rot === 90) { player.x = padBox.x + padBox.w; }
+              else if (obj.rot === 270) { player.x = padBox.x - pSize; }
+              
               player.grounded = false; hitDeath = false;
               let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#fcd34d';
               for(let i=0; i<5; i++) state.particles.push({ x: objX + GRID_SIZE/2, y: objY + GRID_SIZE/2, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, life: 1.0, color: pCol });
             }
           }
           else if ([3, 4, 6, 7, 8, 9, 30, 31, 32, 33].includes(obj.type)) { 
-            if (checkRectCollision(pBox, { x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 })) {
+            let gmBox = getRotatedBox({ x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 }, obj.rot, cx, cy);
+            if (checkRectCollision(pBox, gmBox)) {
               if (obj.type === 3) player.gravityDir = 1; if (obj.type === 4) player.gravityDir = -1;
               if (obj.type === 6) player.gamemode = 1; if (obj.type === 7) player.gamemode = 0; if (obj.type === 8) player.gamemode = 2; if (obj.type === 9) player.gamemode = 3;
               if (obj.type === 30) player.gamemode = 4; if (obj.type === 31) player.gamemode = 5; if (obj.type === 32) player.gamemode = 6; if (obj.type === 33) player.gamemode = 7;
             }
           }
           else if (obj.type === 0 || obj.type === 19) { 
-            if (obj.type === 19) oBox = { x: objX, y: objY + GRID_SIZE/2, w: GRID_SIZE, h: GRID_SIZE/2 };
+            if (obj.type === 19) oBox = { x: objX, y: objY, w: GRID_SIZE, h: GRID_SIZE/2 }; // Top half
+            oBox = getRotatedBox(oBox, obj.rot, cx, cy);
+
             if (checkRectCollision(pBox, oBox)) {
               if (player.gamemode === 1) hitDeath = true;
               else {
@@ -1407,8 +1424,8 @@
           }
         }
         player.y = nextY;
-        if (player.gamemode === 0 && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; if (input.jumpHeld) jump(); }
-        if (player.gamemode === 5 && player.grounded) { player.rotation = 0; if (input.jumpHeld) jump(); }
+        if ((player.gamemode === 0 || player.gamemode === 5) && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; }
+        if (player.gamemode === 6 && player.grounded) { player.rotation = 0; }
         if (hitDeath) die();
         state.cameraX = player.x - (canvas.width * 0.3); 
         state.cameraY += ((player.y - canvas.height / 1.6) - state.cameraY) * 0.08;
@@ -1498,11 +1515,11 @@
             let pDark = obj.type===22?'#db2777':obj.type===24?'#b91c1c':obj.type===26?'#1d4ed8':'#b45309';
             ctx.fillStyle = pDark; ctx.fillRect(-s2, s2 - 10, GRID_SIZE, 10); ctx.fillStyle = pCol; ctx.beginPath(); ctx.ellipse(0, s2 - 10, s2 - 2, 4, 0, 0, Math.PI * 2); ctx.fill(); 
         } 
-        else if ([5, 23, 25, 27].includes(obj.type)) { 
-            let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':'#facc15';
+        else if ([5, 23, 25, 27, 34].includes(obj.type)) { 
+            let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':obj.type===34?'#22c55e':'#facc15';
             ctx.strokeStyle = pCol; ctx.fillStyle = pCol+'4d'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.fillStyle = pCol; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill(); 
         } 
-        else if ([3, 4, 6, 7, 8, 9, 28, 29, 30, 31, 32, 33].includes(obj.type)) {
+        else if ([3, 4, 6, 7, 8, 9, 28, 29].includes(obj.type)) {
           let pColorStr = '#eab308', pFillStr = 'rgba(234, 179, 8, 0.3)', wMult=1;
           if (obj.type === 3) { pColorStr = '#3b82f6'; pFillStr = 'rgba(59, 130, 246, 0.3)'; } 
           if (obj.type === 6) { pColorStr = '#f97316'; pFillStr = 'rgba(249, 115, 22, 0.3)'; } 
@@ -1661,7 +1678,12 @@
     canvas.addEventListener('pointerdown', (e) => {
       if (e.target !== canvas) return;
       
-      if (state.mode === 'play' || state.isPlaytesting) { input.jumpHeld = true; input.clickConsumed = false; return; }
+      if (state.mode === 'play' || state.isPlaytesting) { 
+          input.jumpHeld = true; 
+          input.clickConsumed = false; 
+          if (triggerAction()) input.clickConsumed = true; 
+          return; 
+      }
       if (state.mode !== 'edit') return;
       
       editor.isDragging = true; editor.isClick = true;
@@ -1744,7 +1766,13 @@
       }
 
       if (state.mode === 'play' || state.isPlaytesting) { 
-          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { input.jumpHeld = true; input.clickConsumed = false; }
+          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { 
+              if (!input.jumpHeld) {
+                  input.jumpHeld = true; 
+                  input.clickConsumed = false; 
+                  if (triggerAction()) input.clickConsumed = true; 
+              }
+          }
       } 
       else if (state.mode === 'edit') {
           let isWASD = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code);
