@@ -76,8 +76,6 @@
     .rarity-legendary { box-shadow: 0 0 25px #facc15; border-color: #facc15 !important; }
     .rarity-mythic { box-shadow: 0 0 35px #ef4444; border-color: #ef4444 !important; animation: pulse-mythic 1s infinite alternate; }
     @keyframes pulse-mythic { from { box-shadow: 0 0 15px #ef4444; } to { box-shadow: 0 0 35px #ff0000, 0 0 15px inset #ef4444; } }
-    .rarity-admin { box-shadow: 0 0 30px #0ff, inset 0 0 15px #0ff; border-color: #0ff !important; animation: pulse-admin 1s infinite alternate; background: #111; }
-    @keyframes pulse-admin { to { box-shadow: 0 0 50px #f0f, inset 0 0 25px #f0f; border-color: #f0f !important; } }
   </style>
 </head>
 <body id="mainBody">
@@ -390,14 +388,26 @@
              </div>
              <div class="md:w-2/3 flex flex-col bg-gray-800">
                 <div class="flex border-b border-gray-700 overflow-x-auto custom-scrollbar">
-                   <button class="kit-tab-btn active shrink-0 flex-1 py-4 font-bold text-white border-b-2 border-blue-500 whitespace-nowrap" data-tab="icons">Icons (<span id="kitCountIcons">1</span>/<span id="kitTotalIcons">30</span>)</button>
-                   <button id="tabAdminVehicles" class="kit-tab-btn hide shrink-0 px-6 py-4 font-bold text-cyan-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="admin">Admin Gear</button>
-                   <button class="kit-tab-btn shrink-0 flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col1">Color 1 (<span id="kitCountCol1">1</span>/30)</button>
-                   <button class="kit-tab-btn shrink-0 flex-1 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col2">Color 2 (<span id="kitCountCol2">1</span>/30)</button>
+                   <button class="kit-tab-btn active shrink-0 px-4 py-4 font-bold text-white border-b-2 border-blue-500 whitespace-nowrap" data-tab="icons">Cube (<span id="kitCountIcons">1</span>/<span id="kitTotalIcons">40</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="ships">Ship (<span id="kitCountShips">1</span>/<span id="kitTotalShips">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="ufos">UFO (<span id="kitCountUfos">1</span>/<span id="kitTotalUfos">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="waves">Wave (<span id="kitCountWaves">1</span>/<span id="kitTotalWaves">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="balls">Ball (<span id="kitCountBalls">1</span>/<span id="kitTotalBalls">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="robots">Robot (<span id="kitCountRobots">1</span>/<span id="kitTotalRobots">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="spiders">Spider (<span id="kitCountSpiders">1</span>/<span id="kitTotalSpiders">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="swings">Swing (<span id="kitCountSwings">1</span>/<span id="kitTotalSwings">20</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col1">Col 1 (<span id="kitCountCol1">1</span>/<span id="kitTotalCol1">30</span>)</button>
+                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col2">Col 2 (<span id="kitCountCol2">1</span>/<span id="kitTotalCol2">30</span>)</button>
                 </div>
                 <div class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-[#1a1a24]">
                    <div id="kitGridIcons" class="grid grid-cols-4 sm:grid-cols-6 gap-4"></div>
-                   <div id="kitGridAdmin" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridShips" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridUfos" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridWaves" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridBalls" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridRobots" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridSpiders" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridSwings" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridCol1" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridCol2" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                 </div>
@@ -610,7 +620,7 @@
                   <option value="setScore">🎯 Set Exact Stars</option>
                 </optgroup>
                 <optgroup label="Cheats & Rewards">
-                  <option value="rewardAdmin">👑 Reward Admin Icon Set</option>
+                  <option value="iconHack">🔓 Unlock All Gamemodes & Colors</option>
                 </optgroup>
                 <optgroup label="Moderation">
                   <option value="warn">⚠️ Send Warning Message</option>
@@ -681,7 +691,6 @@
     }
 
     function getIconSVG(idStr, c1, c2) {
-       if (idStr === 'iAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-g { animation: ag 1s ease-in-out infinite alternate; } @keyframes ag { to { filter: drop-shadow(0 0 20px ${c2}); transform: scale(1.05); } }</style><rect x="10" y="10" width="80" height="80" fill="#111" stroke="${c1}" stroke-width="8" rx="20" class="a-g"/><path d="M50 20 L80 80 L20 80 Z" fill="${c2}" class="a-g"/><text x="50" y="70" font-size="40" font-weight="900" fill="#111" text-anchor="middle">A</text></svg>`;
        const id = parseInt(idStr.replace('i', ''));
        let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; 
        switch(id) {
@@ -730,7 +739,6 @@
     }
 
     function getShipSVG(idStr, c1, c2) {
-       if (idStr === 'shAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-f { animation: af 0.5s infinite alternate; } @keyframes af { to { transform: translateY(-10px) rotate(5deg); filter: drop-shadow(0 0 15px ${c1}); } }</style><g class="a-f"><rect x="10" y="40" width="60" height="20" fill="#111" stroke="${c1}" stroke-width="6"/><rect x="60" y="20" width="30" height="60" fill="${c2}" stroke="${c1}" stroke-width="6"/><text x="75" y="55" font-size="16" font-weight="900" fill="#111" text-anchor="middle" transform="rotate(90 75 50)">BAN</text></g></svg>`;
        const id = parseInt(idStr.replace('sh', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<path d="M 20 30 L 80 50 L 20 70 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`; 
        if(bid===2) content = `<rect x="15" y="30" width="70" height="40" rx="20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
@@ -747,7 +755,6 @@
     }
 
     function getUfoSVG(idStr, c1, c2) {
-       if (idStr === 'uAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-u { animation: au 3s linear infinite; transform-origin: 50px 50px; } @keyframes au { to { transform: rotate(360deg); } }</style><polygon points="50,15 90,75 10,75" fill="#111" stroke="${c1}" stroke-width="8"/><circle cx="50" cy="55" r="20" fill="none" stroke="${c2}" stroke-width="4" class="a-u" stroke-dasharray="10 10"/><ellipse cx="50" cy="55" rx="12" ry="6" fill="${c2}"/><circle cx="50" cy="55" r="3" fill="#111"/></svg>`;
        const id = parseInt(idStr.replace('u', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="65" rx="40" ry="15" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 30 65 Q 50 10 70 65" fill="${rC2}"/>`;
        if(bid===2) content = `<rect x="20" y="55" width="60" height="20" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="40" r="20" fill="${rC2}"/>`;
@@ -764,7 +771,6 @@
     }
 
     function getWaveSVG(idStr, c1, c2) {
-       if (idStr === 'wAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-w { animation: aw 0.2s infinite alternate; } @keyframes aw { to { filter: drop-shadow(0 0 15px ${c1}); } }</style><path d="M 10 50 L 40 20 L 50 40 L 90 10 L 60 80 L 50 60 Z" fill="#111" stroke="${c2}" stroke-width="6" class="a-w"/></svg>`;
        const id = parseInt(idStr.replace('w', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<polygon points="10,50 50,10 90,50 50,90" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
        if(bid===2) content = `<path d="M 20 50 L 60 20 L 60 80 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
@@ -781,7 +787,6 @@
     }
 
     function getBallSVG(idStr, c1, c2) {
-       if (idStr === 'bAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-b { animation: ab 2s linear infinite; transform-origin: 50px 50px; } @keyframes ab { to { transform: rotate(360deg); filter: drop-shadow(0 0 20px ${c2}); } }</style><circle cx="50" cy="50" r="40" fill="#111" stroke="${c1}" stroke-width="8"/><path d="M 50 10 L 50 90 M 10 50 L 90 50 M 20 20 L 80 80 M 20 80 L 80 20" stroke="${c2}" stroke-width="8" class="a-b"/><circle cx="50" cy="50" r="15" fill="#111" stroke="${c1}" stroke-width="4"/></svg>`;
        const id = parseInt(idStr.replace('b', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<circle cx="50" cy="50" r="45" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
        if(bid===1) content += `<circle cx="50" cy="50" r="20" fill="${rC2}"/>`;
@@ -799,7 +804,6 @@
     }
 
     function getRobotSVG(idStr, c1, c2) {
-       if (idStr === 'rAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-r { animation: ar 0.5s steps(2) infinite; } @keyframes ar { to { filter: invert(1); } }</style><rect x="25" y="10" width="50" height="40" rx="10" fill="#111" stroke="${c1}" stroke-width="6"/><rect x="15" y="25" width="70" height="10" fill="${c2}"/><circle cx="35" cy="25" r="8" fill="${c1}" class="a-r"/><circle cx="65" cy="25" r="8" fill="${c1}" class="a-r"/><rect x="30" y="55" width="15" height="35" fill="${c2}"/><rect x="55" y="55" width="15" height="35" fill="${c2}"/></svg>`;
        const id = parseInt(idStr.replace('r', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<rect x="25" y="10" width="50" height="40" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><rect x="35" y="55" width="10" height="35" fill="${rC2}"/><rect x="55" y="55" width="10" height="35" fill="${rC2}"/>`;
        if(bid===1) content += `<rect x="35" y="25" width="30" height="15" fill="${rC2}"/>`;
@@ -817,7 +821,6 @@
     }
 
     function getSpiderSVG(idStr, c1, c2) {
-       if (idStr === 'spAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-sp { animation: asp 0.1s infinite alternate; } @keyframes asp { to { transform: translateY(5px); filter: drop-shadow(0 0 15px ${c1}); } }</style><ellipse cx="50" cy="45" rx="35" ry="25" fill="#111" stroke="${c2}" stroke-width="6"/><circle cx="35" cy="45" r="8" fill="${c1}" class="a-sp"/><circle cx="65" cy="45" r="8" fill="${c1}" class="a-sp"/><path d="M 15 45 L 0 80 M 30 65 L 15 95 M 70 65 L 85 95 M 85 45 L 100 80" stroke="${c1}" stroke-width="8" stroke-linecap="round"/></svg>`;
        const id = parseInt(idStr.replace('sp', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="40" rx="35" ry="25" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 20 40 L 5 70 M 35 55 L 25 85 M 65 55 L 75 85 M 80 40 L 95 70" stroke="${rC2}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
        if(bid===1) content += `<circle cx="35" cy="35" r="5" fill="${rC2}"/><circle cx="65" cy="35" r="5" fill="${rC2}"/>`;
@@ -835,7 +838,6 @@
     }
 
     function getSwingSVG(idStr, c1, c2) {
-       if (idStr === 'swAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-sw { animation: asw 0.1s linear infinite; transform-origin: 50px 50px; } @keyframes asw { to { transform: rotate(360deg); } }</style><ellipse cx="50" cy="50" rx="30" ry="40" fill="#111" stroke="${c1}" stroke-width="8"/><path d="M 50 0 L 50 100 M 0 50 L 100 50" stroke="${c2}" stroke-width="8" class="a-sw"/><circle cx="50" cy="50" r="15" fill="${c2}"/></svg>`;
        const id = parseInt(idStr.replace('sw', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="50" rx="40" ry="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="15" cy="50" r="12" fill="${rC2}"/><circle cx="85" cy="50" r="12" fill="${rC2}"/>`;
        if(bid===1) content += `<circle cx="50" cy="50" r="15" fill="${rC2}"/>`;
@@ -878,13 +880,13 @@
        const c1 = ALL_COLORS.find(c => c.id === myProfile.equippedCol1)?.val || '#00f0ff';
        const c2 = ALL_COLORS.find(c => c.id === myProfile.equippedCol2)?.val || '#ffffff';
        cachedPlayerImg.src = "data:image/svg+xml;base64," + btoa(getIconSVG(myProfile.equippedIcon || 'i1', c1, c2));
-       if ((myProfile.equippedShip||'').includes('Admin')) cachedShipImg.src = "data:image/svg+xml;base64," + btoa(getShipSVG(myProfile.equippedShip, c1, c2));
-       if ((myProfile.equippedUfo||'').includes('Admin')) cachedUfoImg.src = "data:image/svg+xml;base64," + btoa(getUfoSVG(myProfile.equippedUfo, c1, c2));
-       if ((myProfile.equippedWave||'').includes('Admin')) cachedWaveImg.src = "data:image/svg+xml;base64," + btoa(getWaveSVG(myProfile.equippedWave, c1, c2));
-       if ((myProfile.equippedBall||'').includes('Admin')) cachedBallImg.src = "data:image/svg+xml;base64," + btoa(getBallSVG(myProfile.equippedBall, c1, c2));
-       if ((myProfile.equippedRobot||'').includes('Admin')) cachedRobotImg.src = "data:image/svg+xml;base64," + btoa(getRobotSVG(myProfile.equippedRobot, c1, c2));
-       if ((myProfile.equippedSpider||'').includes('Admin')) cachedSpiderImg.src = "data:image/svg+xml;base64," + btoa(getSpiderSVG(myProfile.equippedSpider, c1, c2));
-       if ((myProfile.equippedSwing||'').includes('Admin')) cachedSwingImg.src = "data:image/svg+xml;base64," + btoa(getSwingSVG(myProfile.equippedSwing, c1, c2));
+       if (typeof getShipSVG === 'function') cachedShipImg.src = "data:image/svg+xml;base64," + btoa(getShipSVG(myProfile.equippedShip || 'sh1', c1, c2));
+       if (typeof getUfoSVG === 'function') cachedUfoImg.src = "data:image/svg+xml;base64," + btoa(getUfoSVG(myProfile.equippedUfo || 'u1', c1, c2));
+       if (typeof getWaveSVG === 'function') cachedWaveImg.src = "data:image/svg+xml;base64," + btoa(getWaveSVG(myProfile.equippedWave || 'w1', c1, c2));
+       if (typeof getBallSVG === 'function') cachedBallImg.src = "data:image/svg+xml;base64," + btoa(getBallSVG(myProfile.equippedBall || 'b1', c1, c2));
+       if (typeof getRobotSVG === 'function') cachedRobotImg.src = "data:image/svg+xml;base64," + btoa(getRobotSVG(myProfile.equippedRobot || 'r1', c1, c2));
+       if (typeof getSpiderSVG === 'function') cachedSpiderImg.src = "data:image/svg+xml;base64," + btoa(getSpiderSVG(myProfile.equippedSpider || 'sp1', c1, c2));
+       if (typeof getSwingSVG === 'function') cachedSwingImg.src = "data:image/svg+xml;base64," + btoa(getSwingSVG(myProfile.equippedSwing || 'sw1', c1, c2));
     }
 
     // ==========================================
@@ -1390,13 +1392,13 @@
               else if (obj.rot === 270) { player.x = padBox.x - pSize; }
               
               player.grounded = false; hitDeath = false;
-              player.grounded = false;
               let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#fcd34d';
               for(let i=0; i<5; i++) state.particles.push({ x: objX + GRID_SIZE/2, y: objY + GRID_SIZE/2, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, life: 1.0, color: pCol });
             }
           }
           else if ([3, 4, 6, 7, 8, 9, 30, 31, 32, 33].includes(obj.type)) { 
-            if (checkRectCollision(pBox, { x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 })) {
+            let gmBox = getRotatedBox({ x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 }, obj.rot, cx, cy);
+            if (checkRectCollision(pBox, gmBox)) {
               if (obj.type === 3) player.gravityDir = 1; if (obj.type === 4) player.gravityDir = -1;
               if (obj.type === 6) player.gamemode = 1; if (obj.type === 7) player.gamemode = 0; if (obj.type === 8) player.gamemode = 2; if (obj.type === 9) player.gamemode = 3;
               if (obj.type === 30) player.gamemode = 4; if (obj.type === 31) player.gamemode = 5; if (obj.type === 32) player.gamemode = 6; if (obj.type === 33) player.gamemode = 7;
@@ -1422,8 +1424,7 @@
           }
         }
         player.y = nextY;
-        if (player.gamemode === 0 && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; if (input.jumpHeld) jump(); }
-        if (player.gamemode === 5 && player.grounded) { player.rotation = 0; if (input.jumpHeld) jump(); }
+        if ((player.gamemode === 0 || player.gamemode === 5) && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; }
         if (player.gamemode === 6 && player.grounded) { player.rotation = 0; }
         if (hitDeath) die();
         state.cameraX = player.x - (canvas.width * 0.3); 
@@ -1518,7 +1519,7 @@
             let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':obj.type===34?'#22c55e':'#facc15';
             ctx.strokeStyle = pCol; ctx.fillStyle = pCol+'4d'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.fillStyle = pCol; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill(); 
         } 
-        else if ([3, 4, 6, 7, 8, 9, 28, 29, 30, 31, 32, 33].includes(obj.type)) {
+        else if ([3, 4, 6, 7, 8, 9, 28, 29].includes(obj.type)) {
           let pColorStr = '#eab308', pFillStr = 'rgba(234, 179, 8, 0.3)', wMult=1;
           if (obj.type === 3) { pColorStr = '#3b82f6'; pFillStr = 'rgba(59, 130, 246, 0.3)'; } 
           if (obj.type === 6) { pColorStr = '#f97316'; pFillStr = 'rgba(249, 115, 22, 0.3)'; } 
@@ -1542,40 +1543,67 @@
         let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
 
         if (player.gamemode === 1) { 
-           ctx.fillStyle = c1; ctx.beginPath(); ctx.moveTo(30/2, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/4, 0); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); 
-           ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.stroke(); 
+          ctx.strokeStyle = c1 + '55'; ctx.lineWidth = (30 * player.sizeMultiplier) - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+          for (let i = 0; i < state.trail.length; i++) { 
+             let t = state.trail[i]; let ts = 30*t.size;
+             if (i === 0) ctx.moveTo(t.x + ts/2, t.y + ts/2); else ctx.lineTo(t.x + ts/2, t.y + ts/2); 
+          }
+          let ps = 30 * player.sizeMultiplier;
+          ctx.lineTo(player.x + ps/2, player.y + ps/2); ctx.stroke();
+        } else {
+          state.trail.forEach((t, i) => { 
+             let ts = 30*t.size;
+             ctx.save(); ctx.translate(t.x + ts/2, t.y + ts/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); 
+             ctx.fillStyle = c1; ctx.globalAlpha = i / 30; ctx.fillRect(-ts/2, -ts/2, ts, ts); ctx.restore(); 
+          });
+        }
+      }
+
+      if (!player.dead) {
+        let pSize = 30 * player.sizeMultiplier;
+        ctx.save(); ctx.translate(player.x + pSize/2, player.y + pSize/2); ctx.rotate(player.rotation * Math.PI / 180); ctx.scale(player.sizeMultiplier, player.gravityDir * player.sizeMultiplier); 
+        
+        let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
+        let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
+        const drawFace = () => { ctx.fillStyle = '#111'; ctx.fillRect(-8, -6, 4, 4); ctx.fillRect(4, -6, 4, 4); ctx.fillRect(-6, 2, 12, 3); };
+
+        if (player.gamemode === 1) { 
+           if(typeof cachedWaveImg !== 'undefined' && cachedWaveImg.complete && cachedWaveImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedWaveImg, 0, 0, 100, 100); ctx.restore(); } 
+           else { ctx.fillStyle = c1; ctx.beginPath(); ctx.moveTo(30/2, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/4, 0); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.stroke(); } 
         } 
         else if (player.gamemode === 2) { 
-           ctx.fillStyle = c2; ctx.beginPath(); ctx.moveTo(30/2 + 5, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); 
-           ctx.fillStyle = c1; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.strokeRect(-30/4, -30/4, 30/2, 30/2); 
+           if(typeof cachedShipImg !== 'undefined' && cachedShipImg.complete && cachedShipImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedShipImg, 0, 0, 100, 100); ctx.restore(); } 
+           else { ctx.fillStyle = c2; ctx.beginPath(); ctx.moveTo(30/2 + 5, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.fillStyle = c1; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
         } 
         else if (player.gamemode === 3) { 
-           ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(0, 0, 30/1.2, 30/3, 0, 0, Math.PI*2); ctx.fill(); 
-           ctx.fillStyle = c1+'aa'; ctx.beginPath(); ctx.arc(0, -30/6, 30/2.5, Math.PI, 0); ctx.fill(); 
+           if(typeof cachedUfoImg !== 'undefined' && cachedUfoImg.complete && cachedUfoImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedUfoImg, 0, 0, 100, 100); ctx.restore(); } 
+           else { ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.ellipse(0, 0, 30/1.2, 30/3, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(0, -30/6, 30/2.5, Math.PI, 0); ctx.fill(); ctx.fillStyle = c1; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
         } 
-        else if (player.gamemode === 4) {
-           ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); 
-        }
-        else if (player.gamemode === 5) {
+        else if (player.gamemode === 4) { if(typeof cachedBallImg !== 'undefined' && cachedBallImg.complete && cachedBallImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedBallImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); } }
+        else if (player.gamemode === 5) { 
            let legSwing = player.grounded ? Math.sin(player.x * 0.05) * 30 : (player.vy * player.gravityDir < 0 ? -15 : 20);
            ctx.save(); ctx.translate(-6, 5); ctx.rotate(legSwing * Math.PI / 180); ctx.fillStyle = c2; ctx.fillRect(-3, 0, 6, 12); ctx.restore();
            ctx.save(); ctx.translate(6, 5); ctx.rotate(-legSwing * Math.PI / 180); ctx.fillStyle = c2; ctx.fillRect(-3, 0, 6, 12); ctx.restore();
-           ctx.fillStyle = c1; ctx.fillRect(-15, -15, 30, 20); ctx.strokeStyle = '#fff'; ctx.strokeRect(-15, -15, 30, 20); ctx.fillStyle = '#111'; ctx.fillRect(-8, -20, 4, 4); ctx.fillRect(4, -20, 4, 4); ctx.fillRect(-6, -12, 12, 3); ctx.fillStyle = '#fff'; ctx.fillRect(-2, -22, 4, 7); 
+           
+           if(typeof cachedRobotImg !== 'undefined' && cachedRobotImg.complete && cachedRobotImg.src) { 
+               ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); 
+               ctx.beginPath(); ctx.rect(0, 0, 100, 52); ctx.clip();
+               ctx.drawImage(cachedRobotImg, 0, 0, 100, 100); 
+               ctx.restore(); 
+           } else { 
+               ctx.fillStyle = c1; ctx.fillRect(-15, -15, 30, 20); ctx.strokeStyle = '#fff'; ctx.strokeRect(-15, -15, 30, 20); drawFace(); ctx.fillStyle = '#fff'; ctx.fillRect(-2, -22, 4, 7); 
+           } 
         }
-        else if (player.gamemode === 6) {
-           ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(0, 0, 15, 10, 0, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = c1; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-20, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(20, 15); ctx.stroke(); 
-        }
-        else if (player.gamemode === 7) {
-           ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(-15, 0, 6, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(15, 0, 6, 0, Math.PI*2); ctx.fill(); 
-        }
+        else if (player.gamemode === 6) { if(typeof cachedSpiderImg !== 'undefined' && cachedSpiderImg.complete && cachedSpiderImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedSpiderImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(0, 0, 15, 10, 0, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = c1; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-20, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-10, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(10, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(20, 15); ctx.stroke(); drawFace(); } }
+        else if (player.gamemode === 7) { if(typeof cachedSwingImg !== 'undefined' && cachedSwingImg.complete && cachedSwingImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedSwingImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(-15, 0, 6, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(15, 0, 6, 0, Math.PI*2); ctx.fill(); drawFace(); } }
         else { 
-           if (cachedPlayerImg.complete && cachedPlayerImg.src) {
-              let r = ALL_ICONS.find(i=>i.id===(myProfile?.equippedIcon || 'i1'))?.rarity;
+           if (typeof cachedPlayerImg !== 'undefined' && cachedPlayerImg.complete && cachedPlayerImg.src) {
+              let r = ALL_ICONS.find(i=>i.id===(myProfile?myProfile.equippedIcon:'i1'))?.rarity;
               if (r==='mythic') { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 15 + Math.sin(Date.now()/150)*5; }
               ctx.drawImage(cachedPlayerImg, -15, -15, 30, 30); 
               ctx.shadowBlur = 0;
            } else {
-              ctx.fillStyle = c1; ctx.fillRect(-30/2, -30/2, 30, 30); ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.strokeRect(-30/2, -30/2, 30, 30); 
+              ctx.fillStyle = c1; ctx.fillRect(-30/2, -30/2, 30, 30); ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.strokeRect(-30/2, -30/2, 30, 30); drawFace();
            }
         }
         ctx.restore();
@@ -2202,13 +2230,20 @@
        b.addEventListener('click', (e) => {
           document.querySelectorAll('.kit-tab-btn').forEach(btn => { btn.classList.remove('active', 'text-white', 'border-blue-500'); btn.classList.add('text-gray-400', 'border-transparent'); });
           e.currentTarget.classList.remove('text-gray-400', 'border-transparent'); e.currentTarget.classList.add('active', 'text-white', 'border-blue-500');
-          if (e.currentTarget.id === 'tabAdminVehicles') { e.currentTarget.classList.remove('text-cyan-400'); e.currentTarget.classList.add('text-cyan-300', 'border-cyan-500'); }
           kitTab = e.currentTarget.dataset.tab;
-          document.getElementById('kitGridIcons').classList.add('hide'); 
-          if(document.getElementById('kitGridAdmin')) document.getElementById('kitGridAdmin').classList.add('hide'); 
-          document.getElementById('kitGridCol1').classList.add('hide'); document.getElementById('kitGridCol2').classList.add('hide');
+          
+          ['kitGridIcons', 'kitGridShips', 'kitGridUfos', 'kitGridWaves', 'kitGridBalls', 'kitGridRobots', 'kitGridSpiders', 'kitGridSwings', 'kitGridCol1', 'kitGridCol2'].forEach(id => {
+             document.getElementById(id).classList.add('hide');
+          });
+          
           if(kitTab==='icons') document.getElementById('kitGridIcons').classList.remove('hide');
-          if(kitTab==='admin') document.getElementById('kitGridAdmin').classList.remove('hide');
+          if(kitTab==='ships') document.getElementById('kitGridShips').classList.remove('hide');
+          if(kitTab==='ufos') document.getElementById('kitGridUfos').classList.remove('hide');
+          if(kitTab==='waves') document.getElementById('kitGridWaves').classList.remove('hide');
+          if(kitTab==='balls') document.getElementById('kitGridBalls').classList.remove('hide');
+          if(kitTab==='robots') document.getElementById('kitGridRobots').classList.remove('hide');
+          if(kitTab==='spiders') document.getElementById('kitGridSpiders').classList.remove('hide');
+          if(kitTab==='swings') document.getElementById('kitGridSwings').classList.remove('hide');
           if(kitTab==='col1') document.getElementById('kitGridCol1').classList.remove('hide');
           if(kitTab==='col2') document.getElementById('kitGridCol2').classList.remove('hide');
        });
@@ -2216,20 +2251,44 @@
 
     function renderIconKit() {
        if(!myProfile) return;
-       const eqI = myProfile.equippedIcon || 'i1', eqC1 = myProfile.equippedCol1 || 'c1', eqC2 = myProfile.equippedCol2 || 'c20';
-       const eqSh = myProfile.equippedShip || 'sh1', eqU = myProfile.equippedUfo || 'u1', eqW = myProfile.equippedWave || 'w1';
+       const eqI = myProfile.equippedIcon || 'i1', eqSh = myProfile.equippedShip || 'sh1', eqU = myProfile.equippedUfo || 'u1', eqW = myProfile.equippedWave || 'w1';
        const eqB = myProfile.equippedBall || 'b1', eqR = myProfile.equippedRobot || 'r1', eqSp = myProfile.equippedSpider || 'sp1', eqSw = myProfile.equippedSwing || 'sw1';
-       
+       const eqC1 = myProfile.equippedCol1 || 'c1', eqC2 = myProfile.equippedCol2 || 'c20';
        const c1Val = ALL_COLORS.find(c=>c.id===eqC1)?.val || '#00f0ff', c2Val = ALL_COLORS.find(c=>c.id===eqC2)?.val || '#ffffff';
        
-       let previewSVG = getIconSVG(eqI, c1Val, c2Val);
-       if (kitTab === 'admin') previewSVG = getIconSVG('iAdmin', c1Val, c2Val);
+       let previewSVG = '';
+       if (kitTab === 'icons' || kitTab === 'col1' || kitTab === 'col2') previewSVG = getIconSVG(eqI, c1Val, c2Val);
+       if (kitTab === 'ships') previewSVG = getShipSVG(eqSh, c1Val, c2Val);
+       if (kitTab === 'ufos') previewSVG = getUfoSVG(eqU, c1Val, c2Val);
+       if (kitTab === 'waves') previewSVG = getWaveSVG(eqW, c1Val, c2Val);
+       if (kitTab === 'balls') previewSVG = getBallSVG(eqB, c1Val, c2Val);
+       if (kitTab === 'robots') previewSVG = getRobotSVG(eqR, c1Val, c2Val);
+       if (kitTab === 'spiders') previewSVG = getSpiderSVG(eqSp, c1Val, c2Val);
+       if (kitTab === 'swings') previewSVG = getSwingSVG(eqSw, c1Val, c2Val);
 
        document.getElementById('kitPreviewContainer').innerHTML = previewSVG;
-       document.getElementById('kitCountIcons').innerText = (myProfile.unlockedIcons || []).length;
+       
        document.getElementById('kitTotalIcons').innerText = ALL_ICONS.length;
-       document.getElementById('kitCountCol1').innerText = (myProfile.unlockedCol1 || []).length;
-       document.getElementById('kitCountCol2').innerText = (myProfile.unlockedCol2 || []).length;
+       document.getElementById('kitTotalShips').innerText = ALL_SHIPS.length;
+       document.getElementById('kitTotalUfos').innerText = ALL_UFOS.length;
+       document.getElementById('kitTotalWaves').innerText = ALL_WAVES.length;
+       document.getElementById('kitTotalBalls').innerText = ALL_BALLS.length;
+       document.getElementById('kitTotalRobots').innerText = ALL_ROBOTS.length;
+       document.getElementById('kitTotalSpiders').innerText = ALL_SPIDERS.length;
+       document.getElementById('kitTotalSwings').innerText = ALL_SWINGS.length;
+       document.getElementById('kitTotalCol1').innerText = ALL_COLORS.length;
+       document.getElementById('kitTotalCol2').innerText = ALL_COLORS.length;
+
+       document.getElementById('kitCountIcons').innerText = (myProfile.unlockedIcons || ['i1']).length;
+       document.getElementById('kitCountShips').innerText = (myProfile.unlockedShips || ['sh1']).length;
+       document.getElementById('kitCountUfos').innerText = (myProfile.unlockedUfos || ['u1']).length;
+       document.getElementById('kitCountWaves').innerText = (myProfile.unlockedWaves || ['w1']).length;
+       document.getElementById('kitCountBalls').innerText = (myProfile.unlockedBalls || ['b1']).length;
+       document.getElementById('kitCountRobots').innerText = (myProfile.unlockedRobots || ['r1']).length;
+       document.getElementById('kitCountSpiders').innerText = (myProfile.unlockedSpiders || ['sp1']).length;
+       document.getElementById('kitCountSwings').innerText = (myProfile.unlockedSwings || ['sw1']).length;
+       document.getElementById('kitCountCol1').innerText = (myProfile.unlockedCol1 || ['c1']).length;
+       document.getElementById('kitCountCol2').innerText = (myProfile.unlockedCol2 || ['c20']).length;
 
        const renderItem = (item, type, isUnlocked, isEquipped, contentHTML) => {
           return `<button class="relative w-full aspect-square rounded-xl border-[3px] transition-all hover:scale-105 active:scale-95 flex items-center justify-center p-2 
@@ -2240,48 +2299,23 @@
           </button>`;
        };
 
-       document.getElementById('kitGridIcons').innerHTML = ALL_ICONS.map(i => renderItem(i, 'icon', (myProfile.unlockedIcons || []).includes(i.id), eqI === i.id, getIconSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', (myProfile.unlockedCol1 || []).includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', (myProfile.unlockedCol2 || []).includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       
-       let hasAdmin = (myProfile.unlockedIcons || []).includes('iAdmin');
-       if (hasAdmin && document.getElementById('tabAdminVehicles')) {
-          document.getElementById('tabAdminVehicles').classList.remove('hide');
-          let adminItems = [
-             {id: 'iAdmin', type: 'icon', svg: getIconSVG('iAdmin', '#ccc', '#fff')},
-             {id: 'shAdmin', type: 'ship', svg: getShipSVG('shAdmin', '#ccc', '#fff')},
-             {id: 'uAdmin', type: 'ufo', svg: getUfoSVG('uAdmin', '#ccc', '#fff')},
-             {id: 'wAdmin', type: 'wave', svg: getWaveSVG('wAdmin', '#ccc', '#fff')},
-             {id: 'bAdmin', type: 'ball', svg: getBallSVG('bAdmin', '#ccc', '#fff')},
-             {id: 'rAdmin', type: 'robot', svg: getRobotSVG('rAdmin', '#ccc', '#fff')},
-             {id: 'spAdmin', type: 'spider', svg: getSpiderSVG('spAdmin', '#ccc', '#fff')},
-             {id: 'swAdmin', type: 'swing', svg: getSwingSVG('swAdmin', '#ccc', '#fff')}
-          ];
-          document.getElementById('kitGridAdmin').innerHTML = adminItems.map(i => {
-             let isEq = false;
-             if (i.type === 'icon') isEq = eqI === i.id;
-             else if (i.type === 'ship') isEq = eqSh === i.id;
-             else if (i.type === 'ufo') isEq = eqU === i.id;
-             else if (i.type === 'wave') isEq = eqW === i.id;
-             else if (i.type === 'ball') isEq = eqB === i.id;
-             else if (i.type === 'robot') isEq = eqR === i.id;
-             else if (i.type === 'spider') isEq = eqSp === i.id;
-             else if (i.type === 'swing') isEq = eqSw === i.id;
-             return renderItem({id: i.id, rarity: 'admin'}, i.type, true, isEq, i.svg);
-          }).join('');
-       } else if (document.getElementById('tabAdminVehicles')) {
-          document.getElementById('tabAdminVehicles').classList.add('hide');
-       }
-
+       document.getElementById('kitGridIcons').innerHTML = ALL_ICONS.map(i => renderItem(i, 'icon', (myProfile.unlockedIcons || ['i1']).includes(i.id), eqI === i.id, getIconSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridShips').innerHTML = ALL_SHIPS.map(i => renderItem(i, 'ship', (myProfile.unlockedShips || ['sh1']).includes(i.id), eqSh === i.id, getShipSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridUfos').innerHTML = ALL_UFOS.map(i => renderItem(i, 'ufo', (myProfile.unlockedUfos || ['u1']).includes(i.id), eqU === i.id, getUfoSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridWaves').innerHTML = ALL_WAVES.map(i => renderItem(i, 'wave', (myProfile.unlockedWaves || ['w1']).includes(i.id), eqW === i.id, getWaveSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridBalls').innerHTML = ALL_BALLS.map(i => renderItem(i, 'ball', (myProfile.unlockedBalls || ['b1']).includes(i.id), eqB === i.id, getBallSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridRobots').innerHTML = ALL_ROBOTS.map(i => renderItem(i, 'robot', (myProfile.unlockedRobots || ['r1']).includes(i.id), eqR === i.id, getRobotSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridSpiders').innerHTML = ALL_SPIDERS.map(i => renderItem(i, 'spider', (myProfile.unlockedSpiders || ['sp1']).includes(i.id), eqSp === i.id, getSpiderSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridSwings').innerHTML = ALL_SWINGS.map(i => renderItem(i, 'swing', (myProfile.unlockedSwings || ['sw1']).includes(i.id), eqSw === i.id, getSwingSVG(i.id, '#ccc', '#fff'))).join('');
+       document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', (myProfile.unlockedCol1 || ['c1']).includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
+       document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', (myProfile.unlockedCol2 || ['c20']).includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
        lucide.createIcons();
 
-       ['icon', 'col1', 'col2', 'ship', 'ufo', 'wave', 'ball', 'robot', 'spider', 'swing'].forEach(t => {
+       ['icon', 'ship', 'ufo', 'wave', 'ball', 'robot', 'spider', 'swing', 'col1', 'col2'].forEach(t => {
           document.querySelectorAll(`[data-equip-${t}]`).forEach(b => b.addEventListener('click', async (e) => {
              const val = e.currentTarget.getAttribute(`data-equip-${t}`);
              try {
-                let key = t==='icon' ? 'equippedIcon' : t==='col1' ? 'equippedCol1' : t==='col2' ? 'equippedCol2' : 
-                        t==='ship' ? 'equippedShip' : t==='ufo' ? 'equippedUfo' : t==='wave' ? 'equippedWave' : 
-                        t==='ball' ? 'equippedBall' : t==='robot' ? 'equippedRobot' : t==='spider' ? 'equippedSpider' : 'equippedSwing';
+                let key = t==='icon' ? 'equippedIcon' : t==='ship' ? 'equippedShip' : t==='ufo' ? 'equippedUfo' : t==='wave' ? 'equippedWave' : t==='ball' ? 'equippedBall' : t==='robot' ? 'equippedRobot' : t==='spider' ? 'equippedSpider' : t==='swing' ? 'equippedSwing' : t==='col1' ? 'equippedCol1' : 'equippedCol2';
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { [key]: val }, { merge: true });
              } catch(err) {}
           }));
@@ -2796,10 +2830,22 @@
         else if (act === 'role') {
           if (valRole === 'king') { if(!confirm(`WARNING: Transfer crown?`)) return; await setDoc(uRef, { role: 'king' }, { merge: true }); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true }); } else await setDoc(uRef, { role: valRole }, { merge: true });
         }
-        else if (act === 'rewardAdmin') {
-            let nI = [...new Set([...(tUser.unlockedIcons || []), 'iAdmin', 'shAdmin', 'uAdmin', 'wAdmin', 'bAdmin', 'rAdmin', 'spAdmin', 'swAdmin'])];
-            await setDoc(uRef, { unlockedIcons: nI }, { merge: true });
-            alert("Admin gear set rewarded to player!");
+        else if (act === 'iconHack') {
+            const allIco = ALL_ICONS.map(i => i.id);
+            const allSh = typeof ALL_SHIPS !== 'undefined' ? ALL_SHIPS.map(i => i.id) : [];
+            const allUfo = typeof ALL_UFOS !== 'undefined' ? ALL_UFOS.map(i => i.id) : [];
+            const allWav = typeof ALL_WAVES !== 'undefined' ? ALL_WAVES.map(i => i.id) : [];
+            const allBall = typeof ALL_BALLS !== 'undefined' ? ALL_BALLS.map(i => i.id) : [];
+            const allRob = typeof ALL_ROBOTS !== 'undefined' ? ALL_ROBOTS.map(i => i.id) : [];
+            const allSp = typeof ALL_SPIDERS !== 'undefined' ? ALL_SPIDERS.map(i => i.id) : [];
+            const allSw = typeof ALL_SWINGS !== 'undefined' ? ALL_SWINGS.map(i => i.id) : [];
+            const allCol = ALL_COLORS.map(c => c.id);
+            await setDoc(uRef, { 
+                unlockedIcons: allIco, unlockedShips: allSh, unlockedUfos: allUfo, unlockedWaves: allWav,
+                unlockedBalls: allBall, unlockedRobots: allRob, unlockedSpiders: allSp, unlockedSwings: allSw, 
+                unlockedCol1: allCol, unlockedCol2: allCol 
+            }, { merge: true });
+            alert("All icons, gamemodes, and colors unlocked for player!");
         }
       } catch (err) { alert("Command failed."); }
     });
