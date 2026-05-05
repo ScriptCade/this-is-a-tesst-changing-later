@@ -27,14 +27,6 @@
     @keyframes pulse-play { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(74, 222, 128, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
     .play-pulse { animation: pulse-play 2s infinite; }
 
-    /* Gacha Animations */
-    @keyframes chestShake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-10deg) scale(1.1); } 50% { transform: rotate(10deg) scale(1.1); } 75% { transform: rotate(-10deg) scale(1.1); } 100% { transform: rotate(0deg) scale(1); } }
-    .chest-shaking { animation: chestShake 0.4s ease-in-out infinite; filter: brightness(1.5) drop-shadow(0 0 20px white); }
-    @keyframes whiteFlash { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
-    .flash-screen { animation: whiteFlash 1s ease-out forwards; }
-    @keyframes cardFlip { 0% { transform: scale(0) rotateY(180deg); opacity: 0; } 100% { transform: scale(1) rotateY(0deg); opacity: 1; } }
-    .card-flip { animation: cardFlip 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-
     /* Editor UI Buttons */
     .ed-btn { background: linear-gradient(180deg, #4ade80, #16a34a); border: 2px solid #000; border-radius: 6px; color: white; font-weight: 900; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; box-shadow: inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2); transition: filter 0.1s; }
     .ed-btn:active { filter: brightness(0.8); }
@@ -65,17 +57,9 @@
     .troll-spin { animation: spin 2s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
 
-    /* Theme Styles */
+    /* Level Preview Specific Styles */
     .gd-blue-bg { background: linear-gradient(to bottom, #0055ff, #0033aa); }
     .gd-panel { background: #8B4513; border: 3px solid #000; border-radius: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.5); }
-    
-    /* Rarity Glows */
-    .rarity-common { box-shadow: 0 0 10px #9ca3af; border-color: #9ca3af !important; }
-    .rarity-rare { box-shadow: 0 0 15px #3b82f6; border-color: #3b82f6 !important; }
-    .rarity-epic { box-shadow: 0 0 20px #a855f7; border-color: #a855f7 !important; }
-    .rarity-legendary { box-shadow: 0 0 25px #facc15; border-color: #facc15 !important; }
-    .rarity-mythic { box-shadow: 0 0 35px #ef4444; border-color: #ef4444 !important; animation: pulse-mythic 1s infinite alternate; }
-    @keyframes pulse-mythic { from { box-shadow: 0 0 15px #ef4444; } to { box-shadow: 0 0 35px #ff0000, 0 0 15px inset #ef4444; } }
   </style>
 </head>
 <body id="mainBody">
@@ -85,6 +69,7 @@
   <!-- ========================================== -->
   <canvas id="gameCanvas"></canvas>
 
+  <!-- In-Game UI Overlay -->
   <div id="gameUI" class="hide absolute top-0 left-0 w-full p-4 pointer-events-none flex justify-between items-start z-40">
     <div class="pointer-events-auto flex gap-2 bg-gray-900/80 p-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl">
       <button id="btnExitGame" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-white font-bold transition-colors shadow flex items-center gap-2">
@@ -93,6 +78,7 @@
       <button id="btnMusic" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow">🎵 Music: OFF</button>
     </div>
     
+    <!-- In-Game Progress Bar -->
     <div id="gameProgressContainer" class="hide pointer-events-auto absolute top-6 left-1/2 -translate-x-1/2 w-64 bg-black/60 rounded-full border-2 border-white/20 p-1 backdrop-blur-md">
       <div id="gameProgressBar" class="h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full w-0 transition-all duration-100 relative">
         <span id="gameProgressText" class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white text-shadow-sm">0%</span>
@@ -104,6 +90,7 @@
     </div>
   </div>
 
+  <!-- Editor Top Right Options (Playtest & Publish) -->
   <div id="editorTopRight" class="hide absolute top-4 right-4 z-50 flex gap-2 pointer-events-auto">
     <button id="btnPlaytest" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 border border-blue-400/30 transition-transform hover:scale-105">
       <i data-lucide="play" class="w-5 h-5"></i> Test (Z)
@@ -113,15 +100,22 @@
     </button>
   </div>
 
+  <!-- Advanced Editor Toolbar (Taller for huge buttons) -->
   <div id="editorToolbar" class="hide fixed bottom-0 left-0 w-full bg-black/95 border-t-4 border-gray-700 p-3 pointer-events-auto z-40 flex gap-4 h-[35vh] min-h-[250px] shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
+    
+    <!-- Left: Main Tabs -->
     <div class="flex flex-col gap-2 w-32 flex-shrink-0">
       <button id="tabBuild" class="ed-btn active flex-1 text-lg tracking-wider">BUILD</button>
       <button id="tabEditMode" class="ed-btn flex-1 text-lg tracking-wider">EDIT</button>
       <button id="tabDelete" class="ed-btn delete flex-1 text-lg tracking-wider">DELETE</button>
     </div>
 
+    <!-- Center: Dynamic Content Panels -->
     <div class="flex-1 bg-[#1a1a24] border-4 border-gray-800 rounded-xl flex flex-col overflow-hidden relative shadow-inner">
+      
+      <!-- BUILD PANEL -->
       <div id="panelBuild" class="flex-1 flex flex-col h-full">
+        <!-- Top Categories -->
         <div class="flex px-3 pt-3 border-b-4 border-[#111] bg-[#111] overflow-x-auto custom-scrollbar">
           <button class="cat-btn active whitespace-nowrap" data-cat="blocks">Blocks</button>
           <button class="cat-btn whitespace-nowrap" data-cat="hazards">Hazards</button>
@@ -129,42 +123,44 @@
           <button class="cat-btn whitespace-nowrap" data-cat="portals">Portals</button>
           <button class="cat-btn whitespace-nowrap" data-cat="triggers">Triggers</button>
         </div>
+        <!-- Tool Grids (Categorized) -->
         <div class="p-4 overflow-y-auto custom-scrollbar flex-1 bg-[#223]">
+          
           <div id="cat-blocks" class="flex flex-wrap gap-4 content-start">
             <button class="tool-btn active" data-tool="0" title="Solid Block"><div class="w-5 h-5 border-2 border-white bg-blue-400"></div></button>
-            <button class="tool-btn" data-tool="19" title="Half Block"><div class="w-5 h-2.5 border-2 border-white bg-blue-400 mb-2.5"></div></button>
+            <button class="tool-btn" data-tool="19" title="Half Block"><div class="w-5 h-2.5 border-2 border-white bg-blue-400 mt-2.5"></div></button>
             <button class="tool-btn" data-tool="13" title="Deco Block"><div class="w-5 h-5 border border-gray-500 bg-gray-700"></div></button>
           </div>
+          
           <div id="cat-hazards" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="1" title="Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[14px] border-b-red-500"></div></div></button>
             <button class="tool-btn" data-tool="20" title="Small Spike"><div class="w-5 h-5 border-b-2 border-white relative"><div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[8px] border-b-red-500"></div></div></button>
             <button class="tool-btn" data-tool="21" title="Sawblade"><div class="w-5 h-5 rounded-full border-2 border-gray-400 bg-gray-600 flex items-center justify-center"><div class="w-1 h-1 bg-white rounded-full"></div></div></button>
           </div>
+          
           <div id="cat-interact" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="5" title="Yellow Orb (Normal)"><div class="w-4 h-4 rounded-full border-2 border-yellow-200 bg-yellow-400 shadow-[0_0_8px_#facc15]"></div></button>
             <button class="tool-btn" data-tool="23" title="Pink Orb (Low)"><div class="w-4 h-4 rounded-full border-2 border-pink-200 bg-pink-400 shadow-[0_0_8px_#f472b6]"></div></button>
             <button class="tool-btn" data-tool="25" title="Red Orb (High)"><div class="w-4 h-4 rounded-full border-2 border-red-200 bg-red-500 shadow-[0_0_8px_#ef4444]"></div></button>
             <button class="tool-btn" data-tool="27" title="Blue Orb (Gravity)"><div class="w-4 h-4 rounded-full border-2 border-blue-200 bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div></button>
-            <button class="tool-btn" data-tool="34" title="Green Orb (Gravity Boost)"><div class="w-4 h-4 rounded-full border-2 border-green-200 bg-green-500 shadow-[0_0_8px_#22c55e]"></div></button>
+            
             <button class="tool-btn" data-tool="2" title="Yellow Pad"><div class="w-5 h-2 border-t-2 border-yellow-200 rounded-t-full bg-yellow-400 mt-3 shadow-[0_0_8px_#facc15]"></div></button>
             <button class="tool-btn" data-tool="22" title="Pink Pad"><div class="w-5 h-2 border-t-2 border-pink-200 rounded-t-full bg-pink-400 mt-3 shadow-[0_0_8px_#f472b6]"></div></button>
             <button class="tool-btn" data-tool="24" title="Red Pad"><div class="w-5 h-2 border-t-2 border-red-200 rounded-t-full bg-red-500 mt-3 shadow-[0_0_8px_#ef4444]"></div></button>
             <button class="tool-btn" data-tool="26" title="Blue Pad"><div class="w-5 h-2 border-t-2 border-blue-200 rounded-t-full bg-blue-500 mt-3 shadow-[0_0_8px_#3b82f6]"></div></button>
           </div>
+          
           <div id="cat-portals" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="7" title="Cube Mode"><div class="w-3 h-5 border-2 border-green-400 rounded-full bg-green-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-green-200">C</span></div></button>
             <button class="tool-btn" data-tool="8" title="Ship Mode"><div class="w-3 h-5 border-2 border-pink-400 rounded-full bg-pink-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-pink-200">S</span></div></button>
             <button class="tool-btn" data-tool="9" title="UFO Mode"><div class="w-3 h-5 border-2 border-purple-400 rounded-full bg-purple-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-purple-200">U</span></div></button>
             <button class="tool-btn" data-tool="6" title="Wave Mode"><div class="w-3 h-5 border-2 border-orange-500 rounded-full bg-orange-500/20 flex items-center justify-center"><span class="text-[8px] font-bold text-orange-200">W</span></div></button>
-            <button class="tool-btn" data-tool="30" title="Ball Mode"><div class="w-3 h-5 border-2 border-orange-600 rounded-full bg-orange-600/20 flex items-center justify-center"><span class="text-[8px] font-bold text-orange-400">B</span></div></button>
-            <button class="tool-btn" data-tool="31" title="Robot Mode"><div class="w-3 h-5 border-2 border-gray-400 rounded-full bg-gray-400/20 flex items-center justify-center"><span class="text-[8px] font-bold text-gray-200">R</span></div></button>
-            <button class="tool-btn" data-tool="32" title="Spider Mode"><div class="w-3 h-5 border-2 border-purple-600 rounded-full bg-purple-600/20 flex items-center justify-center"><span class="text-[8px] font-bold text-purple-400">Sp</span></div></button>
-            <button class="tool-btn" data-tool="33" title="Swing Mode"><div class="w-3 h-5 border-2 border-yellow-600 rounded-full bg-yellow-600/20 flex items-center justify-center"><span class="text-[8px] font-bold text-yellow-400">Sw</span></div></button>
             <button class="tool-btn" data-tool="4" title="Gravity Up"><div class="w-3 h-5 border-2 border-yellow-400 rounded-full bg-yellow-400/20"></div></button>
             <button class="tool-btn" data-tool="3" title="Gravity Down"><div class="w-3 h-5 border-2 border-blue-400 rounded-full bg-blue-400/20"></div></button>
             <button class="tool-btn" data-tool="28" title="Mini Portal"><div class="w-3 h-4 border-2 border-fuchsia-400 rounded bg-fuchsia-400/30"></div></button>
             <button class="tool-btn" data-tool="29" title="Normal Portal"><div class="w-4 h-6 border-2 border-emerald-400 rounded bg-emerald-400/30"></div></button>
           </div>
+          
           <div id="cat-triggers" class="flex flex-wrap gap-4 content-start hide">
             <button class="tool-btn" data-tool="10" title="Slow Speed"><span class="text-orange-400 font-bold text-xs">&lt;</span></button>
             <button class="tool-btn" data-tool="11" title="Normal Speed"><span class="text-green-400 font-bold text-xs">&gt;&gt;</span></button>
@@ -174,11 +170,11 @@
             <button class="tool-btn" data-tool="16" title="BG Green"><div class="w-4 h-4 rounded-full bg-green-900 border-2 border-green-500"></div></button>
             <button class="tool-btn" data-tool="17" title="BG Reset"><div class="w-4 h-4 rounded-full bg-gray-900 border-2 border-gray-400"></div></button>
             <button class="tool-btn" data-tool="18" title="End Goal"><div class="w-3 h-6 border-2 border-white bg-white/50 flex flex-col justify-between items-center"><div class="w-full h-1 bg-black"></div><div class="w-full h-1 bg-black"></div></div></button>
-            <button class="tool-btn" data-tool="35" title="Start Pos"><div class="w-3 h-6 border-l-4 border-green-400 flex flex-col justify-start items-start"><div class="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-green-400 border-b-[6px] border-b-transparent"></div></div></button>
           </div>
         </div>
       </div>
 
+      <!-- EDIT PANEL -->
       <div id="panelEdit" class="hide flex-1 bg-[#223] flex items-center justify-center gap-12 p-6">
         <div id="editNoSelection" class="text-gray-400 font-bold text-xl">Select objects to edit (or place a block)</div>
         <div id="editControls" class="hide flex gap-12 items-center w-full justify-center">
@@ -204,6 +200,7 @@
         </div>
       </div>
 
+      <!-- DELETE PANEL -->
       <div id="panelDelete" class="hide flex-1 bg-[#223] flex flex-col items-center justify-center gap-6 p-6">
         <p class="text-gray-400 font-bold text-lg">Swipe over objects to delete them.</p>
         <button id="btnDeleteAll" class="px-8 py-4 bg-red-900 border-4 border-red-500 hover:bg-red-800 text-white font-black text-2xl rounded-xl flex items-center gap-3 transition-colors shadow-2xl">
@@ -212,14 +209,16 @@
       </div>
     </div>
 
+    <!-- Right: Toggles & Camera -->
     <div class="flex flex-col gap-2 w-32 flex-shrink-0">
-      <button id="btnSwipeToggle" class="ed-btn flex-1 text-sm tracking-wider border-green-900 shadow">SWIPE<br><span id="swipeStatus" class="text-xs text-red-200">OFF</span></button>
+      <button id="btnSwipeToggle" class="ed-btn active flex-1 text-sm tracking-wider border-green-900 shadow">SWIPE<br><span id="swipeStatus" class="text-xs text-green-200">ON</span></button>
       
+      <!-- Build Rotation State -->
       <div id="buildRotState" class="flex flex-col bg-gray-800 border-2 border-gray-600 rounded-lg pt-2 pb-2 shadow-inner">
         <div class="text-xs text-center text-yellow-200 font-black mb-2" id="lblBuildRot">0°</div>
         <div class="flex gap-2 px-2 h-12">
-           <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-50 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></button>
-           <button id="btnBuildRotRight" class="bg-purple-600 hover:bg-purple-50 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-cw" class="w-5 h-5"></i></button>
+           <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></button>
+           <button id="btnBuildRotRight" class="bg-purple-600 hover:bg-purple-500 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-cw" class="w-5 h-5"></i></button>
         </div>
       </div>
     </div>
@@ -255,7 +254,7 @@
         </p>
       </header>
 
-      <!-- UNLOGGED STATE -->
+      <!-- UNLOGGED STATE (Auth) -->
       <div id="joinSection" class="max-w-md mx-auto bg-gray-800/80 backdrop-blur border border-gray-700 p-6 rounded-2xl shadow-xl block mt-8 animate-pop">
         <button id="googleLoginBtn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-900 px-6 py-3.5 rounded-xl font-bold transition-all shadow-md active:scale-[0.98]">
           <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google
@@ -273,8 +272,10 @@
         </form>
       </div>
 
-      <!-- LOGGED IN STATE -->
+      <!-- LOGGED IN STATE (Hub Dashboard) -->
       <div id="loggedInSection" class="hidden w-full max-w-5xl mx-auto flex flex-col items-center gap-8 mt-8">
+        
+        <!-- Profile Banner -->
         <div class="w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl shadow-xl p-4 flex flex-wrap items-center justify-between gap-4 animate-slide-up">
           <div class="flex items-center gap-4">
             <div class="relative group cursor-pointer flex-shrink-0" id="pfpContainer" title="Change Profile Picture">
@@ -287,10 +288,7 @@
                 <span id="displayUsername" class="font-bold text-white text-xl truncate max-w-[200px]"></span>
                 <div id="myRoleBadge"></div>
               </div>
-              <div class="text-sm font-bold text-yellow-400 flex items-center gap-4">
-                 <span><span id="displayScore">0</span> <i data-lucide="star" class="w-3 h-3 fill-yellow-400 inline"></i></span>
-                 <span class="text-blue-400"><span id="displayKeys">0</span> <i data-lucide="key" class="w-3 h-3 inline"></i> Keys</span>
-              </div>
+              <div class="text-sm font-bold text-yellow-400 flex items-center gap-1"><span id="displayScore">0</span> <i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> Stars</div>
             </div>
           </div>
           
@@ -302,40 +300,28 @@
           </div>
         </div>
 
-        <!-- MAIN MENU -->
+        <!-- MAIN MENU (3 Big Buttons) -->
         <div id="viewMainMenu" class="w-full flex flex-col items-center gap-6 animate-pop">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-            <button id="btnViewBrowser" class="p-8 bg-blue-600 hover:bg-blue-500 rounded-3xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-transform hover:scale-105 flex items-center justify-center gap-6 border-2 border-blue-400 h-40 relative overflow-hidden group">
-              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <i data-lucide="globe" class="w-16 h-16 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
-              <span class="text-3xl font-black tracking-widest text-white relative z-10 text-left">BROWSE<br>LEVELS</span>
-            </button>
-            <button id="btnCreateLevel" class="p-8 bg-green-600 hover:bg-green-500 rounded-3xl shadow-[0_0_30px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex items-center justify-center gap-6 border-2 border-green-400 h-40 relative overflow-hidden group">
-              <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <i data-lucide="hammer" class="w-16 h-16 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
-              <span class="text-3xl font-black tracking-widest text-white relative z-10 text-left">CREATE<br>LEVEL</span>
-            </button>
-          </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-            <button id="btnViewLeaderboard" class="p-6 bg-yellow-600 hover:bg-yellow-500 rounded-3xl shadow-[0_0_30px_rgba(202,138,4,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-3 border-2 border-yellow-400 h-48 relative overflow-hidden group">
+            <button id="btnViewBrowser" class="p-8 bg-blue-600 hover:bg-blue-500 rounded-3xl shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-blue-400 h-64 relative overflow-hidden group">
               <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <i data-lucide="trophy" class="w-12 h-12 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
-              <span class="text-xl font-black tracking-widest text-white relative z-10 text-center">TOP<br>CREATORS</span>
+              <i data-lucide="globe" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
+              <span class="text-3xl font-black tracking-widest text-white relative z-10">BROWSE<br>LEVELS</span>
             </button>
-            <button id="btnViewIconKit" class="p-6 bg-purple-600 hover:bg-purple-500 rounded-3xl shadow-[0_0_30px_rgba(168,85,247,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-3 border-2 border-purple-400 h-48 relative overflow-hidden group">
+            <button id="btnCreateLevel" class="p-8 bg-green-600 hover:bg-green-500 rounded-3xl shadow-[0_0_30px_rgba(22,163,74,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-green-400 h-64 relative overflow-hidden group">
               <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <i data-lucide="box" class="w-12 h-12 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
-              <span class="text-xl font-black tracking-widest text-white relative z-10 text-center">ICON<br>KIT</span>
+              <i data-lucide="hammer" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
+              <span class="text-3xl font-black tracking-widest text-white relative z-10">CREATE<br>LEVEL</span>
             </button>
-            <button id="btnViewTreasure" class="p-6 bg-red-600 hover:bg-red-500 rounded-3xl shadow-[0_0_30px_rgba(239,68,68,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-3 border-2 border-red-400 h-48 relative overflow-hidden group">
+            <button id="btnViewLeaderboard" class="p-8 bg-yellow-600 hover:bg-yellow-500 rounded-3xl shadow-[0_0_30px_rgba(202,138,4,0.4)] transition-transform hover:scale-105 flex flex-col items-center justify-center gap-4 border-2 border-yellow-400 h-64 relative overflow-hidden group">
               <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <i data-lucide="key" class="w-12 h-12 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
-              <span class="text-xl font-black tracking-widest text-white relative z-10 text-center">TREASURE<br>ROOM</span>
+              <i data-lucide="trophy" class="w-20 h-20 text-white drop-shadow-md relative z-10 group-hover:scale-110 transition-transform"></i>
+              <span class="text-3xl font-black tracking-widest text-white relative z-10">TOP<br>CREATORS</span>
             </button>
           </div>
         </div>
 
-        <!-- LEVEL BROWSER -->
+        <!-- LEVEL BROWSER VIEW -->
         <div id="viewBrowser" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px] animate-pop">
           <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
             <div class="flex items-center gap-4">
@@ -347,19 +333,7 @@
           <div id="levelBrowserList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
         </div>
 
-        <!-- MY LEVELS -->
-        <div id="viewMyLevels" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px] animate-pop">
-          <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-              <button class="btnBackToMain text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-              <h3 class="text-xl font-bold flex items-center gap-2 text-white"><i data-lucide="folder" class="w-6 h-6 text-green-400"></i> My Levels</h3>
-            </div>
-            <button id="btnCreateNewLevel" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-xl shadow flex items-center gap-2 transition-transform hover:scale-105"><i data-lucide="plus" class="w-5 h-5"></i> New Level</button>
-          </div>
-          <div id="myLevelsList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
-        </div>
-
-        <!-- LEADERBOARD -->
+        <!-- LEADERBOARD VIEW -->
         <div id="viewLeaderboard" class="hidden w-full bg-gray-800/80 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px] animate-pop">
           <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center">
             <div class="flex items-center gap-4">
@@ -371,198 +345,64 @@
           <div id="leaderboardViewList" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-gray-800/30"></div>
         </div>
 
-        <!-- ICON KIT -->
-        <div id="viewIconKit" class="hidden w-full bg-gray-800/90 backdrop-blur border border-gray-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[700px] animate-pop">
-          <div class="p-5 border-b border-gray-700 bg-gray-900 flex justify-between items-center z-10">
-            <div class="flex items-center gap-4">
-              <button class="btnBackToMain text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-              <h3 class="text-xl font-bold flex items-center gap-2 text-white"><i data-lucide="box" class="w-6 h-6 text-purple-400"></i> Icon Kit</h3>
-            </div>
-          </div>
-          <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
-             <div class="md:w-1/3 bg-gray-900 border-r border-gray-700 p-8 flex flex-col items-center justify-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-blue-900/20"></div>
-                <div class="absolute bottom-0 w-full h-1/3 bg-blue-900/40 border-t-2 border-blue-500/50"></div>
-                <h4 class="absolute top-6 text-gray-400 font-bold tracking-widest text-sm z-10">PREVIEW</h4>
-                <div id="kitPreviewContainer" class="w-32 h-32 relative z-10 drop-shadow-2xl"></div>
-             </div>
-             <div class="md:w-2/3 flex flex-col bg-gray-800">
-                <div class="flex border-b border-gray-700 overflow-x-auto custom-scrollbar">
-                   <button class="kit-tab-btn active shrink-0 px-4 py-4 font-bold text-white border-b-2 border-blue-500 whitespace-nowrap" data-tab="icons">Cube (<span id="kitCountIcons">1</span>/<span id="kitTotalIcons">40</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="ships">Ship (<span id="kitCountShips">1</span>/<span id="kitTotalShips">20</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="ufos">UFO (<span id="kitCountUfos">1</span>/<span id="kitTotalUfos">20</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="waves">Wave (<span id="kitCountWaves">1</span>/<span id="kitTotalWaves">20</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="balls">Ball (<span id="kitCountBalls">1</span>/<span id="kitTotalBalls">20</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="robots">Robot (<span id="kitCountRobots">1</span>/<span id="kitTotalRobots">20</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="spiders">Spider (<span id="kitCountSpiders">1</span>/<span id="kitTotalSpiders">20</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="swings">Swing (<span id="kitCountSwings">1</span>/<span id="kitTotalSwings">20</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col1">Col 1 (<span id="kitCountCol1">1</span>/<span id="kitTotalCol1">30</span>)</button>
-                   <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col2">Col 2 (<span id="kitCountCol2">1</span>/<span id="kitTotalCol2">30</span>)</button>
-                </div>
-                <div class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-[#1a1a24]">
-                   <div id="kitGridIcons" class="grid grid-cols-4 sm:grid-cols-6 gap-4"></div>
-                   <div id="kitGridShips" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridUfos" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridWaves" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridBalls" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridRobots" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridSpiders" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridSwings" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridCol1" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridCol2" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                </div>
-             </div>
-          </div>
-        </div>
-
-        <!-- TREASURE ROOM -->
-        <div id="viewTreasure" class="hidden w-full bg-gray-900 backdrop-blur border-[4px] border-red-900 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.3)] flex flex-col min-h-[600px] animate-pop relative">
-          <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0icmdiYSgyNTUsIDAsIDAsIDAuMSkiLz48L3N2Zz4=')] opacity-50 pointer-events-none"></div>
-          <div class="p-5 flex justify-between items-center relative z-10 bg-gradient-to-b from-red-950 to-transparent">
-            <button class="btnBackToMain text-red-400 hover:text-white transition-colors p-2 hover:bg-red-900/50 rounded-lg bg-black/50"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-            <div class="bg-black/80 border-2 border-blue-500 rounded-xl px-6 py-2 flex items-center gap-3 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-               <span class="text-gray-300 font-bold uppercase text-sm">Your Keys:</span>
-               <span id="treasureKeyCount" class="text-3xl font-black text-blue-400 drop-shadow-md">0</span>
-               <i data-lucide="key" class="w-6 h-6 text-blue-400"></i>
-            </div>
-          </div>
-          <div class="flex-1 flex flex-col items-center justify-center p-8 relative z-10" id="treasureMainArea">
-             <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600 drop-shadow-lg text-center uppercase tracking-widest mb-2">Treasure Room</h2>
-             <p class="text-red-300 font-bold text-center mb-12 max-w-lg">Earn 1 Key for every 25 Stars collected! Unlock exclusive icons and colors to customize your cube.</p>
-             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-6xl">
-                <!-- Wood Chest -->
-                <div class="bg-gray-800/80 border-2 border-gray-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-xl">
-                   <div class="w-32 h-32 bg-yellow-900 border-4 border-yellow-700 rounded-lg flex items-center justify-center shadow-inner mb-4 relative overflow-hidden">
-                      <div class="absolute top-1/2 left-0 w-full h-2 bg-yellow-950 -translate-y-1/2"></div>
-                      <div class="w-6 h-8 bg-gray-400 border-2 border-gray-600 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                   </div>
-                   <h3 class="text-xl font-bold text-white mb-1">Basic Chest</h3>
-                   <p class="text-xs text-gray-400 mb-4 h-8">Drops Common or Rare items.</p>
-                   <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="1" data-tier="wood">
-                      Open: 1 <i data-lucide="key" class="w-4 h-4"></i>
-                   </button>
-                </div>
-                <!-- Gold Chest -->
-                <div class="bg-yellow-900/30 border-2 border-yellow-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-[0_0_30px_rgba(202,138,4,0.2)]">
-                   <div class="w-32 h-32 bg-yellow-500 border-4 border-yellow-300 rounded-lg flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] mb-4 relative overflow-hidden">
-                      <div class="absolute top-1/2 left-0 w-full h-2 bg-yellow-700 -translate-y-1/2"></div>
-                      <div class="w-6 h-8 bg-gray-200 border-2 border-white rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                   </div>
-                   <h3 class="text-xl font-bold text-yellow-400 mb-1">Golden Chest</h3>
-                   <p class="text-xs text-yellow-200/70 mb-4 h-8">Drops Rare, Epic, or Legendary items.</p>
-                   <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="5" data-tier="gold">
-                      Open: 5 <i data-lucide="key" class="w-4 h-4"></i>
-                   </button>
-                </div>
-                <!-- Vehicle Chest -->
-                <div class="bg-blue-900/30 border-2 border-blue-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-[0_0_30px_rgba(59,130,246,0.3)]">
-                   <div class="w-32 h-32 bg-blue-950 border-4 border-blue-500 rounded-lg flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(59,130,246,0.5)] mb-4 relative overflow-hidden">
-                      <div class="absolute top-1/2 left-0 w-full h-2 bg-black -translate-y-1/2"></div>
-                      <div class="w-6 h-8 bg-blue-600 border-2 border-blue-300 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"><div class="w-1 h-2 bg-black rounded-full"></div></div>
-                   </div>
-                   <h3 class="text-xl font-bold text-blue-400 mb-1">Vehicle Chest</h3>
-                   <p class="text-xs text-blue-200/70 mb-4 h-8">Drops Ships, UFOs, Waves, etc.</p>
-                   <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="15" data-tier="vehicle">
-                      Open: 15 <i data-lucide="key" class="w-4 h-4"></i>
-                   </button>
-                </div>
-                <!-- Demon Chest -->
-                <div class="bg-red-900/30 border-2 border-red-600 rounded-2xl p-6 flex flex-col items-center text-center transition-transform hover:scale-105 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
-                   <div class="w-32 h-32 bg-red-950 border-4 border-red-500 rounded-lg flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(239,68,68,0.5)] mb-4 relative overflow-hidden">
-                      <div class="absolute top-1/2 left-0 w-full h-2 bg-black -translate-y-1/2"></div>
-                      <div class="w-6 h-8 bg-red-600 border-2 border-red-300 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"><div class="w-1 h-2 bg-black rounded-full"></div></div>
-                   </div>
-                   <h3 class="text-xl font-bold text-red-500 mb-1">Demon Chest</h3>
-                   <p class="text-xs text-red-300/70 mb-4 h-8">Drops Epic, Legendary, or Mythic items.</p>
-                   <button class="btn-buy-chest w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow" data-cost="10" data-tier="demon">
-                      Open: 10 <i data-lucide="key" class="w-4 h-4"></i>
-                   </button>
-                </div>
-             </div>
-          </div>
-          <!-- Opening Animation -->
-          <div id="treasureOpenArea" class="hide absolute inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-8 backdrop-blur-md">
-             <div id="flashScreen" class="absolute inset-0 bg-white z-0 pointer-events-none opacity-0"></div>
-             <div id="chestAnimContainer" class="relative z-10 w-48 h-48 mb-12"></div>
-             <div id="rewardsContainer" class="hide z-10 flex gap-6 md:gap-12 items-center justify-center w-full max-w-4xl perspective-1000"></div>
-             <button id="btnTreasureContinue" class="hide z-10 mt-16 px-12 py-4 bg-green-500 hover:bg-green-400 text-white font-black tracking-widest text-2xl rounded-2xl shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-transform hover:scale-105 active:scale-95 animate-slide-up">CONTINUE</button>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
 
-  <!-- PLAYER PROFILE MODAL -->
-  <div id="profileModal" class="hide fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
-    <div class="bg-gray-900 border-2 border-gray-600 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-md flex flex-col overflow-hidden relative animate-pop">
-      <div class="h-32 bg-gradient-to-br from-indigo-900 to-purple-900 relative">
-         <button id="btnCloseProfile" class="absolute top-4 right-4 text-white/70 hover:text-white bg-black/30 p-2 rounded-full transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-      <div class="flex flex-col items-center px-6 pb-8 -mt-16 relative z-10">
-         <div class="w-32 h-32 rounded-full border-4 border-gray-900 bg-gray-800 shadow-xl overflow-hidden relative mb-4">
-            <img id="profModalImg" src="" class="w-full h-full object-cover">
-         </div>
-         <h2 id="profModalName" class="text-3xl font-black text-white mb-1 text-center">Username</h2>
-         <div id="profModalBadge" class="mb-4"></div>
-         <div class="w-full bg-black/40 rounded-2xl p-4 border border-white/5 flex justify-around mb-6">
-            <div class="text-center">
-               <p class="text-gray-400 text-xs font-bold mb-1">STARS</p>
-               <p id="profModalStars" class="text-yellow-400 font-mono text-2xl font-bold">0</p>
-            </div>
-            <div class="w-px bg-white/10"></div>
-            <div class="text-center">
-               <p class="text-gray-400 text-xs font-bold mb-1">ICONS</p>
-               <p id="profModalIconCount" class="text-purple-400 font-mono text-2xl font-bold">1/40</p>
-            </div>
-            <div class="w-px bg-white/10"></div>
-            <div class="text-center">
-               <p class="text-gray-400 text-xs font-bold mb-1">COLORS</p>
-               <p id="profModalColorCount" class="text-blue-400 font-mono text-2xl font-bold">2/60</p>
-            </div>
-         </div>
-         <div class="w-full bg-gray-800 rounded-xl p-6 border border-gray-700 flex flex-col items-center shadow-inner">
-            <p class="text-gray-500 text-xs font-bold tracking-widest mb-4">FAVORITE ICON</p>
-            <div id="profModalFavIcon" class="w-24 h-24 drop-shadow-2xl transform transition-transform hover:scale-110"></div>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LEVEL PREVIEW MODAL -->
+  <!-- GD LEVEL PREVIEW MODAL -->
   <div id="levelPreviewModal" class="hide fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
-    <div class="gd-blue-bg border-[4px] border-[#001155] rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden relative shadow-[0_0_50px_rgba(0,85,255,0.4)]">
+    <div class="gd-blue-bg border-[4px] border-[#001155] rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden relative animate-pop shadow-[0_0_50px_rgba(0,85,255,0.4)]">
+      
+      <!-- Top Bar: Back & Info -->
       <div class="absolute top-4 left-4 z-10 flex gap-2">
         <button id="btnClosePreview" class="w-12 h-12 bg-red-600 hover:bg-red-500 border-[3px] border-black rounded-full flex items-center justify-center text-white shadow-lg transition-transform hover:scale-105 active:scale-95"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
       </div>
       <div class="absolute top-4 right-4 z-10 flex gap-2">
         <div class="bg-black/50 border-2 border-white/20 rounded-full px-4 py-1 flex items-center gap-2 text-white font-mono shadow-inner"><i data-lucide="hash" class="w-4 h-4 text-gray-400"></i> <span id="prevLevelId" class="text-xs">ID</span></div>
       </div>
+
+      <!-- Main Center Content -->
       <div class="flex-1 flex flex-col items-center pt-8 px-6 relative z-0">
         <h1 id="prevLevelName" class="text-4xl md:text-5xl font-black text-white tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] text-center max-w-[80%] truncate uppercase">LEVEL NAME</h1>
         <p class="text-yellow-400 font-bold text-lg md:text-xl tracking-wide drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] mt-1">BY <span id="prevAuthorName">AUTHOR</span></p>
 
         <div class="flex w-full mt-6 flex-1 max-h-[300px]">
-          <div class="w-1/3 flex flex-col items-center justify-center pt-8 relative">
-            <div id="prevDiffFace" class="w-24 h-24 mb-2 flex items-center justify-center"></div>
+          <!-- Left: Face -->
+          <div class="w-1/3 flex flex-col items-center justify-center pt-8">
+            <div id="prevDiffFace" class="w-24 h-24 mb-2 drop-shadow-[0_5px_5px_rgba(0,0,0,0.6)] flex items-center justify-center">
+              <!-- Rendered via JS -->
+            </div>
             <span id="prevDiffText" class="text-white font-black text-xl tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] uppercase">NA</span>
-            <div id="prevStarsBadge" class="mt-2 text-yellow-400 font-bold text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex items-center gap-1 hidden"><i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i> <span id="prevStarsNum">0</span></div>
+            <div id="prevStarsBadge" class="mt-2 text-yellow-400 font-bold text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex items-center gap-1 hidden">
+               <i data-lucide="star" class="w-6 h-6 fill-yellow-400"></i> <span id="prevStarsNum">0</span>
+            </div>
           </div>
+
+          <!-- Center: Play Button -->
           <div class="w-1/3 flex items-center justify-center relative">
             <button id="btnModalPlay" class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-[6px] border-white shadow-[0_0_30px_rgba(74,222,128,0.6),inset_0_-8px_0_rgba(0,0,0,0.2)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all play-pulse group">
                <div class="w-0 h-0 border-t-[25px] border-t-transparent border-l-[40px] border-l-white border-b-[25px] border-b-transparent ml-3 group-hover:border-l-yellow-200 transition-colors"></div>
             </button>
-            <div id="prevRateBtnContainer" class="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden z-10">
-               <button id="btnModalRate" class="px-6 py-2 bg-purple-600 border-2 border-white rounded-full text-white font-bold text-sm shadow hover:bg-purple-500 transition-colors flex items-center gap-2"><i data-lucide="star" class="w-4 h-4"></i> Rate Level</button>
+            <div id="prevRateBtnContainer" class="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden">
+               <button id="btnModalRate" class="px-4 py-1.5 bg-purple-600 border-2 border-white rounded-full text-white font-bold text-sm shadow hover:bg-purple-500 transition-colors flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> Rate</button>
             </div>
           </div>
+
+          <!-- Right: Stats -->
           <div class="w-1/3 flex flex-col justify-center items-start pl-8 md:pl-16 gap-5">
-            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"><i data-lucide="play-circle" class="w-8 h-8 text-green-400"></i> <span id="prevDownloads">0</span></div>
-            <button id="btnModalLike" class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform active:scale-95 group"><i id="iconModalLike" data-lucide="thumbs-up" class="w-8 h-8 text-yellow-400 group-hover:fill-yellow-400/50 transition-colors"></i> <span id="prevLikes">0</span></button>
-            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"><i data-lucide="clock" class="w-8 h-8 text-gray-300"></i> <span id="prevLength">Tiny</span></div>
+            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+              <i data-lucide="play-circle" class="w-8 h-8 text-green-400"></i> <span id="prevDownloads">0</span>
+            </div>
+            <button id="btnModalLike" class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] hover:scale-110 transition-transform active:scale-95 group">
+              <i id="iconModalLike" data-lucide="thumbs-up" class="w-8 h-8 text-yellow-400 group-hover:fill-yellow-400/50 transition-colors"></i> <span id="prevLikes">0</span>
+            </button>
+            <div class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+              <i data-lucide="clock" class="w-8 h-8 text-gray-300"></i> <span id="prevLength">Tiny</span>
+            </div>
           </div>
         </div>
         
+        <!-- Progress Bar (Normal Mode) -->
         <div class="w-full max-w-xl mt-8">
            <p class="text-center text-white font-black tracking-widest text-sm mb-1 drop-shadow-md">NORMAL MODE</p>
            <div class="w-full h-5 bg-black/60 border-2 border-black rounded-full overflow-hidden relative shadow-inner">
@@ -578,7 +418,9 @@
             <span class="text-white font-bold text-sm tracking-widest">COMMENTS</span>
             <span id="prevCommentCount" class="text-yellow-400 font-bold text-xs">0</span>
          </div>
-         <div id="prevCommentsList" class="flex-1 overflow-y-auto mt-8 p-2 space-y-2 custom-scrollbar"></div>
+         <div id="prevCommentsList" class="flex-1 overflow-y-auto mt-8 p-2 space-y-2 custom-scrollbar">
+            <!-- Comments injected here -->
+         </div>
          <form id="commentForm" class="mt-2 flex gap-2 p-2 bg-black/40 rounded border border-black/30 shrink-0">
             <input type="text" id="commentInput" placeholder="Write a comment..." class="flex-1 bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm outline-none focus:border-yellow-400/50" maxlength="80" required>
             <button type="submit" class="bg-blue-600 hover:bg-blue-500 border border-blue-400 text-white font-bold px-4 rounded text-sm transition-colors">Post</button>
@@ -619,9 +461,6 @@
                   <option value="subScore">➖ Subtract Stars</option>
                   <option value="setScore">🎯 Set Exact Stars</option>
                 </optgroup>
-                <optgroup label="Cheats & Rewards">
-                  <option value="iconHack">🔓 Unlock All Gamemodes & Colors</option>
-                </optgroup>
                 <optgroup label="Moderation">
                   <option value="warn">⚠️ Send Warning Message</option>
                   <option value="ban">🔨 Ban Player</option>
@@ -661,6 +500,9 @@
   </div>
 
   <script type="module">
+    // ==========================================
+    // 🔥 FIREBASE IMPORTS & SETUP
+    // ==========================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -676,229 +518,17 @@
     const googleProvider = new GoogleAuthProvider();
 
     // ==========================================
-    // 🎨 ASSET DICTIONARIES (ICONS & COLORS & FACES)
-    // ==========================================
-    function getDifficultySVG(diff) {
-        let inner = `<circle cx="50" cy="50" r="40" fill="#6b7280" stroke="#fff" stroke-width="6"/><text x="50" y="58" font-size="24" font-weight="bold" fill="#fff" text-anchor="middle" font-family="sans-serif">NA</text>`;
-        if (diff === 'Auto') { inner = `<circle cx="50" cy="50" r="40" fill="#facc15" stroke="#fff" stroke-width="6"/><path d="M35 45 Q50 65 65 45" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="35" cy="35" r="5" fill="#000"/><circle cx="65" cy="35" r="5" fill="#000"/>`; }
-        if (diff === 'Easy') { inner = `<circle cx="50" cy="50" r="40" fill="#3b82f6" stroke="#fff" stroke-width="6"/><path d="M30 55 Q50 75 70 55" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/>`; }
-        if (diff === 'Normal') { inner = `<circle cx="50" cy="50" r="40" fill="#22c55e" stroke="#fff" stroke-width="6"/><path d="M35 60 L65 60" stroke="#000" stroke-width="6" stroke-linecap="round"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/>`; }
-        if (diff === 'Hard') { inner = `<circle cx="50" cy="50" r="40" fill="#facc15" stroke="#fff" stroke-width="6"/><path d="M35 60 Q50 50 65 60" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><rect x="30" y="35" width="10" height="10" fill="#000"/><rect x="60" y="35" width="10" height="10" fill="#000"/>`; }
-        if (diff === 'Harder') { inner = `<circle cx="50" cy="50" r="40" fill="#ef4444" stroke="#fff" stroke-width="6"/><path d="M35 65 Q50 50 65 65" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M25 30 L45 40 M75 30 L55 40" stroke="#000" stroke-width="6" stroke-linecap="round"/><circle cx="35" cy="45" r="5" fill="#000"/><circle cx="65" cy="45" r="5" fill="#000"/>`; }
-        if (diff === 'Insane') { inner = `<circle cx="50" cy="50" r="40" fill="#ec4899" stroke="#fff" stroke-width="6"/><path d="M30 65 Q50 45 70 65" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M20 25 L45 45 M80 25 L55 45" stroke="#000" stroke-width="8" stroke-linecap="round"/><circle cx="35" cy="45" r="5" fill="#fff"/><circle cx="65" cy="45" r="5" fill="#fff"/>`; }
-        if (diff === 'Demon') { inner = `<circle cx="50" cy="50" r="40" fill="#dc2626" stroke="#fff" stroke-width="6"/><path d="M20 20 L35 35 M80 20 L65 35" stroke="#fff" stroke-width="8" stroke-linecap="round"/><path d="M30 70 Q50 40 70 70" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="35" cy="45" r="6" fill="#fff"/><circle cx="65" cy="45" r="6" fill="#fff"/>`; }
-        return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">${inner}</svg>`;
-    }
-
-    function getIconSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('i', ''));
-       let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; 
-       switch(id) {
-          case 1: content += `<rect x="25" y="30" width="15" height="15" fill="${c2}"/><rect x="60" y="30" width="15" height="15" fill="${c2}"/><rect x="25" y="65" width="50" height="10" fill="${c2}"/>`; break; 
-          case 2: content += `<rect x="25" y="40" width="15" height="10" fill="${c2}"/><rect x="60" y="40" width="15" height="10" fill="${c2}"/><path d="M 25 30 L 40 40 M 75 30 L 60 40" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="10" fill="${c2}"/>`; break; 
-          case 3: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><path d="M 30 65 Q 50 85 70 65" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; 
-          case 4: content += `<rect x="15" y="35" width="70" height="25" fill="#111" rx="5"/><circle cx="50" cy="47" r="8" fill="${c2}"/>`; break; 
-          case 5: content += `<rect x="5" y="30" width="90" height="25" fill="${c2}"/><rect x="25" y="35" width="50" height="15" fill="${c1}"/><circle cx="35" cy="42" r="4" fill="${c2}"/><circle cx="65" cy="42" r="4" fill="${c2}"/>`; break; 
-          case 6: content += `<path d="M 25 30 L 40 45 L 25 60 M 75 30 L 60 45 L 75 60" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; break; 
-          case 7: content += `<circle cx="32" cy="40" r="8" fill="${c2}"/><circle cx="68" cy="40" r="8" fill="${c2}"/><circle cx="50" cy="65" r="10" fill="${c2}"/>`; break; 
-          case 8: content += `<rect x="20" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><rect x="55" y="30" width="25" height="25" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 45 42 L 55 42" stroke="${c2}" stroke-width="6"/><rect x="35" y="70" width="30" height="6" fill="${c2}"/>`; break; 
-          case 9: content += `<path d="M 30 45 L 45 45 L 45 30 L 30 30 Z" fill="${c2}"/><path d="M 55 45 L 70 45 L 70 30 L 55 30 Z" fill="${c2}"/><rect x="45" y="70" width="10" height="10" fill="${c2}"/>`; break; 
-          case 10: content += `<rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="4"/><rect x="25" y="25" width="50" height="50" fill="none" stroke="${c2}" stroke-width="4"/><rect x="35" y="35" width="30" height="30" fill="${c2}"/>`; break; 
-          case 11: content += `<circle cx="30" cy="40" r="12" fill="white"/><circle cx="30" cy="40" r="4" fill="${c2}"/><circle cx="70" cy="40" r="12" fill="white"/><circle cx="70" cy="40" r="4" fill="${c2}"/><path d="M 30 70 Q 50 60 70 70" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; 
-          case 12: content += `<path d="M 15 15 L 85 85 M 15 85 L 85 15" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 13: content += `<rect x="5" y="5" width="45" height="90" fill="${c2}"/><circle cx="30" cy="45" r="10" fill="${c1}"/><circle cx="70" cy="45" r="10" fill="${c2}"/>`; break; 
-          case 14: content += `<path d="M 50 15 L 85 85 L 15 85 Z" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="60" r="10" fill="${c2}"/>`; break; 
-          case 15: content += `<rect x="20" y="20" width="60" height="60" rx="30" fill="none" stroke="${c2}" stroke-width="6"/><path d="M 35 45 Q 50 20 65 45" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="65" r="8" fill="${c2}"/>`; break; 
-          case 16: content += `<path d="M 5 50 L 95 50 M 50 5 L 50 95" stroke="${c2}" stroke-width="6"/><rect x="30" y="30" width="40" height="40" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 17: content += `<path d="M 25 35 Q 50 50 75 35" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/><path d="M 35 65 Q 50 50 65 65" fill="none" stroke="${c2}" stroke-width="6" stroke-linecap="round"/>`; break; 
-          case 18: content += `<rect x="15" y="20" width="70" height="30" fill="${c2}" rx="15"/><rect x="25" y="25" width="50" height="20" fill="#111" rx="10"/><rect x="30" y="25" width="10" height="20" fill="${c1}"/><rect x="60" y="25" width="10" height="20" fill="${c1}"/><rect x="35" y="65" width="30" height="15" fill="${c2}" rx="5"/>`; break; 
-          case 19: content += `<path d="M 20 5 L 35 25 L 15 35 Z M 80 5 L 65 25 L 85 35 Z" fill="${c2}"/><circle cx="35" cy="50" r="8" fill="${c2}"/><circle cx="65" cy="50" r="8" fill="${c2}"/><path d="M 30 75 Q 50 85 70 75" fill="none" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 20: content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="10 5"/><circle cx="50" cy="50" r="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="${c1}"/>`; break; 
-          case 21: content += `<path d="M 15 50 Q 50 15 85 50 Q 50 85 15 50" fill="${c2}"/><circle cx="50" cy="50" r="12" fill="#111"/><circle cx="50" cy="50" r="4" fill="${c1}"/>`; break; 
-          case 22: content += `<rect x="5" y="5" width="90" height="90" fill="none" stroke="${c2}" stroke-width="8" rx="20"/><path d="M 25 25 L 75 75 M 25 75 L 75 25" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c1}" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 23: content += `<path d="M 50 5 L 60 40 L 95 50 L 60 60 L 50 95 L 40 60 L 5 50 L 40 40 Z" fill="${c2}"/><circle cx="50" cy="50" r="10" fill="${c1}"/>`; break; 
-          case 24: content += `<rect x="25" y="25" width="20" height="20" fill="${c2}"/><rect x="55" y="25" width="20" height="20" fill="${c2}"/><rect x="25" y="55" width="20" height="20" fill="${c2}"/><rect x="55" y="55" width="20" height="20" fill="${c2}"/><circle cx="50" cy="50" r="8" fill="#111"/>`; break; 
-          case 25: content += `<path d="M 15 35 L 30 10 L 50 25 L 70 10 L 85 35 Z" fill="${c2}"/><rect x="25" y="45" width="15" height="15" fill="${c2}"/><rect x="60" y="45" width="15" height="15" fill="${c2}"/><path d="M 40 75 L 60 75" stroke="${c2}" stroke-width="6"/>`; break; 
-          case 26: content += `<circle cx="50" cy="50" r="40" fill="none" stroke="${c2}" stroke-width="4"/><path d="M 50 10 L 50 90 M 10 50 L 90 50 M 22 22 L 78 78 M 22 78 L 78 22" stroke="${c2}" stroke-width="4"/><circle cx="50" cy="50" r="15" fill="${c2}"/><circle cx="50" cy="50" r="6" fill="${c1}"/>`; break; 
-          case 27: content += `<path d="M 5 50 Q 50 -10 95 50 Q 50 110 5 50" fill="none" stroke="${c2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${c2}"/><path d="M 45 45 L 55 55 M 55 45 L 45 55" stroke="${c1}" stroke-width="4"/>`; break; 
-          case 28: content += `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${c2}" stroke-width="8" transform="rotate(45 50 50)"/><rect x="35" y="35" width="30" height="30" fill="${c2}" transform="rotate(45 50 50)"/>`; break; 
-          case 29: content += `<style>.mythic-spin { transform-origin: 50px 50px; animation: m-spin 3s linear infinite; } @keyframes m-spin { 100% { transform: rotate(360deg); } }</style><circle cx="50" cy="50" r="42" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="15 15" class="mythic-spin"/><path d="M 50 15 L 60 40 L 95 50 L 60 60 L 50 85 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="mythic-spin" style="animation-direction: reverse; animation-duration: 4s;"/><circle cx="50" cy="50" r="12" fill="${c2}"/>`; break; 
-          case 30: content += `<style>.mythic-pulse { transform-origin: 50px 50px; animation: m-pulse 1s ease-in-out infinite alternate; } @keyframes m-pulse { 0% { transform: scale(0.8); opacity: 0.8;} 100% { transform: scale(1.1); opacity: 1;} }</style><rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="35" class="mythic-pulse"/><rect x="30" y="30" width="40" height="40" fill="${c2}" stroke="${c1}" stroke-width="4" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="8" fill="#fff" class="mythic-pulse" style="animation-delay: -0.5s;"/>`; break; 
-          case 31: content += `<style>.m-1 { animation: m1 1.5s ease-in-out infinite alternate; transform-origin: center; } @keyframes m1 { to { transform: scale(1.1) rotate(10deg); } }</style><rect x="15" y="15" width="70" height="70" fill="none" stroke="${c2}" stroke-width="8" rx="20" class="m-1"/><circle cx="50" cy="50" r="15" fill="${c1}" class="m-1" style="animation-delay: -0.75s"/>`; break;
-          case 32: content += `<style>.m-2 { animation: m2 2s linear infinite; transform-origin: 50px 50px; } @keyframes m2 { to { transform: rotate(360deg); } }</style><polygon points="50,5 95,50 50,95 5,50" fill="${c1}" stroke="${c2}" stroke-width="8" class="m-2"/><circle cx="50" cy="50" r="12" fill="${c2}"/>`; break;
-          case 33: content += `<style>.m-3 { animation: m3 0.5s steps(2, end) infinite; } @keyframes m3 { 50% { opacity: 0.5; filter: hue-rotate(90deg); } }</style><path d="M 20 20 L 80 80 M 20 80 L 80 20" stroke="${c2}" stroke-width="12" stroke-linecap="round" class="m-3"/><circle cx="50" cy="50" r="20" fill="${c1}" stroke="${c2}" stroke-width="4"/>`; break;
-          case 34: content += `<style>.m-4 { animation: m4 3s linear infinite; transform-origin: 50px 50px; } @keyframes m4 { 100% { transform: rotate(-360deg); } }</style><circle cx="50" cy="50" r="40" fill="none" stroke="${c2}" stroke-width="6" stroke-dasharray="20 10" class="m-4"/><rect x="35" y="35" width="30" height="30" fill="${c1}" class="m-4" style="animation-direction: reverse; animation-duration: 1.5s;"/>`; break;
-          case 35: content += `<style>.m-5 { animation: m5 1s infinite alternate ease-in-out; transform-origin: 50% 100%; } @keyframes m5 { 100% { transform: scaleY(0.6) scaleX(1.2); } }</style><path d="M 10 90 Q 50 10 90 90 Z" fill="${c1}" stroke="${c2}" stroke-width="6" class="m-5"/><circle cx="50" cy="70" r="10" fill="${c2}"/>`; break;
-          case 36: content += `<style>.m-6 { animation: m6 4s infinite linear; transform-origin: 50px 50px; } @keyframes m6 { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(0.5); } 100% { transform: rotate(360deg) scale(1); } }</style><rect x="10" y="10" width="80" height="80" fill="none" stroke="${c2}" stroke-width="4" class="m-6"/><rect x="25" y="25" width="50" height="50" fill="${c1}" class="m-6" style="animation-direction: reverse;"/>`; break;
-          case 37: content += `<style>.m-7 { animation: m7 0.8s ease-in-out infinite alternate; } @keyframes m7 { 100% { transform: translateY(-10px); } }</style><path d="M 20 40 Q 50 -10 80 40 Q 80 90 50 90 Q 20 90 20 40 Z" fill="${c1}" stroke="${c2}" stroke-width="6" class="m-7"/><circle cx="35" cy="40" r="6" fill="${c2}" class="m-7"/><circle cx="65" cy="40" r="6" fill="${c2}" class="m-7"/>`; break;
-          case 38: content += `<style>.m-8 { animation: m8 2s infinite ease-in-out; transform-origin: center; } @keyframes m8 { 50% { transform: scale(0.8) rotate(45deg); border-radius: 50%; } }</style><rect x="15" y="15" width="70" height="70" fill="${c1}" stroke="${c2}" stroke-width="8" class="m-8"/><path d="M 35 35 L 65 65 M 35 65 L 65 35" stroke="${c2}" stroke-width="6" class="m-8"/>`; break;
-          case 39: content += `<style>.m-9 { animation: m9 0.5s infinite alternate; } @keyframes m9 { 100% { fill: ${c2}; stroke: ${c1}; } }</style><polygon points="50,10 90,90 10,90" fill="${c1}" stroke="${c2}" stroke-width="8" class="m-9"/><circle cx="50" cy="65" r="10" fill="#fff"/>`; break;
-          case 40: content += `<style>.m-10 { animation: m10 5s linear infinite; transform-origin: center; } @keyframes m10 { 100% { transform: rotate(360deg); } }</style><path d="M 50 5 L 60 40 L 95 50 L 60 60 L 50 95 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="m-10"/><path d="M 50 15 L 55 45 L 85 50 L 55 55 L 50 85 L 45 55 L 15 50 L 45 45 Z" fill="${c2}" class="m-10" style="animation-direction: reverse; animation-duration: 2.5s;"/>`; break;
-       }
-       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
-
-    function getShipSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('sh', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
-       let content = `<path d="M 20 30 L 80 50 L 20 70 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`; 
-       if(bid===2) content = `<rect x="15" y="30" width="70" height="40" rx="20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===3) content = `<path d="M 10 20 L 60 50 L 10 80 Z M 50 30 L 90 50 L 50 70 Z" fill="${rC1}" stroke="${rC2}" stroke-width="4"/>`;
-       if(bid===4) content = `<ellipse cx="50" cy="50" rx="40" ry="20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="60" cy="50" r="10" fill="${rC2}"/>`;
-       if(bid===5) content = `<polygon points="20,10 90,50 20,90 40,50" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===6) content = `<rect x="20" y="20" width="60" height="60" fill="none" stroke="${rC2}" stroke-width="8"/><polygon points="30,30 70,50 30,70" fill="${rC1}"/>`;
-       if(bid===7) content = `<path d="M 10 50 Q 50 0 90 50 Q 50 100 10 50 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===8) content = `<path d="M 20 40 L 80 40 M 20 60 L 80 60 M 30 50 L 90 50" stroke="${rC2}" stroke-width="8" stroke-linecap="round"/>`;
-       if(bid===9) content = `<polygon points="10,20 40,50 10,80 80,80 50,50 80,20" fill="${rC1}" stroke="${rC2}" stroke-width="4"/>`;
-       if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 10 50 L 90 50" stroke="${rC2}" stroke-width="8"/>`;
-       if(id > 10) content += `<circle cx="25" cy="50" r="6" fill="#fff" opacity="0.3"/>`;
-       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
-
-    function getUfoSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('u', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
-       let content = `<ellipse cx="50" cy="65" rx="40" ry="15" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 30 65 Q 50 10 70 65" fill="${rC2}"/>`;
-       if(bid===2) content = `<rect x="20" y="55" width="60" height="20" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="40" r="20" fill="${rC2}"/>`;
-       if(bid===3) content = `<polygon points="10,70 90,70 70,40 30,40" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="40" r="15" fill="${rC2}"/>`;
-       if(bid===4) content = `<ellipse cx="50" cy="50" rx="45" ry="30" fill="none" stroke="${rC2}" stroke-width="8"/><circle cx="50" cy="50" r="15" fill="${rC1}"/>`;
-       if(bid===5) content = `<rect x="15" y="45" width="70" height="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><rect x="35" y="25" width="30" height="20" fill="${rC2}"/>`;
-       if(bid===6) content = `<path d="M 20 60 Q 50 20 80 60 Q 50 90 20 60" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="45" r="10" fill="${rC2}"/>`;
-       if(bid===7) content = `<ellipse cx="50" cy="60" rx="40" ry="15" fill="${rC1}" stroke="${rC2}" stroke-width="6" stroke-dasharray="10 5"/><path d="M 35 60 L 50 20 L 65 60 Z" fill="${rC2}"/>`;
-       if(bid===8) content = `<path d="M 10 60 L 90 60 M 30 40 L 70 40" stroke="${rC2}" stroke-width="8" stroke-linecap="round"/><circle cx="50" cy="50" r="15" fill="${rC1}"/>`;
-       if(bid===9) content = `<polygon points="20,70 50,40 80,70 50,20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="8"/><circle cx="50" cy="50" r="10" fill="#111"/>`;
-       if(id > 10) content += `<circle cx="50" cy="25" r="6" fill="#fff" opacity="0.3"/>`;
-       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
-
-    function getWaveSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('w', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
-       let content = `<polygon points="10,50 50,10 90,50 50,90" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===2) content = `<path d="M 20 50 L 60 20 L 60 80 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===3) content = `<polygon points="10,50 40,20 90,50 40,80" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===4) content = `<path d="M 10 10 L 90 50 L 10 90 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===5) content = `<rect x="30" y="30" width="40" height="40" fill="${rC1}" stroke="${rC2}" stroke-width="6" transform="rotate(45 50 50)"/>`;
-       if(bid===6) content = `<path d="M 20 20 L 50 50 L 20 80 L 80 50 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===7) content = `<polygon points="30,50 60,10 90,50 60,90" fill="none" stroke="${rC2}" stroke-width="8"/><circle cx="60" cy="50" r="10" fill="${rC1}"/>`;
-       if(bid===8) content = `<path d="M 10 50 Q 50 10 90 50 Q 50 90 10 50 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===9) content = `<polygon points="10,50 30,30 50,50 70,30 90,50 50,90" fill="${rC1}" stroke="${rC2}" stroke-width="4"/>`;
-       if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><polygon points="40,30 70,50 40,70" fill="${rC2}"/>`;
-       if(id > 10) content += `<circle cx="50" cy="50" r="6" fill="#fff" opacity="0.3"/>`;
-       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
-
-    function getBallSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('b', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
-       let content = `<circle cx="50" cy="50" r="45" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===1) content += `<circle cx="50" cy="50" r="20" fill="${rC2}"/>`;
-       if(bid===2) content += `<path d="M 50 5 L 95 50 L 50 95 L 5 50 Z" fill="${rC2}"/>`;
-       if(bid===3) content += `<circle cx="35" cy="50" r="10" fill="${rC2}"/><circle cx="65" cy="50" r="10" fill="${rC2}"/>`;
-       if(bid===4) content += `<rect x="30" y="30" width="40" height="40" fill="${rC2}"/>`;
-       if(bid===5) content += `<path d="M 5 50 Q 50 5 95 50 Q 50 95 5 50 Z" fill="${rC2}"/>`;
-       if(bid===6) content += `<circle cx="50" cy="50" r="30" fill="none" stroke="${rC2}" stroke-width="8"/><circle cx="50" cy="50" r="10" fill="${rC2}"/>`;
-       if(bid===7) content += `<path d="M 50 5 L 50 95 M 5 50 L 95 50" stroke="${rC2}" stroke-width="8"/>`;
-       if(bid===8) content += `<circle cx="50" cy="50" r="35" fill="none" stroke="${rC2}" stroke-width="6" stroke-dasharray="10 5"/>`;
-       if(bid===9) content += `<polygon points="50,15 85,85 15,85" fill="${rC2}"/>`;
-       if(bid===10) content += `<circle cx="50" cy="50" r="45" fill="none" stroke="${rC2}" stroke-width="12"/><circle cx="50" cy="50" r="25" fill="${rC2}"/>`;
-       if(id > 10) content += `<circle cx="50" cy="20" r="6" fill="#fff" opacity="0.3"/>`;
-       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
-
-    function getRobotSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('r', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
-       let content = `<rect x="25" y="10" width="50" height="40" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><rect x="35" y="55" width="10" height="35" fill="${rC2}"/><rect x="55" y="55" width="10" height="35" fill="${rC2}"/>`;
-       if(bid===1) content += `<rect x="35" y="25" width="30" height="15" fill="${rC2}"/>`;
-       if(bid===2) content += `<circle cx="50" cy="30" r="10" fill="${rC2}"/>`;
-       if(bid===3) content += `<path d="M 35 25 L 65 25 L 50 40 Z" fill="${rC2}"/>`;
-       if(bid===4) content += `<circle cx="40" cy="30" r="6" fill="${rC2}"/><circle cx="60" cy="30" r="6" fill="${rC2}"/>`;
-       if(bid===5) content += `<rect x="30" y="20" width="40" height="10" fill="${rC2}"/><rect x="40" y="35" width="20" height="10" fill="${rC2}"/>`;
-       if(bid===6) content += `<path d="M 25 30 L 75 30" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===7) content += `<polygon points="30,40 50,20 70,40" fill="${rC2}"/>`;
-       if(bid===8) content += `<rect x="35" y="25" width="10" height="10" fill="${rC2}"/><rect x="55" y="25" width="10" height="10" fill="${rC2}"/>`;
-       if(bid===9) content += `<circle cx="50" cy="30" r="12" fill="none" stroke="${rC2}" stroke-width="4"/>`;
-       if(bid===10) content += `<path d="M 30 20 L 70 40 M 30 40 L 70 20" stroke="${rC2}" stroke-width="6"/>`;
-       if(id > 10) content += `<circle cx="50" cy="18" r="4" fill="#fff" opacity="0.3"/>`;
-       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
-
-    function getSpiderSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('sp', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
-       let content = `<ellipse cx="50" cy="40" rx="35" ry="25" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 20 40 L 5 70 M 35 55 L 25 85 M 65 55 L 75 85 M 80 40 L 95 70" stroke="${rC2}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
-       if(bid===1) content += `<circle cx="35" cy="35" r="5" fill="${rC2}"/><circle cx="65" cy="35" r="5" fill="${rC2}"/>`;
-       if(bid===2) content += `<rect x="30" y="30" width="40" height="10" fill="${rC2}"/>`;
-       if(bid===3) content += `<ellipse cx="50" cy="40" rx="15" ry="10" fill="${rC2}"/>`;
-       if(bid===4) content += `<polygon points="50,25 65,45 35,45" fill="${rC2}"/>`;
-       if(bid===5) content += `<circle cx="40" cy="40" r="8" fill="${rC2}"/><circle cx="60" cy="40" r="8" fill="${rC2}"/>`;
-       if(bid===6) content += `<path d="M 30 40 Q 50 20 70 40" stroke="${rC2}" stroke-width="6" fill="none"/>`;
-       if(bid===7) content += `<circle cx="50" cy="40" r="12" fill="none" stroke="${rC2}" stroke-width="4"/>`;
-       if(bid===8) content += `<rect x="40" y="25" width="20" height="20" fill="${rC2}"/>`;
-       if(bid===9) content += `<path d="M 25 40 L 75 40" stroke="${rC2}" stroke-width="8"/>`;
-       if(bid===10) content += `<circle cx="50" cy="40" r="15" fill="${rC2}"/><circle cx="50" cy="40" r="5" fill="${rC1}"/>`;
-       if(id > 10) content += `<circle cx="50" cy="25" r="4" fill="#fff" opacity="0.3"/>`;
-       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
-
-    function getSwingSVG(idStr, c1, c2) {
-       const id = parseInt(idStr.replace('sw', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
-       let content = `<ellipse cx="50" cy="50" rx="40" ry="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="15" cy="50" r="12" fill="${rC2}"/><circle cx="85" cy="50" r="12" fill="${rC2}"/>`;
-       if(bid===1) content += `<circle cx="50" cy="50" r="15" fill="${rC2}"/>`;
-       if(bid===2) content += `<rect x="30" y="40" width="40" height="20" fill="${rC2}"/>`;
-       if(bid===3) content += `<polygon points="35,40 65,40 50,65" fill="${rC2}"/>`;
-       if(bid===4) content += `<path d="M 30 50 L 70 50" stroke="${rC2}" stroke-width="8"/>`;
-       if(bid===5) content += `<circle cx="40" cy="45" r="6" fill="${rC2}"/><circle cx="60" cy="45" r="6" fill="${rC2}"/>`;
-       if(bid===6) content += `<path d="M 35 45 Q 50 65 65 45" stroke="${rC2}" stroke-width="6" fill="none"/>`;
-       if(bid===7) content += `<rect x="40" y="35" width="20" height="30" fill="${rC2}" rx="10"/>`;
-       if(bid===8) content += `<circle cx="50" cy="50" r="20" fill="none" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===9) content += `<path d="M 40 35 L 60 65 M 40 65 L 60 35" stroke="${rC2}" stroke-width="6"/>`;
-       if(bid===10) content += `<circle cx="35" cy="50" r="8" fill="${rC2}"/><circle cx="65" cy="50" r="8" fill="${rC2}"/>`;
-       if(id > 10) content += `<circle cx="50" cy="30" r="6" fill="#fff" opacity="0.3"/>`;
-       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
-
-    const ALL_ICONS = Array.from({length: 40}, (_, i) => {
-       let id = `i${i+1}`; let rarity = i < 10 ? 'common' : i < 18 ? 'rare' : i < 24 ? 'epic' : i < 30 ? 'legendary' : 'mythic'; return { id, rarity };
-    });
-    const ALL_SHIPS = Array.from({length: 20}, (_, i) => ({ id: `sh${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
-    const ALL_UFOS = Array.from({length: 20}, (_, i) => ({ id: `u${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
-    const ALL_WAVES = Array.from({length: 20}, (_, i) => ({ id: `w${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
-    const ALL_BALLS = Array.from({length: 20}, (_, i) => ({ id: `b${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
-    const ALL_ROBOTS = Array.from({length: 20}, (_, i) => ({ id: `r${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
-    const ALL_SPIDERS = Array.from({length: 20}, (_, i) => ({ id: `sp${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
-    const ALL_SWINGS = Array.from({length: 20}, (_, i) => ({ id: `sw${i+1}`, rarity: i<8?'common':i<14?'rare':i<18?'epic':'legendary' }));
-
-    const BASE_HUES = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
-    const ALL_COLORS = [];
-    BASE_HUES.forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 50%)`, rarity: 'common' }));
-    BASE_HUES.slice(0, 8).forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 80%)`, rarity: 'rare' }));
-    BASE_HUES.slice(0, 6).forEach(h => ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: `hsl(${h}, 100%, 25%)`, rarity: 'epic' }));
-    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#ffffff', rarity: 'legendary' }); ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#aaaaaa', rarity: 'legendary' }); ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#222222', rarity: 'legendary' });
-    ALL_COLORS.push({ id: `c${ALL_COLORS.length+1}`, val: '#ff00ff', rarity: 'mythic' });
-
-    let cachedPlayerImg = new Image(), cachedShipImg = new Image(), cachedUfoImg = new Image(), cachedWaveImg = new Image();
-    let cachedBallImg = new Image(), cachedRobotImg = new Image(), cachedSpiderImg = new Image(), cachedSwingImg = new Image();
-    function updatePlayerSprite() {
-       if (!myProfile) return;
-       const c1 = ALL_COLORS.find(c => c.id === myProfile.equippedCol1)?.val || '#00f0ff';
-       const c2 = ALL_COLORS.find(c => c.id === myProfile.equippedCol2)?.val || '#ffffff';
-       cachedPlayerImg.src = "data:image/svg+xml;base64," + btoa(getIconSVG(myProfile.equippedIcon || 'i1', c1, c2));
-       if (typeof getShipSVG === 'function') cachedShipImg.src = "data:image/svg+xml;base64," + btoa(getShipSVG(myProfile.equippedShip || 'sh1', c1, c2));
-       if (typeof getUfoSVG === 'function') cachedUfoImg.src = "data:image/svg+xml;base64," + btoa(getUfoSVG(myProfile.equippedUfo || 'u1', c1, c2));
-       if (typeof getWaveSVG === 'function') cachedWaveImg.src = "data:image/svg+xml;base64," + btoa(getWaveSVG(myProfile.equippedWave || 'w1', c1, c2));
-       if (typeof getBallSVG === 'function') cachedBallImg.src = "data:image/svg+xml;base64," + btoa(getBallSVG(myProfile.equippedBall || 'b1', c1, c2));
-       if (typeof getRobotSVG === 'function') cachedRobotImg.src = "data:image/svg+xml;base64," + btoa(getRobotSVG(myProfile.equippedRobot || 'r1', c1, c2));
-       if (typeof getSpiderSVG === 'function') cachedSpiderImg.src = "data:image/svg+xml;base64," + btoa(getSpiderSVG(myProfile.equippedSpider || 'sp1', c1, c2));
-       if (typeof getSwingSVG === 'function') cachedSwingImg.src = "data:image/svg+xml;base64," + btoa(getSwingSVG(myProfile.equippedSwing || 'sw1', c1, c2));
-    }
-
-    // ==========================================
     // 🌐 APP STATE (TOP LEVEL VARIABLES)
     // ==========================================
     let currentUser = null, myProfile = null;
     let usersData = [], levelsList = [], isSignupMode = false, pendingUsername = null;
     let dbUnsubscribe = null, levelsUnsubscribe = null, settingsUnsubscribe = null, activeTrollTimeout = null;
     let globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
+    
+    // Preview Modal State
     let currentPreviewLevel = null;
-    let currentEditingLevelId = null;
-    let currentEditingLevelName = "";
+    
+    // History System for Undo/Redo
     let historyList = [];
     let historyIndex = -1;
 
@@ -927,7 +557,7 @@
     function duplicateSelected() {
        if (editor.selectedObjs.length > 0) {
            let newObjs = JSON.parse(JSON.stringify(editor.selectedObjs));
-           newObjs.forEach(o => o.gx += 1);
+           newObjs.forEach(o => o.gx += 1); // offset by 1 block so they aren't directly on top
            level.push(...newObjs);
            editor.selectedObjs = level.slice(-newObjs.length);
            updateEditPanelUI();
@@ -935,6 +565,9 @@
        }
     }
 
+    // ==========================================
+    // UTILS & TROLL EVENTS
+    // ==========================================
     function getDefaultAvatar(username) { 
       return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&backgroundColor=1e293b`; 
     }
@@ -1059,15 +692,15 @@
     const SHIP_GRAVITY = 0.55, SHIP_THRUST = -1.0;
     
     let groundY = 0;
-    const DEFAULT_BG = [26, 26, 36], C_BLOCK = '#1a5f7a', C_BLOCK_OUTLINE = '#22d3ee', C_SPIKE = '#ff2a6d';
+    const DEFAULT_BG = [26, 26, 36], C_BLOCK = '#1a5f7a', C_BLOCK_OUTLINE = '#22d3ee', C_SPIKE = '#ff2a6d', C_PLAYER = '#00f0ff', C_PLAYER_TRAIL = 'rgba(0, 240, 255, 0.3)';
 
     let state = { mode: 'menu', isPlaytesting: false, cameraX: 0, cameraY: 0, attempts: 1, particles: [], trail: [], currentPath: [], savedPath: [], bgColor: [...DEFAULT_BG], targetBgColor: [...DEFAULT_BG], win: false };
     let bgParticles = Array.from({length: 60}, () => ({ x: Math.random() * 2000, y: Math.random() * 2000, s: Math.random() * 4 + 2, spd: Math.random() * 0.4 + 0.1, op: Math.random() * 0.3 + 0.1 }));
-    let player = { x: 0, y: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, sizeMultiplier: 1.0, dead: false, progress: 0, gravityFlipTimer: 0, gravityFlipBoost: 0, robotJumpFrames: 0 };
-    let level = [], levelMaxX = 0, input = { jumpHeld: false, clickConsumed: false };
+    let player = { x: 0, y: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, sizeMultiplier: 1.0, dead: false, progress: 0 };
+    let level = [], levelMaxX = 0, input = { jumpHeld: false };
 
     let editor = { 
-      mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: false, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }, hasChangedLevel: false
+      mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: true, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }, hasChangedLevel: false
     };
 
     const BLANK_LEVEL_DATA = (() => { let str = ""; for(let i=-5; i<=60; i++) str += `${i},-1,0,0;${i},-2,0,0;${i},-3,0,0;`; return str; })();
@@ -1081,41 +714,26 @@
 
     function resetPlayer() {
       let pSize = 30 * player.sizeMultiplier;
-      player.x = 0; player.y = groundY - pSize; player.vy = 0; player.rotation = 0; player.grounded = true; player.gravityDir = 1; player.gamemode = 0; player.speedMultiplier = 1.0; player.sizeMultiplier = 1.0; player.dead = false; player.progress = 0; player.gravityFlipTimer = 0; player.gravityFlipBoost = 0; player.robotJumpFrames = 0;
+      player.x = 0; player.y = groundY - pSize; player.vy = 0; player.rotation = 0; player.grounded = true; player.gravityDir = 1; player.gamemode = 0; player.speedMultiplier = 1.0; player.sizeMultiplier = 1.0; player.dead = false; player.progress = 0;
       state.cameraX = 0; state.cameraY = 0; state.particles = []; state.trail = []; state.currentPath = []; state.bgColor = [...DEFAULT_BG]; state.targetBgColor = [...DEFAULT_BG]; state.win = false;
       document.getElementById('winOverlay').classList.add('hide');
-
-      let startPos = level.slice().reverse().find(o => o.type === 35);
-      if (startPos && state.isPlaytesting) {
-         player.x = startPos.gx * GRID_SIZE;
-         let pastPortals = level.filter(o => o.gx <= startPos.gx && [3,4,6,7,8,9,10,11,12,28,29,30,31,32,33].includes(o.type)).sort((a,b)=>a.gx - b.gx);
-         for(let o of pastPortals) {
-            if (o.type === 3) player.gravityDir = 1; if (o.type === 4) player.gravityDir = -1;
-            if (o.type === 6) player.gamemode = 1; if (o.type === 7) player.gamemode = 0; if (o.type === 8) player.gamemode = 2; if (o.type === 9) player.gamemode = 3;
-            if (o.type === 30) player.gamemode = 4; if (o.type === 31) player.gamemode = 5; if (o.type === 32) player.gamemode = 6; if (o.type === 33) player.gamemode = 7;
-            if (o.type === 10) player.speedMultiplier = 0.75; if (o.type === 11) player.speedMultiplier = 1.0; if (o.type === 12) player.speedMultiplier = 1.35;
-            if (o.type === 28) player.sizeMultiplier = 0.5; if (o.type === 29) player.sizeMultiplier = 1.0;
-         }
-         pSize = 30 * player.sizeMultiplier;
-         player.y = player.gravityDir === 1 ? groundY - (startPos.gy * GRID_SIZE) - pSize : groundY - (startPos.gy * GRID_SIZE) - GRID_SIZE;
-      }
       
+      // Calculate max X for progress bar
       levelMaxX = 1;
       for (let o of level) if (o.gx > levelMaxX) levelMaxX = o.gx;
       levelMaxX *= GRID_SIZE;
-      for (let o of level) o.hasBeenHit = false;
       updateProgressBar(0);
     }
 
     function die() {
       if (player.dead) return; player.dead = true; state.savedPath = [...state.currentPath]; 
       let pSize = 30 * player.sizeMultiplier;
-      let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
-      let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
+      for(let i=0; i<30; i++) state.particles.push({ x: player.x + pSize/2, y: player.y + pSize/2, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 1.0, color: Math.random() > 0.5 ? C_PLAYER : '#ffffff' });
       
-      for(let i=0; i<30; i++) state.particles.push({ x: player.x + pSize/2, y: player.y + pSize/2, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 0.5) * 15, life: 1.0, color: Math.random() > 0.5 ? c1 : c2 });
-      
-      if (state.mode === 'play' && !state.isPlaytesting && currentPreviewLevel) saveProgress(player.progress);
+      // Save progress if it's the real game mode
+      if (state.mode === 'play' && !state.isPlaytesting && currentPreviewLevel) {
+         saveProgress(player.progress);
+      }
       setTimeout(() => { state.attempts++; document.getElementById('stats').innerText = `Attempt ${state.attempts}`; resetPlayer(); }, 500);
     }
 
@@ -1137,13 +755,9 @@
         let oldProg = currentSaved[currentPreviewLevel.id] || 0;
         if (prog > oldProg) {
            currentSaved[currentPreviewLevel.id] = prog;
-           let updates = { progress: currentSaved };
-           if (prog === 100 && oldProg < 100 && (currentPreviewLevel.stars || 0) > 0) {
-              updates.score = (myProfile.score || 0) + currentPreviewLevel.stars;
-           }
-           await setDoc(uRef, updates, { merge: true });
+           await setDoc(uRef, { progress: currentSaved }, { merge: true });
         }
-      } catch(e) {}
+      } catch(e) { console.log("Progress save failed"); }
     }
 
     function updateProgressBar(pct) {
@@ -1154,104 +768,46 @@
     }
 
     function jump() { 
-      if ((state.mode === 'play' || state.isPlaytesting) && player.grounded && !player.dead) { 
-        if (player.gamemode === 0 || player.gamemode === 5) {
-           let jf = player.gamemode === 5 ? JUMP_FORCE * 0.45 : JUMP_FORCE; 
-           if (player.sizeMultiplier < 1) jf *= 0.85;
-           player.vy = jf * player.gravityDir; player.grounded = false; 
-           if (player.gamemode === 5) player.robotJumpFrames = 24;
-        }
+      if ((state.mode === 'play' || state.isPlaytesting) && player.grounded && !player.dead && player.gamemode === 0) { 
+        let jf = JUMP_FORCE; if (player.sizeMultiplier < 1) jf *= 0.85;
+        player.vy = jf * player.gravityDir; player.grounded = false; 
       } 
     }
 
     function triggerAction() {
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
-        let hitOrb = false;
+        input.jumpHeld = true; let hitOrb = false;
         let pSize = 30 * player.sizeMultiplier;
         
         for (let obj of level) {
-          if ([5, 23, 25, 27, 34].includes(obj.type) && !obj.hasBeenHit && [0, 3, 4, 5, 6, 7].includes(player.gamemode)) {
+          if ([5, 23, 25, 27].includes(obj.type) && (player.gamemode === 0 || player.gamemode === 3)) {
             let ox = obj.gx * GRID_SIZE + GRID_SIZE/2, oy = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE/2;
             if (Math.hypot((player.x + pSize/2) - ox, (player.y + pSize/2) - oy) < GRID_SIZE * 1.5) {
               
-              obj.hasBeenHit = true;
               let force = JUMP_FORCE;
               if (obj.type === 23) force *= 0.7; // Pink
               if (obj.type === 25) force *= 1.4; // Red
               
               if (obj.type === 27) { // Blue
-                player.vy = force * 0.3 * player.gravityDir;
-                player.gravityFlipTimer = 3;
-                player.gravityFlipBoost = Math.abs(force) * 0.3;
-              } else if (obj.type === 34) { // Green
                 player.gravityDir *= -1;
-                if (player.sizeMultiplier < 1) force *= 0.85;
-                player.vy = force * player.gravityDir;
+                player.vy = JUMP_FORCE * 0.4 * player.gravityDir;
               } else {
                 if (player.sizeMultiplier < 1) force *= 0.85;
                 player.vy = force * player.gravityDir; 
               }
               
-              if (player.gamemode === 5) player.robotJumpFrames = 18;
-              
               player.grounded = false; hitOrb = true;
-              let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':obj.type===34?'#22c55e':'#facc15';
+              let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':'#facc15';
               for(let i=0; i<8; i++) state.particles.push({ x: ox, y: oy, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10, life: 1.0, color: pCol });
               break; 
             }
           }
         }
-        if (hitOrb) return true;
-        if (!hitOrb) { 
-           if (player.gamemode === 0 || player.gamemode === 5) { 
-               if (player.grounded) { jump(); return true; } 
-           } 
-           else if (player.gamemode === 3) { let jf = JUMP_FORCE * 0.8; if (player.sizeMultiplier < 1) jf *= 0.8; player.vy = jf * player.gravityDir; player.grounded = false; return true; } 
-           else if (player.gamemode === 4 && player.grounded) { 
-              let jf = JUMP_FORCE * 0.25; if (player.sizeMultiplier < 1) jf *= 0.85;
-              player.vy = jf * player.gravityDir; 
-              player.grounded = false; 
-              player.gravityFlipTimer = 3;
-              player.gravityFlipBoost = Math.abs(jf);
-              return true;
-           }
-           else if (player.gamemode === 6 && player.grounded) { 
-              player.gravityDir *= -1; player.vy = 0;
-              let startY = player.y; let hitY = player.gravityDir === 1 ? groundY : -3000; let foundHit = false;
-              for (let obj of level) {
-                 if (obj.type !== 0 && obj.type !== 19) continue;
-                 let objX = obj.gx * GRID_SIZE, objY = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE;
-                 let oBox = { x: objX, y: objY, w: GRID_SIZE, h: obj.type === 19 ? GRID_SIZE/2 : GRID_SIZE };
-                 if (obj.type === 19) oBox.y = objY + GRID_SIZE/2;
-                 if (player.x + pSize > oBox.x + 8 && player.x < oBox.x + oBox.w - 8) {
-                    if (player.gravityDir === 1 && oBox.y >= startY && oBox.y < hitY) { hitY = oBox.y; foundHit = true; }
-                    else if (player.gravityDir === -1 && oBox.y + oBox.h <= startY + pSize && oBox.y + oBox.h > hitY) { hitY = oBox.y + oBox.h; foundHit = true; }
-                 }
-              }
-              player.y = player.gravityDir === 1 ? hitY - pSize : (foundHit ? hitY : -3000);
-              let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
-              let steps = Math.floor(Math.abs(player.y - startY) / 15);
-              for (let i = 0; i <= steps; i++) state.particles.push({ x: player.x + pSize/2, y: startY + pSize/2 + (player.y - startY) * (i / steps), vx: (Math.random()-0.5)*2, vy: (Math.random()-0.5)*2, life: 1.0, color: c1 });
-              player.grounded = true;
-              return true;
-           }
-           else if (player.gamemode === 7) { player.gravityDir *= -1; return true; } 
-        }
+        if (!hitOrb) { if (player.gamemode === 0) jump(); else if (player.gamemode === 3) { let jf = JUMP_FORCE * 0.8; if (player.sizeMultiplier < 1) jf *= 0.8; player.vy = jf * player.gravityDir; player.grounded = false; } }
       }
-      return false;
     }
 
     function checkRectCollision(r1, r2) { return r1.x < r2.x + r2.w && r1.x + r1.w > r2.x && r1.y < r2.y + r2.h && r1.y + r1.h > r2.y; }
-
-    function getRotatedBox(box, rot, cx, cy) {
-      if (!rot) return box;
-      let bx = box.x + box.w/2, by = box.y + box.h/2;
-      let nx = bx, ny = by, nw = box.w, nh = box.h;
-      if (rot === 90) { nx = cx - (by - cy); ny = cy + (bx - cx); nw = box.h; nh = box.w; }
-      else if (rot === 180) { nx = cx - (bx - cx); ny = cy - (by - cy); }
-      else if (rot === 270) { nx = cx + (by - cy); ny = cy - (bx - cx); nw = box.h; nh = box.w; }
-      return { x: nx - nw/2, y: ny - nh/2, w: nw, h: nh };
-    }
 
     function update() {
       state.bgColor[0] += (state.targetBgColor[0] - state.bgColor[0]) * 0.05; state.bgColor[1] += (state.targetBgColor[1] - state.bgColor[1]) * 0.05; state.bgColor[2] += (state.targetBgColor[2] - state.bgColor[2]) * 0.05;
@@ -1261,15 +817,12 @@
 
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead && !state.win) {
         
-        if (input.jumpHeld && !input.clickConsumed) {
-            if (triggerAction()) input.clickConsumed = true;
-        }
-
         let pSize = 30 * player.sizeMultiplier;
         if (state.currentPath.length === 0 || Math.abs(player.x - state.currentPath[state.currentPath.length-1].x) > 5) state.currentPath.push({x: player.x + pSize/2, y: player.y + pSize/2});
 
         player.x += BASE_MOVE_SPEED * player.speedMultiplier;
         
+        // Progress tracking
         if (!state.isPlaytesting) {
           let curPct = Math.min(100, Math.floor((player.x / levelMaxX) * 100));
           if (curPct > player.progress) {
@@ -1278,46 +831,22 @@
           }
         }
 
-        if (player.gravityFlipTimer > 0) {
-           player.gravityFlipTimer--;
-           if (player.gravityFlipTimer === 0) {
-              player.gravityDir *= -1;
-              player.vy += (player.gravityFlipBoost || (Math.abs(JUMP_FORCE) * 0.25)) * player.gravityDir;
-           }
-        }
-
         let grav = GRAVITY; if (player.sizeMultiplier < 1) grav *= 0.85;
 
-        if (player.gamemode === 5) {
-           if (input.jumpHeld && player.robotJumpFrames > 0) {
-              player.vy -= grav * 0.85 * player.gravityDir;
-              player.robotJumpFrames--;
-           } else {
-              player.robotJumpFrames = 0;
-           }
-        }
-
-        if (player.gamemode === 0 || player.gamemode === 5 || player.gamemode === 6) player.vy += grav * player.gravityDir; 
-        else if (player.gamemode === 4) { 
-           player.vy += grav * 0.8 * player.gravityDir; 
-           let termVel = BASE_MOVE_SPEED * player.speedMultiplier * 1.8; 
-           if (player.vy * player.gravityDir > termVel) player.vy = termVel * player.gravityDir; 
-        }
+        if (player.gamemode === 0) player.vy += grav * player.gravityDir; 
         else if (player.gamemode === 1) player.vy = (input.jumpHeld ? -WAVE_SPEED : WAVE_SPEED) * player.gravityDir; 
         else if (player.gamemode === 2) { player.vy += (input.jumpHeld ? SHIP_THRUST : SHIP_GRAVITY) * player.gravityDir; player.vy = Math.max(-12, Math.min(12, player.vy)); }
         else if (player.gamemode === 3) player.vy += grav * player.gravityDir; 
-        else if (player.gamemode === 7) { player.vy += grav * 0.8 * player.gravityDir; player.vy = Math.max(-15, Math.min(15, player.vy)); }
         
         if (state.trail.length > 10) state.trail.shift();
         state.trail.push({x: player.x, y: player.y, rot: player.rotation, gDir: player.gravityDir, mode: player.gamemode, size: player.sizeMultiplier});
 
         let nextY = player.y + player.vy; player.grounded = false;
 
-        if ((player.gamemode === 0 || player.gamemode === 5) && !player.grounded) player.rotation += 8 * player.gravityDir; 
+        if (player.gamemode === 0 && !player.grounded) player.rotation += 8 * player.gravityDir; 
         else if (player.gamemode === 1) player.rotation = (input.jumpHeld ? -45 : 45) * player.gravityDir;
-        else if (player.gamemode === 2 || player.gamemode === 7) player.rotation = player.vy * 3 * player.gravityDir;
-        else if (player.gamemode === 3 || player.gamemode === 6) player.rotation = 0; 
-        else if (player.gamemode === 4) player.rotation += 10 * player.gravityDir;
+        else if (player.gamemode === 2) player.rotation = player.vy * 3 * player.gravityDir;
+        else if (player.gamemode === 3) player.rotation = 0; 
 
         let pBox = { x: player.x, y: nextY, w: pSize, h: pSize };
         if (player.gamemode === 1) pBox = { x: player.x + 5, y: nextY + 5, w: pSize - 10, h: pSize - 10 };
@@ -1330,30 +859,27 @@
           if (objX < player.x - 200 || objX > player.x + 800) continue;
 
           let oBox = { x: objX, y: objY, w: GRID_SIZE, h: GRID_SIZE };
-          let cx = objX + GRID_SIZE/2, cy = objY + GRID_SIZE/2;
 
           if (obj.type === 13) continue; 
           else if (obj.type === 18) { if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE*20, w: GRID_SIZE, h: GRID_SIZE*40 })) winGame(); }
           else if (obj.type >= 14 && obj.type <= 17) {
-            let bgBox = getRotatedBox({ x: objX, y: objY - GRID_SIZE*10, w: GRID_SIZE, h: GRID_SIZE*20 }, obj.rot, cx, cy);
-            if (checkRectCollision(pBox, bgBox)) {
+            if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE*10, w: GRID_SIZE, h: GRID_SIZE*20 })) {
               if (obj.type === 14) state.targetBgColor = [90, 20, 20]; if (obj.type === 15) state.targetBgColor = [20, 30, 90];
               if (obj.type === 16) state.targetBgColor = [20, 80, 30]; if (obj.type === 17) state.targetBgColor = [...DEFAULT_BG]; 
             }
           }
           else if (obj.type >= 10 && obj.type <= 12) {
-            let speedBox = getRotatedBox({ x: objX, y: objY - GRID_SIZE, w: GRID_SIZE, h: GRID_SIZE * 3 }, obj.rot, cx, cy);
-            if (checkRectCollision(pBox, speedBox)) {
+            if (checkRectCollision(pBox, { x: objX, y: objY - GRID_SIZE, w: GRID_SIZE, h: GRID_SIZE * 3 })) {
               if (obj.type === 10) player.speedMultiplier = 0.75; if (obj.type === 11) player.speedMultiplier = 1.0; if (obj.type === 12) player.speedMultiplier = 1.35;
             }
           }
-          else if (obj.type === 28 || obj.type === 29) { 
-            let portBox = getRotatedBox({ x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 }, obj.rot, cx, cy);
-            if (checkRectCollision(pBox, portBox)) {
+          else if (obj.type === 28 || obj.type === 29) { // Size Portals
+            if (checkRectCollision(pBox, { x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 })) {
               let oldSize = player.sizeMultiplier;
               if (obj.type === 28) player.sizeMultiplier = 0.5;
               if (obj.type === 29) player.sizeMultiplier = 1.0;
               if (oldSize !== player.sizeMultiplier) {
+                 // Adjust Y position slightly so we don't clip into ground when growing
                  let nSize = 30 * player.sizeMultiplier;
                  if (player.grounded) nextY = player.y + (30*oldSize) - nSize;
                  pSize = nSize;
@@ -1361,18 +887,19 @@
             }
           }
           else if (obj.type === 1 || obj.type === 20) { 
-            let sBox = { x: objX + 8, y: objY + 16, w: GRID_SIZE - 16, h: GRID_SIZE - 16 };
-            if (obj.type === 20) sBox = { x: objX + 12, y: objY + 24, w: GRID_SIZE - 24, h: GRID_SIZE - 24 };
-            sBox = getRotatedBox(sBox, obj.rot, cx, cy);
+            let sBox = { x: objX + 10, y: objY + 10, w: GRID_SIZE - 20, h: GRID_SIZE - 20 };
+            if (obj.rot === 0 || !obj.rot) sBox = { x: objX + 8, y: objY + 16, w: GRID_SIZE - 16, h: GRID_SIZE - 16 };
+            if (obj.type === 20) sBox = { x: objX + 12, y: objY + 24, w: GRID_SIZE - 24, h: GRID_SIZE - 24 }; // Mini spike
             if (checkRectCollision(pBox, sBox)) hitDeath = true;
           } 
-          else if (obj.type === 21) {
+          else if (obj.type === 21) { // Sawblade circle collision
              let sCx = objX + GRID_SIZE/2, sCy = objY + GRID_SIZE/2;
              let pCx = pBox.x + pBox.w/2, pCy = pBox.y + pBox.h/2;
              if (Math.hypot(pCx - sCx, pCy - sCy) < (GRID_SIZE/2 - 4) + pBox.w/2 - 2) hitDeath = true;
           }
-          else if ([2, 22, 24, 26].includes(obj.type)) { 
-            let padBox = getRotatedBox({ x: objX, y: objY + GRID_SIZE - 20, w: GRID_SIZE, h: 20 }, obj.rot, cx, cy);
+          else if ([2, 22, 24, 26].includes(obj.type)) { // Pads
+            let padBox = { x: objX, y: objY + GRID_SIZE - 10, w: GRID_SIZE, h: 10 };
+            if (obj.rot === 90) padBox = { x: objX, y: objY, w: 10, h: GRID_SIZE }; if (obj.rot === 180) padBox = { x: objX, y: objY, w: GRID_SIZE, h: 10 }; if (obj.rot === 270) padBox = { x: objX + GRID_SIZE - 10, y: objY, w: 10, h: GRID_SIZE };
             if (checkRectCollision(pBox, padBox)) {
               let force = PAD_FORCE;
               if (obj.type === 22) force *= 0.7;
@@ -1383,31 +910,21 @@
                  player.vy = PAD_FORCE * 0.3 * player.gravityDir;
               } else {
                  if (obj.rot === 0 || !obj.rot) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 180) { player.vy = -force; player.gravityDir = -1; }
-                 else if (obj.rot === 90) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 270) { player.vy = force; player.gravityDir = 1; }
               }
-
-              if (obj.rot === 0 || !obj.rot) { nextY = padBox.y - pSize; pBox.y = nextY; }
-              else if (obj.rot === 180) { nextY = padBox.y + padBox.h; pBox.y = nextY; }
-              else if (obj.rot === 90) { player.x = padBox.x + padBox.w; }
-              else if (obj.rot === 270) { player.x = padBox.x - pSize; }
               
-              player.grounded = false; hitDeath = false;
+              player.grounded = false;
               let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#fcd34d';
               for(let i=0; i<5; i++) state.particles.push({ x: objX + GRID_SIZE/2, y: objY + GRID_SIZE/2, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, life: 1.0, color: pCol });
             }
           }
-          else if ([3, 4, 6, 7, 8, 9, 30, 31, 32, 33].includes(obj.type)) { 
-            let gmBox = getRotatedBox({ x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 }, obj.rot, cx, cy);
-            if (checkRectCollision(pBox, gmBox)) {
+          else if ([3, 4, 6, 7, 8, 9].includes(obj.type)) { 
+            if (checkRectCollision(pBox, { x: objX + 10, y: objY - GRID_SIZE, w: GRID_SIZE - 20, h: GRID_SIZE * 3 })) {
               if (obj.type === 3) player.gravityDir = 1; if (obj.type === 4) player.gravityDir = -1;
               if (obj.type === 6) player.gamemode = 1; if (obj.type === 7) player.gamemode = 0; if (obj.type === 8) player.gamemode = 2; if (obj.type === 9) player.gamemode = 3;
-              if (obj.type === 30) player.gamemode = 4; if (obj.type === 31) player.gamemode = 5; if (obj.type === 32) player.gamemode = 6; if (obj.type === 33) player.gamemode = 7;
             }
           }
           else if (obj.type === 0 || obj.type === 19) { 
-            if (obj.type === 19) oBox = { x: objX, y: objY, w: GRID_SIZE, h: GRID_SIZE/2 }; // Top half
-            oBox = getRotatedBox(oBox, obj.rot, cx, cy);
-
+            if (obj.type === 19) oBox = { x: objX, y: objY + GRID_SIZE/2, w: GRID_SIZE, h: GRID_SIZE/2 }; // Half block
             if (checkRectCollision(pBox, oBox)) {
               if (player.gamemode === 1) hitDeath = true;
               else {
@@ -1424,8 +941,7 @@
           }
         }
         player.y = nextY;
-        if ((player.gamemode === 0 || player.gamemode === 5) && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; }
-        if (player.gamemode === 6 && player.grounded) { player.rotation = 0; }
+        if (player.gamemode === 0 && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; if (input.jumpHeld) jump(); }
         if (hitDeath) die();
         state.cameraX = player.x - (canvas.width * 0.3); 
         state.cameraY += ((player.y - canvas.height / 1.6) - state.cameraY) * 0.08;
@@ -1496,27 +1012,31 @@
 
         ctx.save(); ctx.translate(px + GRID_SIZE/2, py + GRID_SIZE/2); 
         
-        if (obj.type === 21) { ctx.rotate(((Date.now() / 150) % (Math.PI * 2))); } else if (obj.rot) { ctx.rotate(obj.rot * Math.PI / 180); }
+        // Custom animation for sawblades
+        if (obj.type === 21) {
+           ctx.rotate(((Date.now() / 150) % (Math.PI * 2)));
+        } else if (obj.rot) {
+           ctx.rotate(obj.rot * Math.PI / 180);
+        }
         
         let s2 = GRID_SIZE / 2;
 
         if (obj.type === 0) { ctx.fillStyle = C_BLOCK; ctx.fillRect(-s2, -s2, GRID_SIZE, GRID_SIZE); ctx.strokeStyle = C_BLOCK_OUTLINE; ctx.lineWidth = 2; ctx.strokeRect(-s2 + 1, -s2 + 1, GRID_SIZE - 2, GRID_SIZE - 2); } 
-        else if (obj.type === 19) { ctx.fillStyle = C_BLOCK; ctx.fillRect(-s2, -s2, GRID_SIZE, s2); ctx.strokeStyle = C_BLOCK_OUTLINE; ctx.lineWidth = 2; ctx.strokeRect(-s2 + 1, -s2 + 1, GRID_SIZE - 2, s2 - 2); } 
+        else if (obj.type === 19) { ctx.fillStyle = C_BLOCK; ctx.fillRect(-s2, 0, GRID_SIZE, s2); ctx.strokeStyle = C_BLOCK_OUTLINE; ctx.lineWidth = 2; ctx.strokeRect(-s2 + 1, 1, GRID_SIZE - 2, s2 - 2); } 
         else if (obj.type === 13) { ctx.fillStyle = 'rgba(26, 95, 122, 0.3)'; ctx.fillRect(-s2, -s2, GRID_SIZE, GRID_SIZE); ctx.strokeStyle = 'rgba(34, 211, 238, 0.2)'; ctx.lineWidth = 1; ctx.strokeRect(-s2 + 1, -s2 + 1, GRID_SIZE - 2, GRID_SIZE - 2); } 
         else if (obj.type >= 14 && obj.type <= 17) { ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI*2); ctx.fillStyle = obj.type === 14 ? 'rgba(239, 68, 68, 0.3)' : (obj.type === 15 ? 'rgba(59, 130, 246, 0.3)' : (obj.type === 16 ? 'rgba(34, 197, 94, 0.3)' : 'rgba(100, 100, 100, 0.3)')); ctx.fill(); ctx.strokeStyle = obj.type === 14 ? '#ef4444' : (obj.type === 15 ? '#3b82f6' : (obj.type === 16 ? '#22c55e' : '#9ca3af')); ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('BG', 0, 0); } 
         else if (obj.type >= 10 && obj.type <= 12) { ctx.fillStyle = obj.type === 10 ? 'rgba(249, 115, 22, 0.3)' : (obj.type === 11 ? 'rgba(74, 222, 128, 0.3)' : 'rgba(236, 72, 153, 0.3)'); ctx.strokeStyle = obj.type === 10 ? '#f97316' : (obj.type === 11 ? '#4ade80' : '#ec4899'); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, -GRID_SIZE); ctx.lineTo(15, 0); ctx.lineTo(0, GRID_SIZE); ctx.lineTo(-15, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = ctx.strokeStyle; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(obj.type === 10 ? '<' : (obj.type === 11 ? '>>' : '>>>'), 0, 0); } 
         else if (obj.type === 18) { ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; ctx.fillRect(-s2, -GRID_SIZE*10, GRID_SIZE, GRID_SIZE*20); ctx.fillStyle = 'rgba(250, 204, 21, 0.3)'; ctx.fillRect(-s2 - 10, -GRID_SIZE*10, GRID_SIZE + 20, GRID_SIZE*20); ctx.strokeStyle = '#facc15'; ctx.lineWidth = 4; ctx.strokeRect(-s2, -GRID_SIZE*10, GRID_SIZE, GRID_SIZE*20); } 
-        else if (obj.type === 35) { ctx.strokeStyle = '#86efac'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-s2, s2); ctx.lineTo(-s2, -s2*3); ctx.stroke(); ctx.fillStyle = '#4ade80'; ctx.beginPath(); ctx.moveTo(-s2, -s2*3); ctx.lineTo(s2, -s2*2); ctx.lineTo(-s2, -s2); ctx.fill(); }
         else if (obj.type === 1) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, -s2); ctx.lineTo(s2, s2); ctx.lineTo(-s2, s2); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#ff7b9f'; ctx.beginPath(); ctx.moveTo(0, -s2 + 8); ctx.lineTo(s2 - 6, s2 - 2); ctx.lineTo(-s2 + 6, s2 - 2); ctx.closePath(); ctx.fill(); } 
-        else if (obj.type === 20) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(12, s2); ctx.lineTo(-12, s2); ctx.closePath(); ctx.fill(); } 
-        else if (obj.type === 21) { ctx.fillStyle = '#4b5563'; ctx.beginPath(); ctx.arc(0, 0, s2-4, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -s2+8, 3, 0, Math.PI*2); ctx.fill(); } 
+        else if (obj.type === 20) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(12, s2); ctx.lineTo(-12, s2); ctx.closePath(); ctx.fill(); } // Mini spike 
+        else if (obj.type === 21) { ctx.fillStyle = '#4b5563'; ctx.beginPath(); ctx.arc(0, 0, s2-4, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -s2+8, 3, 0, Math.PI*2); ctx.fill(); } // Sawblade
         else if ([2, 22, 24, 26].includes(obj.type)) { 
             let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#facc15';
             let pDark = obj.type===22?'#db2777':obj.type===24?'#b91c1c':obj.type===26?'#1d4ed8':'#b45309';
             ctx.fillStyle = pDark; ctx.fillRect(-s2, s2 - 10, GRID_SIZE, 10); ctx.fillStyle = pCol; ctx.beginPath(); ctx.ellipse(0, s2 - 10, s2 - 2, 4, 0, 0, Math.PI * 2); ctx.fill(); 
         } 
-        else if ([5, 23, 25, 27, 34].includes(obj.type)) { 
-            let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':obj.type===34?'#22c55e':'#facc15';
+        else if ([5, 23, 25, 27].includes(obj.type)) { 
+            let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':'#facc15';
             ctx.strokeStyle = pCol; ctx.fillStyle = pCol+'4d'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.fillStyle = pCol; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill(); 
         } 
         else if ([3, 4, 6, 7, 8, 9, 28, 29].includes(obj.type)) {
@@ -1526,24 +1046,17 @@
           if (obj.type === 7) { pColorStr = '#4ade80'; pFillStr = 'rgba(74, 222, 128, 0.3)'; } 
           if (obj.type === 8) { pColorStr = '#ec4899'; pFillStr = 'rgba(236, 72, 153, 0.3)'; } 
           if (obj.type === 9) { pColorStr = '#a855f7'; pFillStr = 'rgba(168, 85, 247, 0.3)'; } 
-          if (obj.type === 30) { pColorStr = '#ea580c'; pFillStr = 'rgba(234, 88, 12, 0.3)'; } 
-          if (obj.type === 31) { pColorStr = '#9ca3af'; pFillStr = 'rgba(156, 163, 175, 0.3)'; } 
-          if (obj.type === 32) { pColorStr = '#9333ea'; pFillStr = 'rgba(147, 51, 234, 0.3)'; } 
-          if (obj.type === 33) { pColorStr = '#ca8a04'; pFillStr = 'rgba(202, 138, 4, 0.3)'; } 
-          if (obj.type === 28) { pColorStr = '#e879f9'; pFillStr = 'rgba(232, 121, 249, 0.3)'; wMult=0.7; } 
-          if (obj.type === 29) { pColorStr = '#34d399'; pFillStr = 'rgba(52, 211, 153, 0.3)'; wMult=0.8; } 
+          if (obj.type === 28) { pColorStr = '#e879f9'; pFillStr = 'rgba(232, 121, 249, 0.3)'; wMult=0.7; } // Mini portal
+          if (obj.type === 29) { pColorStr = '#34d399'; pFillStr = 'rgba(52, 211, 153, 0.3)'; wMult=0.8; } // Normal portal
           
-          ctx.strokeStyle = pColorStr; ctx.fillStyle = pFillStr; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(0, 0, 12*wMult, GRID_SIZE*(obj.type===28||obj.type===29?0.7:1), 0, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 6*wMult, (GRID_SIZE - 8)*(obj.type===28||obj.type===29?0.7:1), 0, 0, Math.PI * 2); ctx.stroke();
+          ctx.strokeStyle = pColorStr; ctx.fillStyle = pFillStr; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(0, 0, 12*wMult, GRID_SIZE*(obj.type>=28?0.7:1), 0, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 6*wMult, (GRID_SIZE - 8)*(obj.type>=28?0.7:1), 0, 0, Math.PI * 2); ctx.stroke();
         }
         ctx.restore();
       }
 
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
-        let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
-        let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
-
         if (player.gamemode === 1) { 
-          ctx.strokeStyle = c1 + '55'; ctx.lineWidth = (30 * player.sizeMultiplier) - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+          ctx.strokeStyle = C_PLAYER_TRAIL; ctx.lineWidth = (30 * player.sizeMultiplier) - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
           for (let i = 0; i < state.trail.length; i++) { 
              let t = state.trail[i]; let ts = 30*t.size;
              if (i === 0) ctx.moveTo(t.x + ts/2, t.y + ts/2); else ctx.lineTo(t.x + ts/2, t.y + ts/2); 
@@ -1553,8 +1066,7 @@
         } else {
           state.trail.forEach((t, i) => { 
              let ts = 30*t.size;
-             ctx.save(); ctx.translate(t.x + ts/2, t.y + ts/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); 
-             ctx.fillStyle = c1; ctx.globalAlpha = i / 30; ctx.fillRect(-ts/2, -ts/2, ts, ts); ctx.restore(); 
+             ctx.save(); ctx.translate(t.x + ts/2, t.y + ts/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); ctx.fillStyle = `rgba(0, 240, 255, ${i / 15})`; ctx.fillRect(-ts/2, -ts/2, ts, ts); ctx.restore(); 
           });
         }
       }
@@ -1562,50 +1074,11 @@
       if (!player.dead) {
         let pSize = 30 * player.sizeMultiplier;
         ctx.save(); ctx.translate(player.x + pSize/2, player.y + pSize/2); ctx.rotate(player.rotation * Math.PI / 180); ctx.scale(player.sizeMultiplier, player.gravityDir * player.sizeMultiplier); 
-        
-        let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
-        let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
         const drawFace = () => { ctx.fillStyle = '#111'; ctx.fillRect(-8, -6, 4, 4); ctx.fillRect(4, -6, 4, 4); ctx.fillRect(-6, 2, 12, 3); };
-
-        if (player.gamemode === 1) { 
-           if(typeof cachedWaveImg !== 'undefined' && cachedWaveImg.complete && cachedWaveImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedWaveImg, 0, 0, 100, 100); ctx.restore(); } 
-           else { ctx.fillStyle = c1; ctx.beginPath(); ctx.moveTo(30/2, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/4, 0); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.stroke(); } 
-        } 
-        else if (player.gamemode === 2) { 
-           if(typeof cachedShipImg !== 'undefined' && cachedShipImg.complete && cachedShipImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedShipImg, 0, 0, 100, 100); ctx.restore(); } 
-           else { ctx.fillStyle = c2; ctx.beginPath(); ctx.moveTo(30/2 + 5, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.fillStyle = c1; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
-        } 
-        else if (player.gamemode === 3) { 
-           if(typeof cachedUfoImg !== 'undefined' && cachedUfoImg.complete && cachedUfoImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedUfoImg, 0, 0, 100, 100); ctx.restore(); } 
-           else { ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.ellipse(0, 0, 30/1.2, 30/3, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(0, -30/6, 30/2.5, Math.PI, 0); ctx.fill(); ctx.fillStyle = c1; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
-        } 
-        else if (player.gamemode === 4) { if(typeof cachedBallImg !== 'undefined' && cachedBallImg.complete && cachedBallImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedBallImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); } }
-        else if (player.gamemode === 5) { 
-           let legSwing = player.grounded ? Math.sin(player.x * 0.05) * 30 : (player.vy * player.gravityDir < 0 ? -15 : 20);
-           ctx.save(); ctx.translate(-6, 5); ctx.rotate(legSwing * Math.PI / 180); ctx.fillStyle = c2; ctx.fillRect(-3, 0, 6, 12); ctx.restore();
-           ctx.save(); ctx.translate(6, 5); ctx.rotate(-legSwing * Math.PI / 180); ctx.fillStyle = c2; ctx.fillRect(-3, 0, 6, 12); ctx.restore();
-           
-           if(typeof cachedRobotImg !== 'undefined' && cachedRobotImg.complete && cachedRobotImg.src) { 
-               ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); 
-               ctx.beginPath(); ctx.rect(0, 0, 100, 52); ctx.clip();
-               ctx.drawImage(cachedRobotImg, 0, 0, 100, 100); 
-               ctx.restore(); 
-           } else { 
-               ctx.fillStyle = c1; ctx.fillRect(-15, -15, 30, 20); ctx.strokeStyle = '#fff'; ctx.strokeRect(-15, -15, 30, 20); drawFace(); ctx.fillStyle = '#fff'; ctx.fillRect(-2, -22, 4, 7); 
-           } 
-        }
-        else if (player.gamemode === 6) { if(typeof cachedSpiderImg !== 'undefined' && cachedSpiderImg.complete && cachedSpiderImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedSpiderImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(0, 0, 15, 10, 0, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = c1; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-20, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-10, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(10, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(20, 15); ctx.stroke(); drawFace(); } }
-        else if (player.gamemode === 7) { if(typeof cachedSwingImg !== 'undefined' && cachedSwingImg.complete && cachedSwingImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedSwingImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(-15, 0, 6, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(15, 0, 6, 0, Math.PI*2); ctx.fill(); drawFace(); } }
-        else { 
-           if (typeof cachedPlayerImg !== 'undefined' && cachedPlayerImg.complete && cachedPlayerImg.src) {
-              let r = ALL_ICONS.find(i=>i.id===(myProfile?myProfile.equippedIcon:'i1'))?.rarity;
-              if (r==='mythic') { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 15 + Math.sin(Date.now()/150)*5; }
-              ctx.drawImage(cachedPlayerImg, -15, -15, 30, 30); 
-              ctx.shadowBlur = 0;
-           } else {
-              ctx.fillStyle = c1; ctx.fillRect(-30/2, -30/2, 30, 30); ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.strokeRect(-30/2, -30/2, 30, 30); drawFace();
-           }
-        }
+        if (player.gamemode === 1) { ctx.fillStyle = C_PLAYER; ctx.beginPath(); ctx.moveTo(30/2, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/4, 0); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke(); } 
+        else if (player.gamemode === 2) { ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.moveTo(30/2 + 5, 0); ctx.lineTo(-30/2, 30/2); ctx.lineTo(-30/2, -30/2); ctx.closePath(); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
+        else if (player.gamemode === 3) { ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.ellipse(0, 0, 30/1.2, 30/3, 0, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.beginPath(); ctx.arc(0, -30/6, 30/2.5, Math.PI, 0); ctx.fill(); ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/4, -30/4, 30/2, 30/2); ctx.save(); ctx.translate(0, -2); ctx.scale(0.5, 0.5); drawFace(); ctx.restore(); } 
+        else { ctx.fillStyle = C_PLAYER; ctx.fillRect(-30/2, -30/2, 30, 30); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(-30/2, -30/2, 30, 30); drawFace(); }
         ctx.restore();
       }
 
@@ -1615,7 +1088,7 @@
 
     let lastTime = 0;
     let accumulator = 0;
-    const TIME_STEP = 1000 / 60; 
+    const TIME_STEP = 1000 / 60; // 60 FPS Fixed Time Step
 
     function loop(timestamp) { 
       if (!lastTime) lastTime = timestamp;
@@ -1664,7 +1137,7 @@
         level = level.filter(b => !(b.gx === gx && b.gy === gy));
         let newObj = { gx, gy, type: editor.tool, rot: editor.rot };
         level.push(newObj);
-        editor.selectedObjs = [newObj]; 
+        editor.selectedObjs = [newObj]; // Auto-select last placed block
         updateEditPanelUI();
         editor.hasChangedLevel = true;
       } 
@@ -1678,12 +1151,7 @@
     canvas.addEventListener('pointerdown', (e) => {
       if (e.target !== canvas) return;
       
-      if (state.mode === 'play' || state.isPlaytesting) { 
-          input.jumpHeld = true; 
-          input.clickConsumed = false; 
-          if (triggerAction()) input.clickConsumed = true; 
-          return; 
-      }
+      if (state.mode === 'play' || state.isPlaytesting) { triggerAction(); return; }
       if (state.mode !== 'edit') return;
       
       editor.isDragging = true; editor.isClick = true;
@@ -1692,7 +1160,6 @@
       
       if (editor.swipeEnabled) {
         if (editor.mode === 'edit') {
-          editor.selectedObjs = []; updateEditPanelUI();
           const p = getGridPos(e.clientX, e.clientY);
           editor.selBox = { sx: p.worldX, sy: p.worldY, ex: p.worldX, ey: p.worldY };
         } else {
@@ -1714,7 +1181,7 @@
           handleEditorAction(e.clientX, e.clientY);
         }
       } else {
-        state.cameraX = editor.initialCamX - (e.clientX - editor.camDragStartX);
+        state.cameraX = Math.max(0, editor.initialCamX - (e.clientX - editor.camDragStartX));
         state.cameraY = editor.initialCamY - (e.clientY - editor.camDragStartY);
       }
     });
@@ -1743,22 +1210,32 @@
         handleEditorAction(e.clientX, e.clientY);
       }
 
-      if (editor.hasChangedLevel) { saveHistory(); editor.hasChangedLevel = false; }
+      if (editor.hasChangedLevel) {
+         saveHistory();
+         editor.hasChangedLevel = false;
+      }
+
       editor.isDragging = false; editor.lastGx = -1; editor.lastGy = -1;
     });
 
     document.addEventListener('keydown', (e) => {
+      // Don't intercept typing in inputs or textareas
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
       if (e.code === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); return; }
       if (e.code === 'KeyT') { document.getElementById('btnSwipeToggle').click(); e.preventDefault(); return; }
 
+      // Z to Playtest/Exit
       if (e.code === 'KeyZ' && !e.ctrlKey && !e.metaKey) {
-          if (state.mode === 'edit') document.getElementById('btnPlaytest').click();
-          else if (state.isPlaytesting) document.getElementById('btnExitGame').click();
+          if (state.mode === 'edit') {
+              document.getElementById('btnPlaytest').click();
+          } else if (state.isPlaytesting) {
+              document.getElementById('btnExitGame').click();
+          }
           return;
       }
 
+      // Undo / Redo / Duplicate Shortcuts
       if (e.ctrlKey || e.metaKey) {
           if (e.code === 'KeyZ') { undo(); e.preventDefault(); return; }
           if (e.code === 'KeyY') { redo(); e.preventDefault(); return; }
@@ -1766,16 +1243,11 @@
       }
 
       if (state.mode === 'play' || state.isPlaytesting) { 
-          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { 
-              if (!input.jumpHeld) {
-                  input.jumpHeld = true; 
-                  input.clickConsumed = false; 
-                  if (triggerAction()) input.clickConsumed = true; 
-              }
-          }
+          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') triggerAction(); 
       } 
       else if (state.mode === 'edit') {
           let isWASD = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code);
+          
           if (editor.selectedObjs.length > 0 && isWASD) {
              if (e.code === 'KeyW') document.getElementById('btnNudgeUp').click();
              if (e.code === 'KeyA') document.getElementById('btnNudgeLeft').click();
@@ -1786,7 +1258,9 @@
              if(e.code === 'ArrowLeft' || (!editor.selectedObjs.length && e.code === 'KeyA')) state.cameraX -= GRID_SIZE;
              if(e.code === 'ArrowUp' || (!editor.selectedObjs.length && e.code === 'KeyW')) state.cameraY -= GRID_SIZE; 
              if(e.code === 'ArrowDown' || (!editor.selectedObjs.length && e.code === 'KeyS')) state.cameraY += GRID_SIZE;
+             state.cameraX = Math.max(0, state.cameraX);
           }
+          
           if (editor.selectedObjs.length > 0) {
              if (e.code === 'KeyQ') document.getElementById('btnEditRotLeft').click();
              if (e.code === 'KeyE') document.getElementById('btnEditRotRight').click();
@@ -1805,20 +1279,20 @@
     function switchEditorMode(m) {
       editor.mode = m; editor.selectedObjs = []; updateEditPanelUI();
       
-      tabBuild?.classList.remove('active'); tabEditMode?.classList.remove('active'); tabDelete?.classList.remove('active');
-      panelBuild?.classList.add('hide'); panelEdit?.classList.add('hide'); panelDelete?.classList.add('hide');
-      document.getElementById('buildRotState')?.classList.add('hide');
+      tabBuild.classList.remove('active'); tabEditMode.classList.remove('active'); tabDelete.classList.remove('active');
+      panelBuild.classList.add('hide'); panelEdit.classList.add('hide'); panelDelete.classList.add('hide');
+      document.getElementById('buildRotState').classList.add('hide');
       
-      if(m === 'build') { tabBuild?.classList.add('active'); panelBuild?.classList.remove('hide'); document.getElementById('buildRotState')?.classList.remove('hide'); }
-      if(m === 'edit') { tabEditMode?.classList.add('active'); panelEdit?.classList.remove('hide'); panelEdit?.classList.add('flex'); }
-      if(m === 'delete') { tabDelete?.classList.add('active'); panelDelete?.classList.remove('hide'); panelDelete?.classList.add('flex'); }
+      if(m === 'build') { tabBuild.classList.add('active'); panelBuild.classList.remove('hide'); document.getElementById('buildRotState').classList.remove('hide'); }
+      if(m === 'edit') { tabEditMode.classList.add('active'); panelEdit.classList.remove('hide'); panelEdit.classList.add('flex'); }
+      if(m === 'delete') { tabDelete.classList.add('active'); panelDelete.classList.remove('hide'); panelDelete.classList.add('flex'); }
     }
 
-    tabBuild?.addEventListener('click', () => switchEditorMode('build'));
-    tabEditMode?.addEventListener('click', () => switchEditorMode('edit'));
-    tabDelete?.addEventListener('click', () => switchEditorMode('delete'));
+    tabBuild.addEventListener('click', () => switchEditorMode('build'));
+    tabEditMode.addEventListener('click', () => switchEditorMode('edit'));
+    tabDelete.addEventListener('click', () => switchEditorMode('delete'));
 
-    btnSwipeToggle?.addEventListener('click', () => {
+    btnSwipeToggle.addEventListener('click', () => {
       editor.swipeEnabled = !editor.swipeEnabled;
       if (editor.swipeEnabled) { btnSwipeToggle.classList.add('active'); swipeStatus.textContent = 'ON'; swipeStatus.className = 'text-xs text-green-200'; } 
       else { btnSwipeToggle.classList.remove('active'); swipeStatus.textContent = 'OFF'; swipeStatus.className = 'text-xs text-red-200'; }
@@ -1844,144 +1318,141 @@
       }
     });
 
-    document.getElementById('btnBuildRotLeft')?.addEventListener('click', () => { editor.rot = (editor.rot - 90 + 360) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
-    document.getElementById('btnBuildRotRight')?.addEventListener('click', () => { editor.rot = (editor.rot + 90) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
+    document.getElementById('btnBuildRotLeft').addEventListener('click', () => { editor.rot = (editor.rot - 90 + 360) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
+    document.getElementById('btnBuildRotRight').addEventListener('click', () => { editor.rot = (editor.rot + 90) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
 
     const editNoSelection = document.getElementById('editNoSelection'), editControls = document.getElementById('editControls');
     function updateEditPanelUI() {
       if (editor.selectedObjs.length > 0) {
-        editNoSelection?.classList.add('hide'); editControls?.classList.remove('hide'); editControls?.classList.add('flex');
+        editNoSelection.classList.add('hide'); editControls.classList.remove('hide'); editControls.classList.add('flex');
       } else {
-        editNoSelection?.classList.remove('hide'); editControls?.classList.add('hide'); editControls?.classList.remove('flex');
+        editNoSelection.classList.remove('hide'); editControls.classList.add('hide'); editControls.classList.remove('flex');
       }
     }
 
-    document.getElementById('btnNudgeUp')?.addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => o.gy++); saveHistory(); } });
-    document.getElementById('btnNudgeDown')?.addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => { if(o.gy > 0) o.gy--; }); saveHistory(); } });
-    document.getElementById('btnNudgeLeft')?.addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => { if(o.gx > 0) o.gx--; }); saveHistory(); } });
-    document.getElementById('btnNudgeRight')?.addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => o.gx++); saveHistory(); } });
+    document.getElementById('btnNudgeUp').addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => o.gy++); saveHistory(); } });
+    document.getElementById('btnNudgeDown').addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => { if(o.gy > 0) o.gy--; }); saveHistory(); } });
+    document.getElementById('btnNudgeLeft').addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => { if(o.gx > 0) o.gx--; }); saveHistory(); } });
+    document.getElementById('btnNudgeRight').addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => o.gx++); saveHistory(); } });
     
-    document.getElementById('btnEditRotLeft')?.addEventListener('click', () => { 
+    document.getElementById('btnEditRotLeft').addEventListener('click', () => { 
        if(editor.selectedObjs.length === 0) return;
-       if(editor.selectedObjs.length === 1) { editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) - 90 + 360) % 360; } 
-       else {
-          let minX = Math.min(...editor.selectedObjs.map(o => o.gx)); let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
-          let minY = Math.min(...editor.selectedObjs.map(o => o.gy)); let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
-          let cx = (minX + maxX) / 2; let cy = (minY + maxY) / 2;
+       if(editor.selectedObjs.length === 1) {
+          editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) - 90 + 360) % 360;
+       } else {
+          // Group Rotation Math
+          let minX = Math.min(...editor.selectedObjs.map(o => o.gx));
+          let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
+          let minY = Math.min(...editor.selectedObjs.map(o => o.gy));
+          let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
+          let cx = (minX + maxX) / 2;
+          let cy = (minY + maxY) / 2;
           editor.selectedObjs.forEach(o => {
-              let dx = o.gx - cx; let dy = o.gy - cy;
-              o.gx = cx - dy; o.gy = cy + dx; 
+              let dx = o.gx - cx;
+              let dy = o.gy - cy;
+              o.gx = cx - dy; // Rotate Left (Counter-Clockwise)
+              o.gy = cy + dx; 
               o.rot = ((o.rot||0) - 90 + 360) % 360;
           });
-       } 
-       editor.rot = editor.selectedObjs[0].rot || 0; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`;
+       }
        saveHistory();
     });
 
-    document.getElementById('btnEditRotRight')?.addEventListener('click', () => { 
+    document.getElementById('btnEditRotRight').addEventListener('click', () => { 
        if(editor.selectedObjs.length === 0) return;
-       if(editor.selectedObjs.length === 1) { editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) + 90) % 360; } 
-       else {
-          let minX = Math.min(...editor.selectedObjs.map(o => o.gx)); let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
-          let minY = Math.min(...editor.selectedObjs.map(o => o.gy)); let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
-          let cx = (minX + maxX) / 2; let cy = (minY + maxY) / 2;
+       if(editor.selectedObjs.length === 1) {
+          editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) + 90) % 360;
+       } else {
+          // Group Rotation Math
+          let minX = Math.min(...editor.selectedObjs.map(o => o.gx));
+          let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
+          let minY = Math.min(...editor.selectedObjs.map(o => o.gy));
+          let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
+          let cx = (minX + maxX) / 2;
+          let cy = (minY + maxY) / 2;
           editor.selectedObjs.forEach(o => {
-              let dx = o.gx - cx; let dy = o.gy - cy;
-              o.gx = cx + dy; o.gy = cy - dx; 
+              let dx = o.gx - cx;
+              let dy = o.gy - cy;
+              o.gx = cx + dy; // Rotate Right (Clockwise)
+              o.gy = cy - dx; 
               o.rot = ((o.rot||0) + 90) % 360;
           });
-       } 
-       editor.rot = editor.selectedObjs[0].rot || 0; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`;
+       }
        saveHistory();
     });
 
-    document.getElementById('btnDeleteAll')?.addEventListener('click', () => { if(confirm("Clear entire level?")) { level = []; editor.selectedObjs = []; updateEditPanelUI(); saveHistory(); } });
+    document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear entire level?")) { level = []; editor.selectedObjs = []; updateEditPanelUI(); saveHistory(); } });
 
-    document.getElementById('btnPlaytest')?.addEventListener('click', () => {
+    document.getElementById('btnPlaytest').addEventListener('click', () => {
       editor.restoreState = { camX: state.cameraX, camY: state.cameraY };
       state.mode = 'play'; state.isPlaytesting = true; state.attempts = 1; resetPlayer();
-      document.getElementById('editorTopRight')?.classList.add('hide');
-      document.getElementById('editorToolbar')?.classList.add('hide');
-      document.getElementById('stats')?.classList.remove('hide');
-      document.getElementById('gameProgressContainer')?.classList.remove('hide');
+      document.getElementById('editorTopRight').classList.add('hide');
+      document.getElementById('editorToolbar').classList.add('hide');
+      document.getElementById('stats').classList.remove('hide');
+      document.getElementById('gameProgressContainer').classList.remove('hide');
       document.getElementById('stats').innerText = `Test: Attempt 1`;
-      document.getElementById('btnExitGame').innerHTML = '<i data-lucide="square" class="w-4 h-4"></i> <span id="lblExitGame">Stop Test (Z)</span>';
-      lucide.createIcons();
+      document.getElementById('lblExitGame').innerText = 'Stop Test (Z)';
+      document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'square'); lucide.createIcons();
     });
 
-    document.getElementById('btnExitGame')?.addEventListener('click', () => {
+    document.getElementById('btnExitGame').addEventListener('click', () => {
       if (state.isPlaytesting) {
-        state.savedPath = [...state.currentPath];
         state.isPlaytesting = false; state.mode = 'edit';
         state.cameraX = editor.restoreState.camX; state.cameraY = editor.restoreState.camY;
-        document.getElementById('editorTopRight')?.classList.remove('hide');
-        document.getElementById('editorToolbar')?.classList.remove('hide');
-        document.getElementById('stats')?.classList.add('hide');
-        document.getElementById('gameProgressContainer')?.classList.add('hide');
-        document.getElementById('btnExitGame').innerHTML = '<i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>';
-        lucide.createIcons();
-        document.getElementById('winOverlay')?.classList.add('hide');
+        document.getElementById('editorTopRight').classList.remove('hide');
+        document.getElementById('editorToolbar').classList.remove('hide');
+        document.getElementById('stats').classList.add('hide');
+        document.getElementById('gameProgressContainer').classList.add('hide');
+        document.getElementById('lblExitGame').innerText = 'Exit';
+        document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out'); lucide.createIcons();
+        document.getElementById('winOverlay').classList.add('hide');
       } else {
         state.mode = 'menu';
         currentPreviewLevel = null;
-        document.getElementById('gameUI')?.classList.add('hide'); document.getElementById('gameProgressContainer')?.classList.add('hide'); document.getElementById('editorToolbar')?.classList.add('hide'); document.getElementById('editorTopRight')?.classList.add('hide'); document.getElementById('winOverlay')?.classList.add('hide');
+        document.getElementById('gameUI').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide');
         hubUI.classList.remove('hide');
         hubUI.classList.remove('opacity-0');
       }
     });
 
-    document.getElementById('btnMusic')?.addEventListener('click', () => {
-      initAudio(); isMusicOn = !isMusicOn;
+    document.getElementById('btnMusic').addEventListener('click', () => {
+      initAudio();
+      isMusicOn = !isMusicOn;
       document.getElementById('btnMusic').innerText = isMusicOn ? '🎵 Music: ON' : '🎵 Music: OFF';
       document.getElementById('btnMusic').className = isMusicOn ? 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-white font-bold transition-colors shadow' : 'px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow';
-      if (isMusicOn && audioCtx) { nextNoteTime = audioCtx.currentTime + 0.1; }
+      
+      // Reset the note timer to current time so we don't play a massive backlog of notes at once
+      if (isMusicOn && audioCtx) {
+         nextNoteTime = audioCtx.currentTime + 0.1;
+      }
     });
 
     document.getElementById('btnPublish').addEventListener('click', async () => {
       if(!currentUser || !myProfile) return;
-      let defName = currentEditingLevelId ? currentEditingLevelName : "Untitled Level";
-      const lvlName = prompt("Enter a name for your level:", defName);
+      const lvlName = prompt("Enter a name for your level:");
       if (!lvlName || lvlName.trim() === "") return;
       const lStr = generateLevelString();
       try {
-        if (currentEditingLevelId) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentEditingLevelId), { name: lvlName.trim(), data: lStr, updatedAt: Date.now() }, { merge: true });
-            alert("Level updated successfully!");
-        } else {
-            const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
-            await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, difficulty: 'NA', stars: 0, likes: [], comments: [], createdAt: Date.now() });
-            alert("Level published successfully!");
-        }
-        document.getElementById('btnExitGame').click(); 
-      } catch(e) { alert("Failed to publish."); }
+        const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
+        await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, difficulty: 'NA', stars: 0, likes: [], comments: [], createdAt: Date.now() });
+        alert("Level published successfully!"); document.getElementById('btnExitGame').click(); 
+      } catch(e) { alert("Failed to publish."); console.error(e); }
     });
 
     // ==========================================
     // 🌐 APP STATE & FIREBASE INTEGRATION
     // ==========================================
+    
     const hubUI = document.getElementById('hubUI'), joinSection = document.getElementById('joinSection'), emailAuthForm = document.getElementById('emailAuthForm');
     const tabLogin = document.getElementById('tabLogin'), tabSignup = document.getElementById('tabSignup'), usernameGroup = document.getElementById('usernameGroup');
     const adminPanelModal = document.getElementById('adminPanelModal'), adminCommandForm = document.getElementById('adminCommandForm');
     const loggedInSection = document.getElementById('loggedInSection');
     const viewMainMenu = document.getElementById('viewMainMenu'), viewBrowser = document.getElementById('viewBrowser'), viewLeaderboard = document.getElementById('viewLeaderboard');
-    const viewIconKit = document.getElementById('viewIconKit'), viewTreasure = document.getElementById('viewTreasure'), viewMyLevels = document.getElementById('viewMyLevels');
 
     document.getElementById('btnViewBrowser').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewBrowser.classList.remove('hidden'); });
     document.getElementById('btnViewLeaderboard').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewLeaderboard.classList.remove('hidden'); });
-    document.getElementById('btnViewIconKit').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewIconKit.classList.remove('hidden'); renderIconKit(); });
-    document.getElementById('btnViewTreasure').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewTreasure.classList.remove('hidden'); updateTreasureUI(); });
-    
-    document.getElementById('btnCreateLevel').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewMyLevels.classList.remove('hidden'); renderMyLevels(); });
-    document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
-    document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
-    
-    document.getElementById('btnCreateNewLevel').addEventListener('click', () => { currentEditingLevelId = null; currentEditingLevelName = ""; launchGame(BLANK_LEVEL_DATA, 'edit'); });
-
     document.querySelectorAll('.btnBackToMain').forEach(btn => {
-      btn.addEventListener('click', () => { 
-         viewBrowser.classList.add('hidden'); viewLeaderboard.classList.add('hidden'); viewIconKit.classList.add('hidden'); viewTreasure.classList.add('hidden'); viewMyLevels.classList.add('hidden');
-         viewMainMenu.classList.remove('hidden'); 
-      });
+      btn.addEventListener('click', () => { viewBrowser.classList.add('hidden'); viewLeaderboard.classList.add('hidden'); viewMainMenu.classList.remove('hidden'); });
     });
 
     tabLogin.addEventListener('click', () => { isSignupMode = false; usernameGroup.classList.add('hidden'); document.getElementById('usernameInput').removeAttribute('required'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
@@ -2005,10 +1476,12 @@
         const c = prompt("Secret Command Bypass:");
         if (c === 'DASH2026') {
           const currentKings = usersData.filter(d => d.role === 'king');
-          for (let k of currentKings) { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true }); }
+          for (let k of currentKings) {
+             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
+          }
           await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
           await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
-          alert("Bypass activated!");
+          alert("Bypass activated! Old ghost kings removed, persistent bugs cleared, and you are now King.");
         }
       });
     }
@@ -2017,7 +1490,7 @@
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
         else if (typeof __firebase_config !== 'undefined') await signInAnonymously(auth); 
-      } catch (e) {}
+      } catch (e) { console.error("Auth init failed", e); }
     }
     
     onAuthStateChanged(auth, async (user) => {
@@ -2028,16 +1501,10 @@
           const uSnap = await getDoc(uRef);
           if (!uSnap.exists()) {
             const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
-            await setDoc(uRef, { 
-               username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), progress: {},
-               unlockedIcons: ['i1'], unlockedShips: ['sh1'], unlockedUfos: ['u1'], unlockedWaves: ['w1'], unlockedBalls: ['b1'], unlockedRobots: ['r1'], unlockedSpiders: ['sp1'], unlockedSwings: ['sw1'],
-               unlockedCol1: ['c1'], unlockedCol2: ['c20'], 
-               equippedIcon: 'i1', equippedShip: 'sh1', equippedUfo: 'u1', equippedWave: 'w1', equippedBall: 'b1', equippedRobot: 'r1', equippedSpider: 'sp1', equippedSwing: 'sw1',
-               equippedCol1: 'c1', equippedCol2: 'c20', keysSpent: 0
-            });
+            await setDoc(uRef, { username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), progress: {} });
           }
           pendingUsername = null; setupDatabaseListener();
-        } catch(e) {}
+        } catch(e) { console.error(e); }
       } else {
         if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
         myProfile = null; clearTrollEffects();
@@ -2058,32 +1525,6 @@
         const existingProfile = usersData.find(d => d.id === currentUser.uid);
         if (existingProfile) {
           myProfile = existingProfile;
-          
-          if (!myProfile.unlockedIcons) myProfile.unlockedIcons = ['i1'];
-          if (!myProfile.unlockedShips) myProfile.unlockedShips = ['sh1'];
-          if (!myProfile.unlockedUfos) myProfile.unlockedUfos = ['u1'];
-          if (!myProfile.unlockedWaves) myProfile.unlockedWaves = ['w1'];
-          if (!myProfile.unlockedBalls) myProfile.unlockedBalls = ['b1'];
-          if (!myProfile.unlockedRobots) myProfile.unlockedRobots = ['r1'];
-          if (!myProfile.unlockedSpiders) myProfile.unlockedSpiders = ['sp1'];
-          if (!myProfile.unlockedSwings) myProfile.unlockedSwings = ['sw1'];
-          if (!myProfile.unlockedCol1) myProfile.unlockedCol1 = ['c1'];
-          if (!myProfile.unlockedCol2) myProfile.unlockedCol2 = ['c20'];
-          
-          if (!myProfile.equippedIcon) myProfile.equippedIcon = 'i1';
-          if (!myProfile.equippedShip) myProfile.equippedShip = 'sh1';
-          if (!myProfile.equippedUfo) myProfile.equippedUfo = 'u1';
-          if (!myProfile.equippedWave) myProfile.equippedWave = 'w1';
-          if (!myProfile.equippedBall) myProfile.equippedBall = 'b1';
-          if (!myProfile.equippedRobot) myProfile.equippedRobot = 'r1';
-          if (!myProfile.equippedSpider) myProfile.equippedSpider = 'sp1';
-          if (!myProfile.equippedSwing) myProfile.equippedSwing = 'sw1';
-          if (!myProfile.equippedCol1) myProfile.equippedCol1 = 'c1';
-          if (!myProfile.equippedCol2) myProfile.equippedCol2 = 'c20';
-          if (!myProfile.keysSpent) myProfile.keysSpent = 0;
-          
-          updatePlayerSprite();
-
           if (myProfile.banned) { document.getElementById('bannedScreen').classList.remove('hidden'); document.getElementById('bannedScreen').classList.add('flex'); hubUI.classList.add('hidden'); return; } 
           else { document.getElementById('bannedScreen').classList.add('hidden'); document.getElementById('bannedScreen').classList.remove('flex'); }
 
@@ -2093,14 +1534,12 @@
           if (myProfile.trollEvent) applyTrollEffect(myProfile.trollEvent);
           updateHubUI();
           
+          // Update Modal info if currently viewing
           if (currentPreviewLevel) {
             let myProg = (myProfile.progress && myProfile.progress[currentPreviewLevel.id]) || 0;
             document.getElementById('prevProgressBar').style.width = `${myProg}%`;
             document.getElementById('prevProgressText').innerText = `${myProg}%`;
           }
-          
-          if (!viewTreasure.classList.contains('hidden')) updateTreasureUI();
-          if (!viewIconKit.classList.contains('hidden')) renderIconKit();
         }
         
         if (!usersData.some(d => d.role === 'king') && myProfile && myProfile.role !== 'king') document.getElementById('redeemCodeBtn').classList.remove('hidden');
@@ -2117,7 +1556,9 @@
           if (globalSettings.broadcastMsg) { 
             document.getElementById('globalBannerText').textContent = globalSettings.broadcastMsg; 
             document.getElementById('globalBanner').classList.remove('-translate-y-full'); 
-          } else { document.getElementById('globalBanner').classList.add('-translate-y-full'); }
+          } else {
+            document.getElementById('globalBanner').classList.add('-translate-y-full');
+          }
           applyTrollEffect(globalSettings.globalTroll || '');
         } else {
           globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
@@ -2128,17 +1569,16 @@
       levelsUnsubscribe = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'levels')), (snapshot) => {
         levelsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderLevelBrowser();
-        if (viewMyLevels && !viewMyLevels.classList.contains('hidden')) renderMyLevels();
+        
+        // Live update the modal if it's open
         if (currentPreviewLevel && !document.getElementById('levelPreviewModal').classList.contains('hide')) {
            const updatedLvl = levelsList.find(l => l.id === currentPreviewLevel.id);
-           if (updatedLvl) { currentPreviewLevel = updatedLvl; populateLevelModal(updatedLvl); }
+           if (updatedLvl) {
+              currentPreviewLevel = updatedLvl;
+              populateLevelModal(updatedLvl);
+           }
         }
       });
-    }
-
-    function getAvailableKeys() {
-       if(!myProfile) return 0;
-       return Math.floor((myProfile.score || 0) / 25) - (myProfile.keysSpent || 0);
     }
 
     function updateHubUI() {
@@ -2146,7 +1586,6 @@
       if (state.mode === 'menu') hubUI.classList.remove('hide');
       document.getElementById('displayUsername').textContent = myProfile.username;
       document.getElementById('displayScore').textContent = (myProfile.score || 0).toLocaleString();
-      document.getElementById('displayKeys').textContent = getAvailableKeys().toLocaleString();
       document.getElementById('displayPfp').src = myProfile.photoURL ? myProfile.photoURL : getDefaultAvatar(myProfile.username);
       
       const rb = document.getElementById('myRoleBadge');
@@ -2173,20 +1612,14 @@
       lbList.innerHTML = visibleUsers.map((u, i) => {
         let badge = u.role === 'king' ? `<i data-lucide="crown" class="w-4 h-4 text-yellow-500 inline"></i>` : u.role === 'admin' ? `<i data-lucide="shield" class="w-4 h-4 text-indigo-500 inline"></i>` : '';
         let rankClass = i === 0 ? 'bg-yellow-500/20 text-yellow-400' : i === 1 ? 'bg-gray-300/20 text-gray-300' : i === 2 ? 'bg-amber-700/20 text-amber-500' : 'bg-gray-800 text-gray-400';
-        
-        let randIconId = (u.unlockedIcons && u.unlockedIcons.length > 0) ? u.unlockedIcons[i % u.unlockedIcons.length] : 'i1';
-        let svgStr = getIconSVG(randIconId, '#3b82f6', '#fff');
-        let dataUri = "data:image/svg+xml;base64," + btoa(svgStr);
-
         return `
-          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-profile" data-uid="${u.id}">
-            <div class="flex items-center gap-4 pointer-events-none">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${rankClass}">${i + 1}</div>
-              <img src="${escapeHtml(u.photoURL || getDefaultAvatar(u.username))}" class="w-10 h-10 rounded-full border border-gray-600 shrink-0">
-              <img src="${dataUri}" class="w-8 h-8 shrink-0 drop-shadow-md">
-              <h4 class="text-lg font-bold text-white flex items-center gap-2 truncate max-w-[150px] sm:max-w-[300px]">${escapeHtml(u.username)} ${badge}</h4>
+          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
+            <div class="flex items-center gap-4">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${rankClass}">${i + 1}</div>
+              <img src="${escapeHtml(u.photoURL || getDefaultAvatar(u.username))}" class="w-10 h-10 rounded-full border border-gray-600">
+              <h4 class="text-lg font-bold text-white flex items-center gap-2">${escapeHtml(u.username)} ${badge}</h4>
             </div>
-            <div class="flex items-center gap-2 pointer-events-none shrink-0">
+            <div class="flex items-center gap-2">
               <span class="text-xl font-bold text-yellow-400 font-mono">${(u.score || 0).toLocaleString()}</span>
               <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400"></i>
             </div>
@@ -2194,278 +1627,6 @@
         `;
       }).join('');
       lucide.createIcons();
-      
-      document.querySelectorAll('.btn-open-profile').forEach(el => {
-         el.addEventListener('click', () => openProfileModal(el.dataset.uid));
-      });
-    }
-
-    function openProfileModal(uid) {
-       const u = usersData.find(x => x.id === uid);
-       if(!u) return;
-       document.getElementById('profModalName').innerText = u.username;
-       document.getElementById('profModalImg').src = u.photoURL || getDefaultAvatar(u.username);
-       document.getElementById('profModalStars').innerText = (u.score || 0).toLocaleString();
-       document.getElementById('profModalIconCount').innerText = `${(u.unlockedIcons || ['i1']).length}/${ALL_ICONS.length}`;
-       document.getElementById('profModalColorCount').innerText = `${((u.unlockedCol1 || []).length + (u.unlockedCol2 || []).length)}/${ALL_COLORS.length * 2}`;
-       
-       const rb = document.getElementById('profModalBadge');
-       if (u.role === 'king') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]">👑 The King</span>`;
-       else if (u.role === 'admin') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/50">🛡️ Admin</span>`;
-       else if (u.role === 'mod') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/50">⚔️ Moderator</span>`;
-       else rb.innerHTML = '';
-       
-       let favIconId = u.equippedIcon || 'i1';
-       let favC1 = ALL_COLORS.find(c=>c.id===(u.equippedCol1 || 'c1'))?.val || '#00f0ff';
-       let favC2 = ALL_COLORS.find(c=>c.id===(u.equippedCol2 || 'c20'))?.val || '#ffffff';
-       document.getElementById('profModalFavIcon').innerHTML = getIconSVG(favIconId, favC1, favC2);
-
-       document.getElementById('profileModal').classList.remove('hide');
-    }
-    document.getElementById('btnCloseProfile').addEventListener('click', () => { document.getElementById('profileModal').classList.add('hide'); });
-
-    // --- ICON KIT LOGIC ---
-    let kitTab = 'icons';
-    document.querySelectorAll('.kit-tab-btn').forEach(b => {
-       b.addEventListener('click', (e) => {
-          document.querySelectorAll('.kit-tab-btn').forEach(btn => { btn.classList.remove('active', 'text-white', 'border-blue-500'); btn.classList.add('text-gray-400', 'border-transparent'); });
-          e.currentTarget.classList.remove('text-gray-400', 'border-transparent'); e.currentTarget.classList.add('active', 'text-white', 'border-blue-500');
-          kitTab = e.currentTarget.dataset.tab;
-          
-          ['kitGridIcons', 'kitGridShips', 'kitGridUfos', 'kitGridWaves', 'kitGridBalls', 'kitGridRobots', 'kitGridSpiders', 'kitGridSwings', 'kitGridCol1', 'kitGridCol2'].forEach(id => {
-             document.getElementById(id).classList.add('hide');
-          });
-          
-          if(kitTab==='icons') document.getElementById('kitGridIcons').classList.remove('hide');
-          if(kitTab==='ships') document.getElementById('kitGridShips').classList.remove('hide');
-          if(kitTab==='ufos') document.getElementById('kitGridUfos').classList.remove('hide');
-          if(kitTab==='waves') document.getElementById('kitGridWaves').classList.remove('hide');
-          if(kitTab==='balls') document.getElementById('kitGridBalls').classList.remove('hide');
-          if(kitTab==='robots') document.getElementById('kitGridRobots').classList.remove('hide');
-          if(kitTab==='spiders') document.getElementById('kitGridSpiders').classList.remove('hide');
-          if(kitTab==='swings') document.getElementById('kitGridSwings').classList.remove('hide');
-          if(kitTab==='col1') document.getElementById('kitGridCol1').classList.remove('hide');
-          if(kitTab==='col2') document.getElementById('kitGridCol2').classList.remove('hide');
-       });
-    });
-
-    function renderIconKit() {
-       if(!myProfile) return;
-       const eqI = myProfile.equippedIcon || 'i1', eqSh = myProfile.equippedShip || 'sh1', eqU = myProfile.equippedUfo || 'u1', eqW = myProfile.equippedWave || 'w1';
-       const eqB = myProfile.equippedBall || 'b1', eqR = myProfile.equippedRobot || 'r1', eqSp = myProfile.equippedSpider || 'sp1', eqSw = myProfile.equippedSwing || 'sw1';
-       const eqC1 = myProfile.equippedCol1 || 'c1', eqC2 = myProfile.equippedCol2 || 'c20';
-       const c1Val = ALL_COLORS.find(c=>c.id===eqC1)?.val || '#00f0ff', c2Val = ALL_COLORS.find(c=>c.id===eqC2)?.val || '#ffffff';
-       
-       let previewSVG = '';
-       if (kitTab === 'icons' || kitTab === 'col1' || kitTab === 'col2') previewSVG = getIconSVG(eqI, c1Val, c2Val);
-       if (kitTab === 'ships') previewSVG = getShipSVG(eqSh, c1Val, c2Val);
-       if (kitTab === 'ufos') previewSVG = getUfoSVG(eqU, c1Val, c2Val);
-       if (kitTab === 'waves') previewSVG = getWaveSVG(eqW, c1Val, c2Val);
-       if (kitTab === 'balls') previewSVG = getBallSVG(eqB, c1Val, c2Val);
-       if (kitTab === 'robots') previewSVG = getRobotSVG(eqR, c1Val, c2Val);
-       if (kitTab === 'spiders') previewSVG = getSpiderSVG(eqSp, c1Val, c2Val);
-       if (kitTab === 'swings') previewSVG = getSwingSVG(eqSw, c1Val, c2Val);
-
-       document.getElementById('kitPreviewContainer').innerHTML = previewSVG;
-       
-       document.getElementById('kitTotalIcons').innerText = ALL_ICONS.length;
-       document.getElementById('kitTotalShips').innerText = ALL_SHIPS.length;
-       document.getElementById('kitTotalUfos').innerText = ALL_UFOS.length;
-       document.getElementById('kitTotalWaves').innerText = ALL_WAVES.length;
-       document.getElementById('kitTotalBalls').innerText = ALL_BALLS.length;
-       document.getElementById('kitTotalRobots').innerText = ALL_ROBOTS.length;
-       document.getElementById('kitTotalSpiders').innerText = ALL_SPIDERS.length;
-       document.getElementById('kitTotalSwings').innerText = ALL_SWINGS.length;
-       document.getElementById('kitTotalCol1').innerText = ALL_COLORS.length;
-       document.getElementById('kitTotalCol2').innerText = ALL_COLORS.length;
-
-       document.getElementById('kitCountIcons').innerText = (myProfile.unlockedIcons || ['i1']).length;
-       document.getElementById('kitCountShips').innerText = (myProfile.unlockedShips || ['sh1']).length;
-       document.getElementById('kitCountUfos').innerText = (myProfile.unlockedUfos || ['u1']).length;
-       document.getElementById('kitCountWaves').innerText = (myProfile.unlockedWaves || ['w1']).length;
-       document.getElementById('kitCountBalls').innerText = (myProfile.unlockedBalls || ['b1']).length;
-       document.getElementById('kitCountRobots').innerText = (myProfile.unlockedRobots || ['r1']).length;
-       document.getElementById('kitCountSpiders').innerText = (myProfile.unlockedSpiders || ['sp1']).length;
-       document.getElementById('kitCountSwings').innerText = (myProfile.unlockedSwings || ['sw1']).length;
-       document.getElementById('kitCountCol1').innerText = (myProfile.unlockedCol1 || ['c1']).length;
-       document.getElementById('kitCountCol2').innerText = (myProfile.unlockedCol2 || ['c20']).length;
-
-       const renderItem = (item, type, isUnlocked, isEquipped, contentHTML) => {
-          return `<button class="relative w-full aspect-square rounded-xl border-[3px] transition-all hover:scale-105 active:scale-95 flex items-center justify-center p-2 
-             ${isUnlocked ? (isEquipped ? 'bg-blue-600/30 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.6)]' : 'bg-gray-800 border-gray-600 rarity-'+item.rarity) : 'bg-gray-900 border-gray-800 opacity-50'}"
-             ${isUnlocked ? `data-equip-${type}="${item.id}"` : 'disabled'}>
-             ${contentHTML}
-             ${!isUnlocked ? `<div class="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center backdrop-blur-[2px]"><i data-lucide="lock" class="w-6 h-6 text-white/50"></i></div>` : ''}
-          </button>`;
-       };
-
-       document.getElementById('kitGridIcons').innerHTML = ALL_ICONS.map(i => renderItem(i, 'icon', (myProfile.unlockedIcons || ['i1']).includes(i.id), eqI === i.id, getIconSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridShips').innerHTML = ALL_SHIPS.map(i => renderItem(i, 'ship', (myProfile.unlockedShips || ['sh1']).includes(i.id), eqSh === i.id, getShipSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridUfos').innerHTML = ALL_UFOS.map(i => renderItem(i, 'ufo', (myProfile.unlockedUfos || ['u1']).includes(i.id), eqU === i.id, getUfoSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridWaves').innerHTML = ALL_WAVES.map(i => renderItem(i, 'wave', (myProfile.unlockedWaves || ['w1']).includes(i.id), eqW === i.id, getWaveSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridBalls').innerHTML = ALL_BALLS.map(i => renderItem(i, 'ball', (myProfile.unlockedBalls || ['b1']).includes(i.id), eqB === i.id, getBallSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridRobots').innerHTML = ALL_ROBOTS.map(i => renderItem(i, 'robot', (myProfile.unlockedRobots || ['r1']).includes(i.id), eqR === i.id, getRobotSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridSpiders').innerHTML = ALL_SPIDERS.map(i => renderItem(i, 'spider', (myProfile.unlockedSpiders || ['sp1']).includes(i.id), eqSp === i.id, getSpiderSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridSwings').innerHTML = ALL_SWINGS.map(i => renderItem(i, 'swing', (myProfile.unlockedSwings || ['sw1']).includes(i.id), eqSw === i.id, getSwingSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', (myProfile.unlockedCol1 || ['c1']).includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', (myProfile.unlockedCol2 || ['c20']).includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       lucide.createIcons();
-
-       ['icon', 'ship', 'ufo', 'wave', 'ball', 'robot', 'spider', 'swing', 'col1', 'col2'].forEach(t => {
-          document.querySelectorAll(`[data-equip-${t}]`).forEach(b => b.addEventListener('click', async (e) => {
-             const val = e.currentTarget.getAttribute(`data-equip-${t}`);
-             try {
-                let key = t==='icon' ? 'equippedIcon' : t==='ship' ? 'equippedShip' : t==='ufo' ? 'equippedUfo' : t==='wave' ? 'equippedWave' : t==='ball' ? 'equippedBall' : t==='robot' ? 'equippedRobot' : t==='spider' ? 'equippedSpider' : t==='swing' ? 'equippedSwing' : t==='col1' ? 'equippedCol1' : 'equippedCol2';
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { [key]: val }, { merge: true });
-             } catch(err) {}
-          }));
-       });
-    }
-
-    // --- TREASURE / GACHA LOGIC ---
-    function updateTreasureUI() {
-       document.getElementById('treasureKeyCount').innerText = getAvailableKeys().toLocaleString();
-    }
-
-    document.querySelectorAll('.btn-buy-chest').forEach(btn => {
-       btn.addEventListener('click', async (e) => {
-          if (!currentUser || !myProfile) return;
-          const cost = parseInt(e.currentTarget.dataset.cost);
-          const tier = e.currentTarget.dataset.tier;
-          if (getAvailableKeys() < cost) return alert("Not enough keys! Keep beating or publishing levels to earn Stars.");
-          
-          let availI = ALL_ICONS.filter(x => !(myProfile.unlockedIcons || []).includes(x.id));
-          let availSh = ALL_SHIPS.filter(x => !(myProfile.unlockedShips || []).includes(x.id));
-          let availU = ALL_UFOS.filter(x => !(myProfile.unlockedUfos || []).includes(x.id));
-          let availW = ALL_WAVES.filter(x => !(myProfile.unlockedWaves || []).includes(x.id));
-          let availB = ALL_BALLS.filter(x => !(myProfile.unlockedBalls || []).includes(x.id));
-          let availR = ALL_ROBOTS.filter(x => !(myProfile.unlockedRobots || []).includes(x.id));
-          let availSp = ALL_SPIDERS.filter(x => !(myProfile.unlockedSpiders || []).includes(x.id));
-          let availSw = ALL_SWINGS.filter(x => !(myProfile.unlockedSwings || []).includes(x.id));
-          let availC1 = ALL_COLORS.filter(x => !(myProfile.unlockedCol1 || []).includes(x.id));
-          let availC2 = ALL_COLORS.filter(x => !(myProfile.unlockedCol2 || []).includes(x.id));
-          
-          let allAvail = [];
-          if (tier === 'vehicle') {
-             allAvail = [...availSh.map(x=>({...x, type:'ship'})), ...availU.map(x=>({...x, type:'ufo'})), ...availW.map(x=>({...x, type:'wave'})), ...availB.map(x=>({...x, type:'ball'})), ...availR.map(x=>({...x, type:'robot'})), ...availSp.map(x=>({...x, type:'spider'})), ...availSw.map(x=>({...x, type:'swing'}))];
-          } else {
-             allAvail = [...availI.map(x=>({...x, type:'icon'})), ...availC1.map(x=>({...x, type:'col1'})), ...availC2.map(x=>({...x, type:'col2'}))];
-          }
-
-          if (allAvail.length===0) return alert("You have unlocked everything in this chest tier!");
-
-          const filterPool = (pool, rarities) => { let p = pool.filter(x => rarities.includes(x.rarity)); return p.length > 0 ? p : pool; }; 
-          
-          if (tier === 'wood') {
-             allAvail = filterPool(allAvail, ['common', 'rare']);
-          } else if (tier === 'gold') {
-             allAvail = filterPool(allAvail, ['rare', 'epic', 'legendary']);
-          } else if (tier === 'demon') {
-             allAvail = filterPool(allAvail, ['epic', 'legendary', 'mythic']);
-          }
-
-          let rewards = [];
-          for(let k=0; k< (tier==='vehicle'?1:3); k++) {
-              if (allAvail.length === 0) break;
-              let idx = Math.floor(Math.random() * allAvail.length);
-              rewards.push(allAvail[idx]);
-              allAvail.splice(idx, 1);
-          }
-
-          try {
-             let newKeysSpent = (myProfile.keysSpent || 0) + cost;
-             let updates = { keysSpent: newKeysSpent };
-             
-             rewards.forEach(rw => {
-                 let arrKey = rw.type === 'icon' ? 'unlockedIcons' : rw.type === 'ship' ? 'unlockedShips' : rw.type === 'ufo' ? 'unlockedUfos' : rw.type === 'wave' ? 'unlockedWaves' : rw.type === 'ball' ? 'unlockedBalls' : rw.type === 'robot' ? 'unlockedRobots' : rw.type === 'spider' ? 'unlockedSpiders' : rw.type === 'swing' ? 'unlockedSwings' : rw.type === 'col1' ? 'unlockedCol1' : 'unlockedCol2';
-                 updates[arrKey] = [...new Set([...(myProfile[arrKey] || []), rw.id])];
-                 myProfile[arrKey] = updates[arrKey]; 
-             });
-             
-             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), updates, { merge: true });
-             triggerChestAnimation(tier, rewards);
-          } catch(err) { alert("Error opening chest."); }
-       });
-    });
-
-    function triggerChestAnimation(tier, rewards) {
-       const mainArea = document.getElementById('treasureMainArea');
-       const openArea = document.getElementById('treasureOpenArea');
-       const animCont = document.getElementById('chestAnimContainer');
-       const rewardCont = document.getElementById('rewardsContainer');
-       const btnCont = document.getElementById('btnTreasureContinue');
-       const flash = document.getElementById('flashScreen');
-
-       mainArea.classList.add('hide'); openArea.classList.remove('hide');
-       rewardCont.classList.add('hide'); btnCont.classList.add('hide'); rewardCont.innerHTML = '';
-       
-       let chestCol = tier==='wood'?'bg-yellow-900 border-yellow-700':tier==='gold'?'bg-yellow-500 border-yellow-300':tier==='vehicle'?'bg-blue-950 border-blue-500 shadow-[0_0_50px_blue]':'bg-red-950 border-red-500 shadow-[0_0_50px_red]';
-       animCont.innerHTML = `<div class="w-full h-full ${chestCol} border-8 rounded-2xl flex items-center justify-center relative chest-shaking"><div class="absolute top-1/2 left-0 w-full h-4 bg-black/50 -translate-y-1/2"></div><div class="w-12 h-16 bg-gray-300 border-4 border-black rounded-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
-       
-       setTimeout(() => {
-          animCont.innerHTML = '';
-          flash.classList.add('flash-screen');
-          
-          setTimeout(() => {
-             flash.classList.remove('flash-screen');
-             rewardCont.classList.remove('hide');
-             
-             rewardCont.innerHTML = rewards.map((rw, i) => {
-                 let svgHTML = '';
-                 if(rw.type === 'icon') svgHTML = getIconSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'ship') svgHTML = getShipSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'ufo') svgHTML = getUfoSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'wave') svgHTML = getWaveSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'ball') svgHTML = getBallSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'robot') svgHTML = getRobotSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'spider') svgHTML = getSpiderSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'swing') svgHTML = getSwingSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'col1' || rw.type === 'col2') svgHTML = `<div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${rw.val}"></div>`;
-
-                 return `
-                    <div class="flex flex-col items-center card-flip" style="animation-delay: ${i*0.2}s">
-                       <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${rw.rarity}">${svgHTML}</div>
-                       <p class="text-white font-bold mt-4 tracking-widest uppercase">${rw.type}</p>
-                       <p class="text-xs text-gray-400 uppercase">${rw.rarity}</p>
-                    </div>
-                 `;
-             }).join('');
-             
-             setTimeout(() => { btnCont.classList.remove('hide'); }, 1500);
-          }, 500);
-       }, 1500);
-    }
-
-    document.getElementById('btnTreasureContinue').addEventListener('click', () => {
-       document.getElementById('treasureOpenArea').classList.add('hide');
-       document.getElementById('treasureMainArea').classList.remove('hide');
-       updateTreasureUI();
-    });
-
-    const cmdTarget = document.getElementById('cmdTarget');
-    const cmdAction = document.getElementById('cmdAction');
-    const cmdParamContainer = document.getElementById('cmdParamContainer');
-    const cmdParamLabel = document.getElementById('cmdParamLabel');
-    const cmdParamNumber = document.getElementById('cmdParamNumber');
-    const cmdParamText = document.getElementById('cmdParamText');
-    const cmdParamRole = document.getElementById('cmdParamRole');
-
-    cmdAction.addEventListener('change', () => {
-      const act = cmdAction.value; cmdParamNumber.classList.add('hidden'); cmdParamText.classList.add('hidden'); cmdParamRole.classList.add('hidden'); cmdParamContainer.classList.remove('hidden');
-      if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
-      else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
-      else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
-      else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
-    });
-
-    function getDiffIconHTML(difficulty) {
-        if (difficulty === 'Easy') return '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
-        if (difficulty === 'Medium') return '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
-        if (difficulty === 'Hard') return '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
-        if (difficulty === 'Demon') return '<i data-lucide="skull" class="w-8 h-8 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>';
-        if (difficulty === 'Extreme Demon') return '<i data-lucide="skull" class="w-8 h-8 text-red-800 drop-shadow-[0_0_15px_rgba(153,27,27,0.9)]"></i>';
-        if (difficulty === 'Impossible Demon') return '<i data-lucide="skull" class="w-8 h-8 text-black drop-shadow-[0_0_20px_rgba(255,0,0,1)]"></i>';
-        return '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-400"></i>';
     }
 
     function renderLevelBrowser() {
@@ -2476,11 +1637,19 @@
       levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
       
       browserList.innerHTML = levelsList.map(lvl => {
+        let diffIcon = '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-400"></i>';
+        if (lvl.difficulty === 'Easy') diffIcon = '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
+        else if (lvl.difficulty === 'Medium') diffIcon = '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
+        else if (lvl.difficulty === 'Hard') diffIcon = '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
+        else if (lvl.difficulty === 'Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>';
+        else if (lvl.difficulty === 'Extreme Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-red-800 drop-shadow-[0_0_15px_rgba(153,27,27,0.9)]"></i>';
+        else if (lvl.difficulty === 'Impossible Demon') diffIcon = '<i data-lucide="skull" class="w-8 h-8 text-black drop-shadow-[0_0_20px_rgba(255,0,0,1)]"></i>';
+
         return `
           <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-level" data-lvl-id="${lvl.id}">
             <div class="flex items-center gap-4 pointer-events-none">
               <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
-                ${getDiffIconHTML(lvl.difficulty)}
+                ${diffIcon}
               </div>
               <div>
                 <h4 class="text-lg font-bold text-white flex items-center gap-2">
@@ -2493,7 +1662,7 @@
             <div class="flex items-center gap-4 pointer-events-none pr-2">
               <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="play-circle" class="w-4 h-4 text-green-400"></i> ${lvl.plays || 0}</span>
               <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4 text-yellow-400"></i> ${(lvl.likes && lvl.likes.length) || 0}</span>
-              <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 pointer-events-auto">View</button>
+              <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105">View</button>
             </div>
           </div>
         `;
@@ -2504,50 +1673,6 @@
          el.addEventListener('click', () => {
             const lObj = levelsList.find(l => l.id === el.dataset.lvlId);
             if (lObj) openLevelPreview(lObj);
-         });
-      });
-    }
-
-    function renderMyLevels() {
-      const list = document.getElementById('myLevelsList');
-      const myLvls = levelsList.filter(l => l.authorId === currentUser.uid).sort((a,b) => b.createdAt - a.createdAt);
-      if(myLvls.length === 0) { list.innerHTML = `<div class="p-8 text-center text-gray-500">No levels created yet. Click New Level to start!</div>`; return; }
-
-      list.innerHTML = myLvls.map(lvl => `
-        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
-          <div class="flex items-center gap-4">
-            <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
-              ${getDiffIconHTML(lvl.difficulty)}
-            </div>
-            <div>
-              <h4 class="text-lg font-bold text-white flex items-center gap-2">${escapeHtml(lvl.name)}</h4>
-              <p class="text-xs text-gray-400">${lvl.plays || 0} Plays • ${(lvl.likes && lvl.likes.length) || 0} Likes</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button class="btn-edit-level px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105" data-lvl-id="${lvl.id}">Edit</button>
-            <button class="btn-delete-level px-3 py-2 bg-red-900 hover:bg-red-800 text-white font-bold rounded-lg shadow transition-transform hover:scale-105" data-lvl-id="${lvl.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-          </div>
-        </div>
-      `).join('');
-      lucide.createIcons();
-
-      document.querySelectorAll('.btn-edit-level').forEach(el => {
-         el.addEventListener('click', () => {
-            const lObj = levelsList.find(l => l.id === el.dataset.lvlId);
-            if (lObj) {
-                currentEditingLevelId = lObj.id;
-                currentEditingLevelName = lObj.name;
-                launchGame(lObj.data, 'edit');
-            }
-         });
-      });
-
-      document.querySelectorAll('.btn-delete-level').forEach(el => {
-         el.addEventListener('click', async () => {
-            if (confirm("Delete this level permanently?")) {
-                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', el.dataset.lvlId)); } catch(e){}
-            }
          });
       });
     }
@@ -2582,7 +1707,15 @@
       document.getElementById('prevLength').innerText = calcLevelLength(lvlObj.data);
       
       // Face
-      document.getElementById('prevDiffFace').innerHTML = getDiffIconHTML(lvlObj.difficulty);
+      let faceHTML = '<i data-lucide="circle-dashed" class="w-full h-full text-gray-300"></i>';
+      if (lvlObj.difficulty === 'Easy') faceHTML = '<i data-lucide="smile" class="w-full h-full text-green-400"></i>';
+      else if (lvlObj.difficulty === 'Medium') faceHTML = '<i data-lucide="meh" class="w-full h-full text-yellow-400"></i>';
+      else if (lvlObj.difficulty === 'Hard') faceHTML = '<i data-lucide="frown" class="w-full h-full text-orange-500"></i>';
+      else if (lvlObj.difficulty === 'Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]"></i>';
+      else if (lvlObj.difficulty === 'Extreme Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-red-800 drop-shadow-[0_0_20px_rgba(153,27,27,0.9)]"></i>';
+      else if (lvlObj.difficulty === 'Impossible Demon') faceHTML = '<i data-lucide="skull" class="w-full h-full text-black drop-shadow-[0_0_25px_rgba(255,0,0,1)]"></i>';
+      
+      document.getElementById('prevDiffFace').innerHTML = faceHTML;
       document.getElementById('prevDiffText').innerText = (lvlObj.difficulty || 'NA').toUpperCase();
       
       if (lvlObj.stars) {
@@ -2710,6 +1843,7 @@
        }
     });
 
+    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
     document.getElementById('btnWinReplay').addEventListener('click', () => { state.mode = 'play'; state.attempts = 1; resetPlayer(); });
     document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
 
@@ -2721,11 +1855,11 @@
       
       if (mode === 'edit') { 
         document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
-        document.getElementById('btnExitGame').innerHTML = '<i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>';
+        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
         switchEditorMode('build'); 
       } else { 
         document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('gameProgressContainer').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
-        document.getElementById('btnExitGame').innerHTML = '<i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>';
+        document.getElementById('lblExitGame').innerText = 'Exit'; document.getElementById('btnExitGame').querySelector('i').setAttribute('data-lucide', 'log-out');
       }
       lucide.createIcons();
     }
@@ -2829,23 +1963,6 @@
         else if (act.startsWith('troll_')) { if (act === 'troll_clear') await setDoc(uRef, { trollEvent: '' }, { merge: true }); else { await setDoc(uRef, { trollEvent: act }, { merge: true }); alert(`Troll sent.`); } }
         else if (act === 'role') {
           if (valRole === 'king') { if(!confirm(`WARNING: Transfer crown?`)) return; await setDoc(uRef, { role: 'king' }, { merge: true }); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true }); } else await setDoc(uRef, { role: valRole }, { merge: true });
-        }
-        else if (act === 'iconHack') {
-            const allIco = ALL_ICONS.map(i => i.id);
-            const allSh = typeof ALL_SHIPS !== 'undefined' ? ALL_SHIPS.map(i => i.id) : [];
-            const allUfo = typeof ALL_UFOS !== 'undefined' ? ALL_UFOS.map(i => i.id) : [];
-            const allWav = typeof ALL_WAVES !== 'undefined' ? ALL_WAVES.map(i => i.id) : [];
-            const allBall = typeof ALL_BALLS !== 'undefined' ? ALL_BALLS.map(i => i.id) : [];
-            const allRob = typeof ALL_ROBOTS !== 'undefined' ? ALL_ROBOTS.map(i => i.id) : [];
-            const allSp = typeof ALL_SPIDERS !== 'undefined' ? ALL_SPIDERS.map(i => i.id) : [];
-            const allSw = typeof ALL_SWINGS !== 'undefined' ? ALL_SWINGS.map(i => i.id) : [];
-            const allCol = ALL_COLORS.map(c => c.id);
-            await setDoc(uRef, { 
-                unlockedIcons: allIco, unlockedShips: allSh, unlockedUfos: allUfo, unlockedWaves: allWav,
-                unlockedBalls: allBall, unlockedRobots: allRob, unlockedSpiders: allSp, unlockedSwings: allSw, 
-                unlockedCol1: allCol, unlockedCol2: allCol 
-            }, { merge: true });
-            alert("All icons, gamemodes, and colors unlocked for player!");
         }
       } catch (err) { alert("Command failed."); }
     });
