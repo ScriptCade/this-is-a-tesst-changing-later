@@ -2207,11 +2207,136 @@
   document.getElementById('btnMusic').addEventListener('click', () => { isMusicOn = !isMusicOn; document.getElementById('btnMusic').innerText = `🎵 Music: ${isMusicOn ? 'ON' : 'OFF'}`; if (isMusicOn) initAudio(); });
   document.getElementById('btnCloseProfile').addEventListener('click', () => { document.getElementById('profileModal').classList.add('hide'); });
 
-  // Temporary fix for render stubs (in case they are not in the file yet)
-  window.renderLevelBrowser = window.renderLevelBrowser || function() {};
-  window.renderMyLevels = window.renderMyLevels || function() {};
-  window.renderLeaderboard = window.renderLeaderboard || function() {};
-  window.renderAdminDirectory = window.renderAdminDirectory || function() {};
+  // RESTORED UI RENDER FUNCTIONS
+  window.escapeHtml = function(str) { 
+     if(!str) return ''; 
+     return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+  };
+
+  window.renderLevelBrowser = function() {
+      const list = document.getElementById('levelBrowserList');
+      document.getElementById('levelCount').innerText = `${levelsList.length} Levels`;
+      if (levelsList.length === 0) { list.innerHTML = '<p class="text-gray-400 text-center py-4">No levels found.</p>'; return; }
+      list.innerHTML = levelsList.map(l => `
+          <div class="bg-gray-800 border border-gray-700 p-4 rounded-xl flex justify-between items-center hover:bg-gray-700 transition-colors">
+              <div>
+                  <h4 class="font-bold text-white text-lg">${escapeHtml(l.name)}</h4>
+                  <p class="text-sm text-yellow-400 font-medium">By ${escapeHtml(l.authorName)}</p>
+              </div>
+              <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold shadow" onclick="playLevel('${l.id}')">Play</button>
+          </div>
+      `).join('');
+  };
+
+  window.playLevel = function(id) {
+      const l = levelsList.find(x => x.id === id);
+      if(l) { 
+          currentPreviewLevel = l; 
+          document.getElementById('prevLevelName').innerText = l.name;
+          document.getElementById('prevAuthorName').innerText = l.authorName;
+          document.getElementById('prevLevelId').innerText = l.id;
+          document.getElementById('prevDownloads').innerText = l.plays || 0;
+          document.getElementById('prevLikes').innerText = (l.likes || []).length;
+          document.getElementById('prevDiffText').innerText = l.difficulty || 'NA';
+          document.getElementById('prevDiffFace').innerHTML = getDifficultySVG(l.difficulty || 'NA');
+          if (l.stars > 0) {
+             document.getElementById('prevStarsBadge').classList.remove('hidden');
+             document.getElementById('prevStarsNum').innerText = l.stars;
+          } else {
+             document.getElementById('prevStarsBadge').classList.add('hidden');
+          }
+          let prog = 0;
+          if (myProfile && myProfile.progress && myProfile.progress[l.id]) prog = myProfile.progress[l.id];
+          document.getElementById('prevProgressBar').style.width = prog + '%';
+          document.getElementById('prevProgressText').innerText = prog + '%';
+          document.getElementById('levelPreviewModal').classList.remove('hide');
+          
+          document.getElementById('btnModalPlay').onclick = () => {
+              document.getElementById('levelPreviewModal').classList.add('hide');
+              launchGame(l.data, 'play');
+              setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', l.id), { plays: (l.plays||0) + 1 }, { merge: true });
+          };
+      }
+  };
+
+  window.renderMyLevels = function() {
+      if(!currentUser) return;
+      const myLevels = levelsList.filter(l => l.authorId === currentUser.uid);
+      const list = document.getElementById('myLevelsList');
+      if (myLevels.length === 0) { list.innerHTML = '<p class="text-gray-400 text-center py-4">You haven\'t published any levels yet.</p>'; return; }
+      list.innerHTML = myLevels.map(l => `
+          <div class="bg-gray-800 border border-gray-700 p-4 rounded-xl flex justify-between items-center hover:bg-gray-700 transition-colors">
+              <div>
+                  <h4 class="font-bold text-white text-lg">${escapeHtml(l.name)}</h4>
+                  <div class="flex gap-4 text-xs text-gray-400 mt-1">
+                      <span><i data-lucide="play" class="w-3 h-3 inline"></i> ${l.plays || 0}</span>
+                      <span><i data-lucide="thumbs-up" class="w-3 h-3 inline"></i> ${(l.likes || []).length}</span>
+                  </div>
+              </div>
+              <div class="flex gap-2">
+                  <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded font-bold shadow" onclick="editLevel('${l.id}')"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                  <button class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded font-bold shadow" onclick="deleteLevel('${l.id}')"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+              </div>
+          </div>
+      `).join('');
+      if(window.lucide) lucide.createIcons();
+  };
+
+  window.editLevel = function(id) {
+      const l = levelsList.find(x => x.id === id);
+      if(l) { currentEditingLevelId = l.id; currentEditingLevelName = l.name; launchGame(l.data, 'edit'); }
+  };
+  
+  window.deleteLevel = async function(id) {
+      if(confirm("Delete this level?")) {
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', id));
+      }
+  };
+
+  window.renderLeaderboard = function() {
+      const list = document.getElementById('leaderboardViewList');
+      const sortedUsers = [...usersData].sort((a, b) => (b.score || 0) - (a.score || 0));
+      document.getElementById('creatorCount').innerText = `${sortedUsers.length} Creators`;
+      list.innerHTML = sortedUsers.map((u, i) => `
+          <div class="bg-gray-800 border border-gray-700 p-3 rounded-xl flex items-center gap-4 hover:bg-gray-700 transition-colors cursor-pointer" onclick="showProfile('${u.id}')">
+              <div class="w-8 text-center font-black text-gray-500 text-lg">#${i+1}</div>
+              <img src="${u.photoURL || getDefaultAvatar(u.username)}" class="w-10 h-10 rounded-full border border-gray-600">
+              <div class="flex-1">
+                  <h4 class="font-bold text-white">${escapeHtml(u.username)}</h4>
+                  <p class="text-xs text-yellow-400 font-medium">${u.score || 0} Stars</p>
+              </div>
+          </div>
+      `).join('');
+  };
+
+  window.showProfile = function(uid) {
+      const u = usersData.find(x => x.id === uid);
+      if(!u) return;
+      document.getElementById('profModalName').innerText = u.username;
+      document.getElementById('profModalImg').src = u.photoURL || getDefaultAvatar(u.username);
+      document.getElementById('profModalStars').innerText = u.score || 0;
+      document.getElementById('profModalIconCount').innerText = `${(u.unlockedIcons||[]).length}/40`;
+      document.getElementById('profModalColorCount').innerText = `${(u.unlockedCol1||[]).length + (u.unlockedCol2||[]).length}/60`;
+      const c1 = ALL_COLORS.find(c => c.id === (u.equippedCol1 || 'c1'))?.val || '#00f0ff';
+      const c2 = ALL_COLORS.find(c => c.id === (u.equippedCol2 || 'c20'))?.val || '#ffffff';
+      document.getElementById('profModalFavIcon').innerHTML = getIconSVG(u.equippedIcon || 'i1', c1, c2);
+      document.getElementById('profileModal').classList.remove('hide');
+  };
+
+  window.renderAdminDirectory = function() {
+      const list = document.getElementById('adminDirectoryList');
+      document.getElementById('adminPlayerCount').innerText = `${usersData.length} Players`;
+      document.getElementById('cmdTarget').innerHTML = '<option value="GLOBAL">🌐 EVERYONE (GLOBAL)</option>' + usersData.map(u => `<option value="${u.id}">${escapeHtml(u.username)}</option>`).join('');
+      list.innerHTML = usersData.map(u => `
+          <div class="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded border-b border-gray-700/50">
+              <div class="flex items-center gap-2">
+                  <img src="${u.photoURL || getDefaultAvatar(u.username)}" class="w-6 h-6 rounded-full">
+                  <span class="text-sm font-medium text-gray-300 ${u.banned ? 'line-through text-red-500' : ''}">${escapeHtml(u.username)}</span>
+              </div>
+              <span class="text-xs text-yellow-500 font-mono">${u.score || 0}★</span>
+          </div>
+      `).join('');
+  };
 
   lucide.createIcons();
   level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
