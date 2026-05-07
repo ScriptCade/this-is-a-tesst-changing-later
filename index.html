@@ -76,6 +76,8 @@
     .rarity-legendary { box-shadow: 0 0 25px #facc15; border-color: #facc15 !important; }
     .rarity-mythic { box-shadow: 0 0 35px #ef4444; border-color: #ef4444 !important; animation: pulse-mythic 1s infinite alternate; }
     @keyframes pulse-mythic { from { box-shadow: 0 0 15px #ef4444; } to { box-shadow: 0 0 35px #ff0000, 0 0 15px inset #ef4444; } }
+    .rarity-admin { box-shadow: 0 0 30px #0ff, inset 0 0 15px #0ff; border-color: #0ff !important; animation: pulse-admin 1s infinite alternate; background: #111; }
+    @keyframes pulse-admin { to { box-shadow: 0 0 50px #f0f, inset 0 0 25px #f0f; border-color: #f0f !important; } }
   </style>
 </head>
 <body id="mainBody">
@@ -396,6 +398,7 @@
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="robots">Robot (<span id="kitCountRobots">1</span>/<span id="kitTotalRobots">20</span>)</button>
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="spiders">Spider (<span id="kitCountSpiders">1</span>/<span id="kitTotalSpiders">20</span>)</button>
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="swings">Swing (<span id="kitCountSwings">1</span>/<span id="kitTotalSwings">20</span>)</button>
+                   <button id="tabAdminVehicles" class="kit-tab-btn hide shrink-0 px-4 py-4 font-bold text-cyan-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="admin">Admin Gear</button>
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col1">Col 1 (<span id="kitCountCol1">1</span>/<span id="kitTotalCol1">30</span>)</button>
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col2">Col 2 (<span id="kitCountCol2">1</span>/<span id="kitTotalCol2">30</span>)</button>
                 </div>
@@ -408,6 +411,7 @@
                    <div id="kitGridRobots" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridSpiders" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridSwings" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
+                   <div id="kitGridAdmin" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridCol1" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridCol2" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                 </div>
@@ -620,7 +624,7 @@
                   <option value="setScore">🎯 Set Exact Stars</option>
                 </optgroup>
                 <optgroup label="Cheats & Rewards">
-                  <option value="iconHack">🔓 Unlock All Gamemodes & Colors</option>
+                  <option value="rewardAdmin">👑 Reward Admin Gear Set</option>
                 </optgroup>
                 <optgroup label="Moderation">
                   <option value="warn">⚠️ Send Warning Message</option>
@@ -691,6 +695,7 @@
     }
 
     function getIconSVG(idStr, c1, c2) {
+       if (idStr === 'iAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-g { animation: ag 1s ease-in-out infinite alternate; } @keyframes ag { to { filter: drop-shadow(0 0 20px ${c2}); transform: scale(1.05); } }</style><rect x="10" y="10" width="80" height="80" fill="#111" stroke="${c1}" stroke-width="8" rx="20" class="a-g"/><path d="M50 20 L80 80 L20 80 Z" fill="${c2}" class="a-g"/><text x="50" y="70" font-size="40" font-weight="900" fill="#111" text-anchor="middle">A</text></svg>`;
        const id = parseInt(idStr.replace('i', ''));
        let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; 
        switch(id) {
@@ -739,6 +744,7 @@
     }
 
     function getShipSVG(idStr, c1, c2) {
+       if (idStr === 'shAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-f { animation: af 0.5s infinite alternate; } @keyframes af { to { transform: translateY(-10px) rotate(5deg); filter: drop-shadow(0 0 15px ${c1}); } }</style><g class="a-f"><rect x="10" y="40" width="60" height="20" fill="#111" stroke="${c1}" stroke-width="6"/><rect x="60" y="20" width="30" height="60" fill="${c2}" stroke="${c1}" stroke-width="6"/><text x="75" y="55" font-size="16" font-weight="900" fill="#111" text-anchor="middle" transform="rotate(90 75 50)">BAN</text></g></svg>`;
        const id = parseInt(idStr.replace('sh', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<path d="M 20 30 L 80 50 L 20 70 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`; 
        if(bid===2) content = `<rect x="15" y="30" width="70" height="40" rx="20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
@@ -755,6 +761,7 @@
     }
 
     function getUfoSVG(idStr, c1, c2) {
+       if (idStr === 'uAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-u { animation: au 3s linear infinite; transform-origin: 50px 50px; } @keyframes au { to { transform: rotate(360deg); } }</style><polygon points="50,15 90,75 10,75" fill="#111" stroke="${c1}" stroke-width="8"/><circle cx="50" cy="55" r="20" fill="none" stroke="${c2}" stroke-width="4" class="a-u" stroke-dasharray="10 10"/><ellipse cx="50" cy="55" rx="12" ry="6" fill="${c2}"/><circle cx="50" cy="55" r="3" fill="#111"/></svg>`;
        const id = parseInt(idStr.replace('u', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="65" rx="40" ry="15" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 30 65 Q 50 10 70 65" fill="${rC2}"/>`;
        if(bid===2) content = `<rect x="20" y="55" width="60" height="20" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="40" r="20" fill="${rC2}"/>`;
@@ -771,6 +778,7 @@
     }
 
     function getWaveSVG(idStr, c1, c2) {
+       if (idStr === 'wAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-w { animation: aw 0.2s infinite alternate; } @keyframes aw { to { filter: drop-shadow(0 0 15px ${c1}); } }</style><path d="M 10 50 L 40 20 L 50 40 L 90 10 L 60 80 L 50 60 Z" fill="#111" stroke="${c2}" stroke-width="6" class="a-w"/></svg>`;
        const id = parseInt(idStr.replace('w', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<polygon points="10,50 50,10 90,50 50,90" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
        if(bid===2) content = `<path d="M 20 50 L 60 20 L 60 80 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
@@ -787,6 +795,7 @@
     }
 
     function getBallSVG(idStr, c1, c2) {
+       if (idStr === 'bAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-b { animation: ab 2s linear infinite; transform-origin: 50px 50px; } @keyframes ab { to { transform: rotate(360deg); filter: drop-shadow(0 0 20px ${c2}); } }</style><circle cx="50" cy="50" r="40" fill="#111" stroke="${c1}" stroke-width="8"/><path d="M 50 10 L 50 90 M 10 50 L 90 50 M 20 20 L 80 80 M 20 80 L 80 20" stroke="${c2}" stroke-width="8" class="a-b"/><circle cx="50" cy="50" r="15" fill="#111" stroke="${c1}" stroke-width="4"/></svg>`;
        const id = parseInt(idStr.replace('b', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<circle cx="50" cy="50" r="45" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
        if(bid===1) content += `<circle cx="50" cy="50" r="20" fill="${rC2}"/>`;
@@ -804,6 +813,7 @@
     }
 
     function getRobotSVG(idStr, c1, c2) {
+       if (idStr === 'rAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-r { animation: ar 0.5s steps(2) infinite; } @keyframes ar { to { filter: invert(1); } }</style><rect x="25" y="10" width="50" height="40" rx="10" fill="#111" stroke="${c1}" stroke-width="6"/><rect x="15" y="25" width="70" height="10" fill="${c2}"/><circle cx="35" cy="25" r="8" fill="${c1}" class="a-r"/><circle cx="65" cy="25" r="8" fill="${c1}" class="a-r"/><rect x="30" y="55" width="15" height="35" fill="${c2}"/><rect x="55" y="55" width="15" height="35" fill="${c2}"/></svg>`;
        const id = parseInt(idStr.replace('r', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<rect x="25" y="10" width="50" height="40" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><rect x="35" y="55" width="10" height="35" fill="${rC2}"/><rect x="55" y="55" width="10" height="35" fill="${rC2}"/>`;
        if(bid===1) content += `<rect x="35" y="25" width="30" height="15" fill="${rC2}"/>`;
@@ -821,6 +831,7 @@
     }
 
     function getSpiderSVG(idStr, c1, c2) {
+       if (idStr === 'spAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-sp { animation: asp 0.1s infinite alternate; } @keyframes asp { to { transform: translateY(5px); filter: drop-shadow(0 0 15px ${c1}); } }</style><ellipse cx="50" cy="45" rx="35" ry="25" fill="#111" stroke="${c2}" stroke-width="6"/><circle cx="35" cy="45" r="8" fill="${c1}" class="a-sp"/><circle cx="65" cy="45" r="8" fill="${c1}" class="a-sp"/><path d="M 15 45 L 0 80 M 30 65 L 15 95 M 70 65 L 85 95 M 85 45 L 100 80" stroke="${c1}" stroke-width="8" stroke-linecap="round"/></svg>`;
        const id = parseInt(idStr.replace('sp', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="40" rx="35" ry="25" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 20 40 L 5 70 M 35 55 L 25 85 M 65 55 L 75 85 M 80 40 L 95 70" stroke="${rC2}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
        if(bid===1) content += `<circle cx="35" cy="35" r="5" fill="${rC2}"/><circle cx="65" cy="35" r="5" fill="${rC2}"/>`;
@@ -838,6 +849,7 @@
     }
 
     function getSwingSVG(idStr, c1, c2) {
+       if (idStr === 'swAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-sw { animation: asw 0.1s linear infinite; transform-origin: 50px 50px; } @keyframes asw { to { transform: rotate(360deg); } }</style><ellipse cx="50" cy="50" rx="30" ry="40" fill="#111" stroke="${c1}" stroke-width="8"/><path d="M 50 0 L 50 100 M 0 50 L 100 50" stroke="${c2}" stroke-width="8" class="a-sw"/><circle cx="50" cy="50" r="15" fill="${c2}"/></svg>`;
        const id = parseInt(idStr.replace('sw', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="50" rx="40" ry="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="15" cy="50" r="12" fill="${rC2}"/><circle cx="85" cy="50" r="12" fill="${rC2}"/>`;
        if(bid===1) content += `<circle cx="50" cy="50" r="15" fill="${rC2}"/>`;
@@ -1597,9 +1609,11 @@
         else if (player.gamemode === 6) { if(typeof cachedSpiderImg !== 'undefined' && cachedSpiderImg.complete && cachedSpiderImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedSpiderImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(0, 0, 15, 10, 0, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = c1; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-20, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-10, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(10, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(20, 15); ctx.stroke(); drawFace(); } }
         else if (player.gamemode === 7) { if(typeof cachedSwingImg !== 'undefined' && cachedSwingImg.complete && cachedSwingImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedSwingImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(-15, 0, 6, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(15, 0, 6, 0, Math.PI*2); ctx.fill(); drawFace(); } }
         else { 
-           if (typeof cachedPlayerImg !== 'undefined' && cachedPlayerImg.complete && cachedPlayerImg.src) {
-              let r = ALL_ICONS.find(i=>i.id===(myProfile?myProfile.equippedIcon:'i1'))?.rarity;
+           if (cachedPlayerImg.complete && cachedPlayerImg.src && cachedPlayerImg.src !== window.location.href) {
+              let r = ALL_ICONS.find(i=>i.id===(myProfile?.equippedIcon || 'i1'))?.rarity;
+              if (myProfile?.equippedIcon === 'iAdmin') r = 'admin';
               if (r==='mythic') { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 15 + Math.sin(Date.now()/150)*5; }
+              if (r==='admin') { ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 25 + Math.sin(Date.now()/100)*10; }
               ctx.drawImage(cachedPlayerImg, -15, -15, 30, 30); 
               ctx.shadowBlur = 0;
            } else {
@@ -2230,11 +2244,10 @@
        b.addEventListener('click', (e) => {
           document.querySelectorAll('.kit-tab-btn').forEach(btn => { btn.classList.remove('active', 'text-white', 'border-blue-500'); btn.classList.add('text-gray-400', 'border-transparent'); });
           e.currentTarget.classList.remove('text-gray-400', 'border-transparent'); e.currentTarget.classList.add('active', 'text-white', 'border-blue-500');
-          kitTab = e.currentTarget.dataset.tab;
-          
-          ['kitGridIcons', 'kitGridShips', 'kitGridUfos', 'kitGridWaves', 'kitGridBalls', 'kitGridRobots', 'kitGridSpiders', 'kitGridSwings', 'kitGridCol1', 'kitGridCol2'].forEach(id => {
-             document.getElementById(id).classList.add('hide');
+          ['kitGridIcons', 'kitGridShips', 'kitGridUfos', 'kitGridWaves', 'kitGridBalls', 'kitGridRobots', 'kitGridSpiders', 'kitGridSwings', 'kitGridAdmin', 'kitGridCol1', 'kitGridCol2'].forEach(id => {
+             if (document.getElementById(id)) document.getElementById(id).classList.add('hide');
           });
+          if (e.currentTarget.id === 'tabAdminVehicles') { e.currentTarget.classList.remove('text-cyan-400'); e.currentTarget.classList.add('text-cyan-300', 'border-cyan-500'); }
           
           if(kitTab==='icons') document.getElementById('kitGridIcons').classList.remove('hide');
           if(kitTab==='ships') document.getElementById('kitGridShips').classList.remove('hide');
@@ -2244,6 +2257,7 @@
           if(kitTab==='robots') document.getElementById('kitGridRobots').classList.remove('hide');
           if(kitTab==='spiders') document.getElementById('kitGridSpiders').classList.remove('hide');
           if(kitTab==='swings') document.getElementById('kitGridSwings').classList.remove('hide');
+          if(kitTab==='admin') document.getElementById('kitGridAdmin').classList.remove('hide');
           if(kitTab==='col1') document.getElementById('kitGridCol1').classList.remove('hide');
           if(kitTab==='col2') document.getElementById('kitGridCol2').classList.remove('hide');
        });
@@ -2265,30 +2279,9 @@
        if (kitTab === 'robots') previewSVG = getRobotSVG(eqR, c1Val, c2Val);
        if (kitTab === 'spiders') previewSVG = getSpiderSVG(eqSp, c1Val, c2Val);
        if (kitTab === 'swings') previewSVG = getSwingSVG(eqSw, c1Val, c2Val);
+       if (kitTab === 'admin') previewSVG = getIconSVG('iAdmin', c1Val, c2Val);
 
        document.getElementById('kitPreviewContainer').innerHTML = previewSVG;
-       
-       document.getElementById('kitTotalIcons').innerText = ALL_ICONS.length;
-       document.getElementById('kitTotalShips').innerText = ALL_SHIPS.length;
-       document.getElementById('kitTotalUfos').innerText = ALL_UFOS.length;
-       document.getElementById('kitTotalWaves').innerText = ALL_WAVES.length;
-       document.getElementById('kitTotalBalls').innerText = ALL_BALLS.length;
-       document.getElementById('kitTotalRobots').innerText = ALL_ROBOTS.length;
-       document.getElementById('kitTotalSpiders').innerText = ALL_SPIDERS.length;
-       document.getElementById('kitTotalSwings').innerText = ALL_SWINGS.length;
-       document.getElementById('kitTotalCol1').innerText = ALL_COLORS.length;
-       document.getElementById('kitTotalCol2').innerText = ALL_COLORS.length;
-
-       document.getElementById('kitCountIcons').innerText = (myProfile.unlockedIcons || ['i1']).length;
-       document.getElementById('kitCountShips').innerText = (myProfile.unlockedShips || ['sh1']).length;
-       document.getElementById('kitCountUfos').innerText = (myProfile.unlockedUfos || ['u1']).length;
-       document.getElementById('kitCountWaves').innerText = (myProfile.unlockedWaves || ['w1']).length;
-       document.getElementById('kitCountBalls').innerText = (myProfile.unlockedBalls || ['b1']).length;
-       document.getElementById('kitCountRobots').innerText = (myProfile.unlockedRobots || ['r1']).length;
-       document.getElementById('kitCountSpiders').innerText = (myProfile.unlockedSpiders || ['sp1']).length;
-       document.getElementById('kitCountSwings').innerText = (myProfile.unlockedSwings || ['sw1']).length;
-       document.getElementById('kitCountCol1').innerText = (myProfile.unlockedCol1 || ['c1']).length;
-       document.getElementById('kitCountCol2').innerText = (myProfile.unlockedCol2 || ['c20']).length;
 
        const renderItem = (item, type, isUnlocked, isEquipped, contentHTML) => {
           return `<button class="relative w-full aspect-square rounded-xl border-[3px] transition-all hover:scale-105 active:scale-95 flex items-center justify-center p-2 
@@ -2309,6 +2302,36 @@
        document.getElementById('kitGridSwings').innerHTML = ALL_SWINGS.map(i => renderItem(i, 'swing', (myProfile.unlockedSwings || ['sw1']).includes(i.id), eqSw === i.id, getSwingSVG(i.id, '#ccc', '#fff'))).join('');
        document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', (myProfile.unlockedCol1 || ['c1']).includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
        document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', (myProfile.unlockedCol2 || ['c20']).includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
+       
+       let hasAdmin = (myProfile.unlockedIcons || []).includes('iAdmin');
+       if (hasAdmin && document.getElementById('tabAdminVehicles')) {
+          document.getElementById('tabAdminVehicles').classList.remove('hide');
+          let adminItems = [
+             {id: 'iAdmin', type: 'icon', svg: getIconSVG('iAdmin', '#ccc', '#fff')},
+             {id: 'shAdmin', type: 'ship', svg: getShipSVG('shAdmin', '#ccc', '#fff')},
+             {id: 'uAdmin', type: 'ufo', svg: getUfoSVG('uAdmin', '#ccc', '#fff')},
+             {id: 'wAdmin', type: 'wave', svg: getWaveSVG('wAdmin', '#ccc', '#fff')},
+             {id: 'bAdmin', type: 'ball', svg: getBallSVG('bAdmin', '#ccc', '#fff')},
+             {id: 'rAdmin', type: 'robot', svg: getRobotSVG('rAdmin', '#ccc', '#fff')},
+             {id: 'spAdmin', type: 'spider', svg: getSpiderSVG('spAdmin', '#ccc', '#fff')},
+             {id: 'swAdmin', type: 'swing', svg: getSwingSVG('swAdmin', '#ccc', '#fff')}
+          ];
+          document.getElementById('kitGridAdmin').innerHTML = adminItems.map(i => {
+             let isEq = false;
+             if (i.type === 'icon') isEq = eqI === i.id;
+             else if (i.type === 'ship') isEq = eqSh === i.id;
+             else if (i.type === 'ufo') isEq = eqU === i.id;
+             else if (i.type === 'wave') isEq = eqW === i.id;
+             else if (i.type === 'ball') isEq = eqB === i.id;
+             else if (i.type === 'robot') isEq = eqR === i.id;
+             else if (i.type === 'spider') isEq = eqSp === i.id;
+             else if (i.type === 'swing') isEq = eqSw === i.id;
+             return renderItem({id: i.id, rarity: 'admin'}, i.type, true, isEq, i.svg);
+          }).join('');
+       } else if (document.getElementById('tabAdminVehicles')) {
+          document.getElementById('tabAdminVehicles').classList.add('hide');
+       }
+
        lucide.createIcons();
 
        ['icon', 'ship', 'ufo', 'wave', 'ball', 'robot', 'spider', 'swing', 'col1', 'col2'].forEach(t => {
@@ -2455,348 +2478,9 @@
       if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
       else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
       else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
+      else if (act === 'rewardAdmin') { cmdParamContainer.classList.add('hidden'); }
       else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
     });
-
-    function getDiffIconHTML(difficulty) {
-        if (difficulty === 'Easy') return '<i data-lucide="smile" class="w-8 h-8 text-green-400"></i>';
-        if (difficulty === 'Medium') return '<i data-lucide="meh" class="w-8 h-8 text-yellow-400"></i>';
-        if (difficulty === 'Hard') return '<i data-lucide="frown" class="w-8 h-8 text-orange-500"></i>';
-        if (difficulty === 'Demon') return '<i data-lucide="skull" class="w-8 h-8 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]"></i>';
-        if (difficulty === 'Extreme Demon') return '<i data-lucide="skull" class="w-8 h-8 text-red-800 drop-shadow-[0_0_15px_rgba(153,27,27,0.9)]"></i>';
-        if (difficulty === 'Impossible Demon') return '<i data-lucide="skull" class="w-8 h-8 text-black drop-shadow-[0_0_20px_rgba(255,0,0,1)]"></i>';
-        return '<i data-lucide="circle-dashed" class="w-8 h-8 text-gray-400"></i>';
-    }
-
-    function renderLevelBrowser() {
-      document.getElementById('levelCount').textContent = `${levelsList.length} Levels`;
-      const browserList = document.getElementById('levelBrowserList');
-      if (levelsList.length === 0) { browserList.innerHTML = `<div class="p-8 text-center text-gray-500">No community levels yet. Be the first to build one!</div>`; return; }
-      
-      levelsList.sort((a,b) => (b.plays||0) - (a.plays||0));
-      
-      browserList.innerHTML = levelsList.map(lvl => {
-        return `
-          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-level" data-lvl-id="${lvl.id}">
-            <div class="flex items-center gap-4 pointer-events-none">
-              <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
-                ${getDiffIconHTML(lvl.difficulty)}
-              </div>
-              <div>
-                <h4 class="text-lg font-bold text-white flex items-center gap-2">
-                  ${escapeHtml(lvl.name)}
-                  ${lvl.stars ? `<span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> ${lvl.stars}</span>` : ''}
-                </h4>
-                <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4 pointer-events-none pr-2">
-              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="play-circle" class="w-4 h-4 text-green-400"></i> ${lvl.plays || 0}</span>
-              <span class="text-sm text-gray-400 font-bold flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4 text-yellow-400"></i> ${(lvl.likes && lvl.likes.length) || 0}</span>
-              <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105 pointer-events-auto">View</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-      lucide.createIcons();
-      
-      document.querySelectorAll('.btn-open-level').forEach(el => {
-         el.addEventListener('click', () => {
-            const lObj = levelsList.find(l => l.id === el.dataset.lvlId);
-            if (lObj) openLevelPreview(lObj);
-         });
-      });
-    }
-
-    function renderMyLevels() {
-      const list = document.getElementById('myLevelsList');
-      const myLvls = levelsList.filter(l => l.authorId === currentUser.uid).sort((a,b) => b.createdAt - a.createdAt);
-      if(myLvls.length === 0) { list.innerHTML = `<div class="p-8 text-center text-gray-500">No levels created yet. Click New Level to start!</div>`; return; }
-
-      list.innerHTML = myLvls.map(lvl => `
-        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow">
-          <div class="flex items-center gap-4">
-            <div class="flex flex-col items-center justify-center w-12" title="${lvl.difficulty || 'NA'}">
-              ${getDiffIconHTML(lvl.difficulty)}
-            </div>
-            <div>
-              <h4 class="text-lg font-bold text-white flex items-center gap-2">${escapeHtml(lvl.name)}</h4>
-              <p class="text-xs text-gray-400">${lvl.plays || 0} Plays • ${(lvl.likes && lvl.likes.length) || 0} Likes</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button class="btn-edit-level px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-transform hover:scale-105" data-lvl-id="${lvl.id}">Edit</button>
-            <button class="btn-delete-level px-3 py-2 bg-red-900 hover:bg-red-800 text-white font-bold rounded-lg shadow transition-transform hover:scale-105" data-lvl-id="${lvl.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-          </div>
-        </div>
-      `).join('');
-      lucide.createIcons();
-
-      document.querySelectorAll('.btn-edit-level').forEach(el => {
-         el.addEventListener('click', () => {
-            const lObj = levelsList.find(l => l.id === el.dataset.lvlId);
-            if (lObj) {
-                currentEditingLevelId = lObj.id;
-                currentEditingLevelName = lObj.name;
-                launchGame(lObj.data, 'edit');
-            }
-         });
-      });
-
-      document.querySelectorAll('.btn-delete-level').forEach(el => {
-         el.addEventListener('click', async () => {
-            if (confirm("Delete this level permanently?")) {
-                try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', el.dataset.lvlId)); } catch(e){}
-            }
-         });
-      });
-    }
-    
-    // --- GD Level Preview Logic ---
-    function calcLevelLength(dataStr) {
-      let maxGX = 0;
-      let parts = dataStr.split(';');
-      for (let p of parts) { 
-         let x = parseInt(p.split(',')[0]); 
-         if (x && x > maxGX) maxGX = x; 
-      }
-      if (maxGX < 50) return "Tiny";
-      if (maxGX < 150) return "Short";
-      if (maxGX < 300) return "Medium";
-      if (maxGX < 600) return "Long";
-      return "XL";
-    }
-
-    function openLevelPreview(lvlObj) {
-       currentPreviewLevel = lvlObj;
-       populateLevelModal(lvlObj);
-       document.getElementById('levelPreviewModal').classList.remove('hide');
-    }
-
-    function populateLevelModal(lvlObj) {
-      document.getElementById('prevLevelId').innerText = lvlObj.id.substring(0, 6).toUpperCase();
-      document.getElementById('prevLevelName').innerText = lvlObj.name;
-      document.getElementById('prevAuthorName').innerText = lvlObj.authorName;
-      document.getElementById('prevDownloads').innerText = (lvlObj.plays || 0).toLocaleString();
-      document.getElementById('prevLikes').innerText = ((lvlObj.likes && lvlObj.likes.length) || 0).toLocaleString();
-      document.getElementById('prevLength').innerText = calcLevelLength(lvlObj.data);
-      
-      // Face
-      document.getElementById('prevDiffFace').innerHTML = getDiffIconHTML(lvlObj.difficulty);
-      document.getElementById('prevDiffText').innerText = (lvlObj.difficulty || 'NA').toUpperCase();
-      
-      if (lvlObj.stars) {
-         document.getElementById('prevStarsBadge').classList.remove('hidden');
-         document.getElementById('prevStarsNum').innerText = lvlObj.stars;
-      } else {
-         document.getElementById('prevStarsBadge').classList.add('hidden');
-      }
-
-      // Progress
-      let myProg = 0;
-      if (myProfile && myProfile.progress && myProfile.progress[lvlObj.id]) myProg = myProfile.progress[lvlObj.id];
-      document.getElementById('prevProgressBar').style.width = `${myProg}%`;
-      document.getElementById('prevProgressText').innerText = `${myProg}%`;
-
-      // Like Button state
-      if (myProfile && lvlObj.likes && lvlObj.likes.includes(currentUser.uid)) {
-         document.getElementById('iconModalLike').classList.remove('text-yellow-400');
-         document.getElementById('iconModalLike').classList.add('fill-yellow-400', 'text-yellow-400');
-      } else {
-         document.getElementById('iconModalLike').classList.remove('fill-yellow-400');
-      }
-      
-      // Rating access
-      if (myProfile && ['king', 'admin', 'mod'].includes(myProfile.role)) {
-         document.getElementById('prevRateBtnContainer').classList.remove('hidden');
-      } else {
-         document.getElementById('prevRateBtnContainer').classList.add('hidden');
-      }
-
-      // Comments
-      let coms = lvlObj.comments || [];
-      document.getElementById('prevCommentCount').innerText = coms.length;
-      if (coms.length === 0) {
-         document.getElementById('prevCommentsList').innerHTML = `<p class="text-center text-white/50 text-xs py-4 font-bold">No comments yet. Be the first!</p>`;
-      } else {
-         document.getElementById('prevCommentsList').innerHTML = coms.map(c => `
-           <div class="bg-black/50 p-2 border border-white/10 rounded flex gap-2">
-             <div class="font-bold text-yellow-400 text-xs shrink-0">${escapeHtml(c.name)}:</div>
-             <div class="text-white text-xs break-words">${escapeHtml(c.text)}</div>
-           </div>
-         `).join('');
-      }
-
-      lucide.createIcons();
-    }
-
-    document.getElementById('btnClosePreview').addEventListener('click', () => {
-       document.getElementById('levelPreviewModal').classList.add('hide');
-       currentPreviewLevel = null;
-    });
-
-    document.getElementById('btnModalPlay').addEventListener('click', async () => {
-       if (!currentPreviewLevel) return;
-       const lvlId = currentPreviewLevel.id;
-       const data = currentPreviewLevel.data;
-       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (currentPreviewLevel.plays||0) + 1 }, { merge: true }); } catch(err){}
-       document.getElementById('levelPreviewModal').classList.add('hide');
-       hubUI.classList.add('opacity-0'); // Smooth transition
-       setTimeout(() => { launchGame(data, 'play'); }, 300);
-    });
-    
-    document.getElementById('btnModalLike').addEventListener('click', async () => {
-       if (!currentUser || !currentPreviewLevel) return;
-       let likes = currentPreviewLevel.likes || [];
-       let idx = likes.indexOf(currentUser.uid);
-       if (idx > -1) { likes.splice(idx, 1); } else { likes.push(currentUser.uid); }
-       
-       try {
-         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: likes }, { merge: true });
-       } catch(err) { console.error("Failed to like"); }
-    });
-
-    document.getElementById('commentForm').addEventListener('submit', async (e) => {
-       e.preventDefault();
-       if (!currentUser || !myProfile || !currentPreviewLevel) return;
-       const input = document.getElementById('commentInput');
-       const txt = input.value.trim();
-       if (!txt) return;
-       
-       let coms = currentPreviewLevel.comments || [];
-       coms.unshift({ uid: currentUser.uid, name: myProfile.username, text: txt, time: Date.now() });
-       if (coms.length > 50) coms = coms.slice(0, 50); // Hard limit to avoid DB bloat
-       
-       try {
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: coms }, { merge: true });
-          input.value = '';
-       } catch(err) { alert("Failed to post comment"); }
-    });
-    
-    document.getElementById('btnModalRate').addEventListener('click', async () => {
-       if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role) || !currentPreviewLevel) return;
-       const lvlObj = currentPreviewLevel;
-       const ratingInput = prompt(`Rate "${lvlObj.name}":\n0 = NA (0⭐)\n1 = Easy (5⭐)\n2 = Medium (10⭐)\n3 = Hard (20⭐)\n4 = Demon (75⭐)\n5 = Extreme Demon (125⭐)\n6 = Impossible Demon (300⭐)`, "0");
-       if (ratingInput === null) return;
-       
-       let newDiff = 'NA', newStars = 0;
-       if (ratingInput === "1") { newDiff = 'Easy'; newStars = 5; }
-       else if (ratingInput === "2") { newDiff = 'Medium'; newStars = 10; }
-       else if (ratingInput === "3") { newDiff = 'Hard'; newStars = 20; }
-       else if (ratingInput === "4") { newDiff = 'Demon'; newStars = 75; }
-       else if (ratingInput === "5") { newDiff = 'Extreme Demon'; newStars = 125; }
-       else if (ratingInput === "6") { newDiff = 'Impossible Demon'; newStars = 300; }
-       else if (ratingInput !== "0") { return alert("Invalid rating choice."); }
-       
-       const oldStars = lvlObj.stars || 0;
-       const starDiff = newStars - oldStars;
-       
-       try {
-         await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlObj.id), { difficulty: newDiff, stars: newStars }, { merge: true });
-         
-         if (starDiff !== 0) {
-           const authorRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', lvlObj.authorId);
-           const authorSnap = await getDoc(authorRef);
-           if (authorSnap.exists()) {
-              const authorData = authorSnap.data();
-              const newScore = Math.max(0, (authorData.score || 0) + starDiff);
-              await setDoc(authorRef, { score: newScore }, { merge: true });
-           }
-         }
-         alert(`Level successfully rated ${newDiff} (${newStars}⭐)!`);
-       } catch(err) {
-         alert("Failed to rate level.");
-         console.error(err);
-       }
-    });
-
-    document.getElementById('btnWinReplay').addEventListener('click', () => { state.mode = 'play'; state.attempts = 1; resetPlayer(); });
-    document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
-
-    function launchGame(dataStr, mode) {
-      hubUI.classList.add('hide'); document.getElementById('gameUI').classList.remove('hide');
-      level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
-      
-      historyList = []; historyIndex = -1; saveHistory();
-      
-      if (mode === 'edit') { 
-        document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
-        document.getElementById('btnExitGame').innerHTML = '<i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>';
-        switchEditorMode('build'); 
-      } else { 
-        document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('stats').classList.remove('hide'); document.getElementById('gameProgressContainer').classList.remove('hide'); document.getElementById('stats').innerText = `Attempt 1`; 
-        document.getElementById('btnExitGame').innerHTML = '<i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>';
-      }
-      lucide.createIcons();
-    }
-
-    document.getElementById('pfpContainer').addEventListener('click', () => { document.getElementById('pfpUpload').click(); });
-    document.getElementById('pfpUpload').addEventListener('change', async (e) => {
-      const file = e.target.files[0]; if (!file || !currentUser || !myProfile) return;
-      if (!file.type.startsWith('image/')) return alert("Images only.");
-      document.getElementById('displayPfp').style.opacity = '0.5';
-      try {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = async () => {
-            const canvas = document.createElement('canvas'); let width = img.width, height = img.height;
-            if (width > height) { if (width > 150) { height *= 150 / width; width = 150; } } else { if (height > 150) { width *= 150 / height; height = 150; } }
-            canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-            const compressed = canvas.toDataURL('image/jpeg', 0.8);
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { photoURL: compressed }, { merge: true });
-            document.getElementById('displayPfp').style.opacity = '1'; document.getElementById('pfpUpload').value = '';
-          }; img.src = event.target.result;
-        }; reader.readAsDataURL(file);
-      } catch (error) { alert("Failed to upload."); document.getElementById('displayPfp').style.opacity = '1'; } 
-    });
-
-    document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
-      if (confirm("Delete your account permanently?")) {
-        try {
-          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid));
-          await deleteUser(currentUser); alert("Account deleted.");
-        } catch (error) {
-          if (error.code === 'auth/requires-recent-login') alert("Please log out and log back in to verify identity before deleting.");
-          else alert("Failed to delete account.");
-        }
-      }
-    });
-
-    document.getElementById('closeBannerBtn').addEventListener('click', async () => {
-      document.getElementById('globalBanner').classList.add('-translate-y-full');
-      if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
-        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '' }, { merge: true }); } catch(e){}
-      }
-    });
-    
-    document.getElementById('dismissWarningBtn').addEventListener('click', async () => { if (currentUser) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warning: "" }, { merge: true }); });
-
-    document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
-    document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
-
-    cmdAction.addEventListener('change', () => {
-      const act = cmdAction.value; cmdParamNumber.classList.add('hidden'); cmdParamText.classList.add('hidden'); cmdParamRole.classList.add('hidden'); cmdParamContainer.classList.remove('hidden');
-      if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
-      else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
-      else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
-      else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
-    });
-
-    function renderAdminPanel() {
-      if (!myProfile || !['king', 'admin', 'mod'].includes(myProfile.role)) return;
-      const currentTarget = cmdTarget.value;
-      let options = `<option value="GLOBAL" class="font-bold">🌐 EVERYONE (GLOBAL)</option>`;
-      usersData.forEach(p => { let prefix = p.role === 'king' ? '👑 ' : p.role === 'admin' ? '🛡️ ' : p.role === 'mod' ? '⚔️ ' : ''; options += `<option value="${p.id}">${prefix}${escapeHtml(p.username)} (${p.score||0}⭐)${p.banned ? ' [BANNED]' : ''}</option>`; });
-      cmdTarget.innerHTML = options; if (currentTarget && [...cmdTarget.options].some(o => o.value === currentTarget)) cmdTarget.value = currentTarget;
-
-      document.getElementById('adminPlayerCount').textContent = `${usersData.length} Players`;
-      document.getElementById('adminDirectoryList').innerHTML = usersData.map(p => {
-        let badge = p.role === 'king' ? `<span class="text-yellow-400 text-xs"><i data-lucide="crown" class="w-3 h-3 inline"></i> King</span>` : p.role === 'admin' ? `<span class="text-indigo-400 text-xs"><i data-lucide="shield" class="w-3 h-3 inline"></i> Admin</span>` : p.role === 'mod' ? `<span class="text-green-400 text-xs"><i data-lucide="shield-half" class="w-3 h-3 inline"></i> Mod</span>` : `<span class="text-gray-500 text-xs">User</span>`;
-        return `<div class="flex justify-between items-center bg-gray-800/50 p-2 rounded border border-gray-700/50"><div class="flex items-center gap-2 truncate"><img src="${escapeHtml(p.photoURL || getDefaultAvatar(p.username))}" class="w-6 h-6 rounded-full border border-gray-600"><span class="text-sm font-semibold text-gray-200 truncate">${escapeHtml(p.username)}</span>${p.banned ? `<span class="text-red-500 text-[10px] font-bold ml-1 bg-red-500/20 px-1 rounded">BANNED</span>` : ''}</div><div class="text-right flex flex-col items-end"><span class="font-mono text-sm text-yellow-400">${(p.score||0).toLocaleString()}⭐</span>${badge}</div></div>`;
-      }).join('');
-      lucide.createIcons();
-    }
 
     adminCommandForm.addEventListener('submit', async (e) => {
       e.preventDefault(); if (!myProfile) return;
@@ -2830,22 +2514,20 @@
         else if (act === 'role') {
           if (valRole === 'king') { if(!confirm(`WARNING: Transfer crown?`)) return; await setDoc(uRef, { role: 'king' }, { merge: true }); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true }); } else await setDoc(uRef, { role: valRole }, { merge: true });
         }
-        else if (act === 'iconHack') {
-            const allIco = ALL_ICONS.map(i => i.id);
-            const allSh = typeof ALL_SHIPS !== 'undefined' ? ALL_SHIPS.map(i => i.id) : [];
-            const allUfo = typeof ALL_UFOS !== 'undefined' ? ALL_UFOS.map(i => i.id) : [];
-            const allWav = typeof ALL_WAVES !== 'undefined' ? ALL_WAVES.map(i => i.id) : [];
-            const allBall = typeof ALL_BALLS !== 'undefined' ? ALL_BALLS.map(i => i.id) : [];
-            const allRob = typeof ALL_ROBOTS !== 'undefined' ? ALL_ROBOTS.map(i => i.id) : [];
-            const allSp = typeof ALL_SPIDERS !== 'undefined' ? ALL_SPIDERS.map(i => i.id) : [];
-            const allSw = typeof ALL_SWINGS !== 'undefined' ? ALL_SWINGS.map(i => i.id) : [];
-            const allCol = ALL_COLORS.map(c => c.id);
+        else if (act === 'rewardAdmin') {
+            let nI = [...new Set([...(tUser.unlockedIcons || []), 'iAdmin'])];
+            let nSh = [...new Set([...(tUser.unlockedShips || []), 'shAdmin'])];
+            let nU = [...new Set([...(tUser.unlockedUfos || []), 'uAdmin'])];
+            let nW = [...new Set([...(tUser.unlockedWaves || []), 'wAdmin'])];
+            let nB = [...new Set([...(tUser.unlockedBalls || []), 'bAdmin'])];
+            let nR = [...new Set([...(tUser.unlockedRobots || []), 'rAdmin'])];
+            let nSp = [...new Set([...(tUser.unlockedSpiders || []), 'spAdmin'])];
+            let nSw = [...new Set([...(tUser.unlockedSwings || []), 'swAdmin'])];
             await setDoc(uRef, { 
-                unlockedIcons: allIco, unlockedShips: allSh, unlockedUfos: allUfo, unlockedWaves: allWav,
-                unlockedBalls: allBall, unlockedRobots: allRob, unlockedSpiders: allSp, unlockedSwings: allSw, 
-                unlockedCol1: allCol, unlockedCol2: allCol 
+                unlockedIcons: nI, unlockedShips: nSh, unlockedUfos: nU, unlockedWaves: nW, 
+                unlockedBalls: nB, unlockedRobots: nR, unlockedSpiders: nSp, unlockedSwings: nSw 
             }, { merge: true });
-            alert("All icons, gamemodes, and colors unlocked for player!");
+            alert("Admin gear set rewarded to player!");
         }
       } catch (err) { alert("Command failed."); }
     });
