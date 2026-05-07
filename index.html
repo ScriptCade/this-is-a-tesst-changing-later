@@ -76,8 +76,6 @@
     .rarity-legendary { box-shadow: 0 0 25px #facc15; border-color: #facc15 !important; }
     .rarity-mythic { box-shadow: 0 0 35px #ef4444; border-color: #ef4444 !important; animation: pulse-mythic 1s infinite alternate; }
     @keyframes pulse-mythic { from { box-shadow: 0 0 15px #ef4444; } to { box-shadow: 0 0 35px #ff0000, 0 0 15px inset #ef4444; } }
-    .rarity-admin { box-shadow: 0 0 30px #0ff, inset 0 0 15px #0ff; border-color: #0ff !important; animation: pulse-admin 1s infinite alternate; background: #111; }
-    @keyframes pulse-admin { to { box-shadow: 0 0 50px #f0f, inset 0 0 25px #f0f; border-color: #f0f !important; } }
   </style>
 </head>
 <body id="mainBody">
@@ -199,8 +197,8 @@
           <div class="flex flex-col gap-2">
              <span class="text-gray-400 text-xs font-bold font-mono">WASD = Move</span>
              <span class="text-gray-400 text-xs font-bold font-mono">Q/E = Rotate</span>
-             <span class="text-gray-400 text-xs font-bold font-mono">Ctrl+D = Duplicate</span>
-             <span class="text-gray-400 text-xs font-bold font-mono">Ctrl+Z/Y = Undo/Redo</span>
+             <span class="text-gray-400 text-xs font-bold font-mono">Cmd/Ctrl+D = Duplicate</span>
+             <span class="text-gray-400 text-xs font-bold font-mono">Cmd/Ctrl+Z/Y = Undo/Redo</span>
              <span class="text-gray-400 text-xs font-bold font-mono">T = Toggle Swipe | Esc = Deselect</span>
           </div>
         </div>
@@ -216,14 +214,6 @@
 
     <div class="flex flex-col gap-2 w-32 flex-shrink-0">
       <button id="btnSwipeToggle" class="ed-btn flex-1 text-sm tracking-wider border-green-900 shadow">SWIPE<br><span id="swipeStatus" class="text-xs text-red-200">OFF</span></button>
-      
-      <div id="buildRotState" class="flex flex-col bg-gray-800 border-2 border-gray-600 rounded-lg pt-2 pb-2 shadow-inner">
-        <div class="text-xs text-center text-yellow-200 font-black mb-2" id="lblBuildRot">0°</div>
-        <div class="flex gap-2 px-2 h-12">
-           <button id="btnBuildRotLeft" class="bg-purple-600 hover:bg-purple-50 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></button>
-           <button id="btnBuildRotRight" class="bg-purple-600 hover:bg-purple-50 flex-1 text-white flex items-center justify-center rounded-lg border-b-4 border-purple-900 active:border-b-0 active:translate-y-1"><i data-lucide="rotate-cw" class="w-5 h-5"></i></button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -398,7 +388,6 @@
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="robots">Robot (<span id="kitCountRobots">1</span>/<span id="kitTotalRobots">20</span>)</button>
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="spiders">Spider (<span id="kitCountSpiders">1</span>/<span id="kitTotalSpiders">20</span>)</button>
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="swings">Swing (<span id="kitCountSwings">1</span>/<span id="kitTotalSwings">20</span>)</button>
-                   <button id="tabAdminVehicles" class="kit-tab-btn hide shrink-0 px-4 py-4 font-bold text-cyan-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="admin">Admin Gear</button>
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col1">Col 1 (<span id="kitCountCol1">1</span>/<span id="kitTotalCol1">30</span>)</button>
                    <button class="kit-tab-btn shrink-0 px-4 py-4 font-bold text-gray-400 border-b-2 border-transparent hover:text-white whitespace-nowrap" data-tab="col2">Col 2 (<span id="kitCountCol2">1</span>/<span id="kitTotalCol2">30</span>)</button>
                 </div>
@@ -411,7 +400,6 @@
                    <div id="kitGridRobots" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridSpiders" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridSwings" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
-                   <div id="kitGridAdmin" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridCol1" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                    <div id="kitGridCol2" class="grid grid-cols-4 sm:grid-cols-6 gap-4 hide"></div>
                 </div>
@@ -624,7 +612,7 @@
                   <option value="setScore">🎯 Set Exact Stars</option>
                 </optgroup>
                 <optgroup label="Cheats & Rewards">
-                  <option value="rewardAdmin">👑 Reward Admin Gear Set</option>
+                  <option value="iconHack">🔓 Unlock All Gamemodes & Colors</option>
                 </optgroup>
                 <optgroup label="Moderation">
                   <option value="warn">⚠️ Send Warning Message</option>
@@ -695,7 +683,6 @@
     }
 
     function getIconSVG(idStr, c1, c2) {
-       if (idStr === 'iAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-g { animation: ag 1s ease-in-out infinite alternate; } @keyframes ag { to { filter: drop-shadow(0 0 20px ${c2}); transform: scale(1.05); } }</style><rect x="10" y="10" width="80" height="80" fill="#111" stroke="${c1}" stroke-width="8" rx="20" class="a-g"/><path d="M50 20 L80 80 L20 80 Z" fill="${c2}" class="a-g"/><text x="50" y="70" font-size="40" font-weight="900" fill="#111" text-anchor="middle">A</text></svg>`;
        const id = parseInt(idStr.replace('i', ''));
        let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; 
        switch(id) {
@@ -744,7 +731,6 @@
     }
 
     function getShipSVG(idStr, c1, c2) {
-       if (idStr === 'shAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-f { animation: af 0.5s infinite alternate; } @keyframes af { to { transform: translateY(-10px) rotate(5deg); filter: drop-shadow(0 0 15px ${c1}); } }</style><g class="a-f"><rect x="10" y="40" width="60" height="20" fill="#111" stroke="${c1}" stroke-width="6"/><rect x="60" y="20" width="30" height="60" fill="${c2}" stroke="${c1}" stroke-width="6"/><text x="75" y="55" font-size="16" font-weight="900" fill="#111" text-anchor="middle" transform="rotate(90 75 50)">BAN</text></g></svg>`;
        const id = parseInt(idStr.replace('sh', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<path d="M 20 30 L 80 50 L 20 70 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`; 
        if(bid===2) content = `<rect x="15" y="30" width="70" height="40" rx="20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
@@ -761,7 +747,6 @@
     }
 
     function getUfoSVG(idStr, c1, c2) {
-       if (idStr === 'uAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-u { animation: au 3s linear infinite; transform-origin: 50px 50px; } @keyframes au { to { transform: rotate(360deg); } }</style><polygon points="50,15 90,75 10,75" fill="#111" stroke="${c1}" stroke-width="8"/><circle cx="50" cy="55" r="20" fill="none" stroke="${c2}" stroke-width="4" class="a-u" stroke-dasharray="10 10"/><ellipse cx="50" cy="55" rx="12" ry="6" fill="${c2}"/><circle cx="50" cy="55" r="3" fill="#111"/></svg>`;
        const id = parseInt(idStr.replace('u', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="65" rx="40" ry="15" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 30 65 Q 50 10 70 65" fill="${rC2}"/>`;
        if(bid===2) content = `<rect x="20" y="55" width="60" height="20" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="40" r="20" fill="${rC2}"/>`;
@@ -778,7 +763,6 @@
     }
 
     function getWaveSVG(idStr, c1, c2) {
-       if (idStr === 'wAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-w { animation: aw 0.2s infinite alternate; } @keyframes aw { to { filter: drop-shadow(0 0 15px ${c1}); } }</style><path d="M 10 50 L 40 20 L 50 40 L 90 10 L 60 80 L 50 60 Z" fill="#111" stroke="${c2}" stroke-width="6" class="a-w"/></svg>`;
        const id = parseInt(idStr.replace('w', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<polygon points="10,50 50,10 90,50 50,90" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
        if(bid===2) content = `<path d="M 20 50 L 60 20 L 60 80 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
@@ -795,7 +779,6 @@
     }
 
     function getBallSVG(idStr, c1, c2) {
-       if (idStr === 'bAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-b { animation: ab 2s linear infinite; transform-origin: 50px 50px; } @keyframes ab { to { transform: rotate(360deg); filter: drop-shadow(0 0 20px ${c2}); } }</style><circle cx="50" cy="50" r="40" fill="#111" stroke="${c1}" stroke-width="8"/><path d="M 50 10 L 50 90 M 10 50 L 90 50 M 20 20 L 80 80 M 20 80 L 80 20" stroke="${c2}" stroke-width="8" class="a-b"/><circle cx="50" cy="50" r="15" fill="#111" stroke="${c1}" stroke-width="4"/></svg>`;
        const id = parseInt(idStr.replace('b', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<circle cx="50" cy="50" r="45" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
        if(bid===1) content += `<circle cx="50" cy="50" r="20" fill="${rC2}"/>`;
@@ -813,7 +796,6 @@
     }
 
     function getRobotSVG(idStr, c1, c2) {
-       if (idStr === 'rAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-r { animation: ar 0.5s steps(2) infinite; } @keyframes ar { to { filter: invert(1); } }</style><rect x="25" y="10" width="50" height="40" rx="10" fill="#111" stroke="${c1}" stroke-width="6"/><rect x="15" y="25" width="70" height="10" fill="${c2}"/><circle cx="35" cy="25" r="8" fill="${c1}" class="a-r"/><circle cx="65" cy="25" r="8" fill="${c1}" class="a-r"/><rect x="30" y="55" width="15" height="35" fill="${c2}"/><rect x="55" y="55" width="15" height="35" fill="${c2}"/></svg>`;
        const id = parseInt(idStr.replace('r', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<rect x="25" y="10" width="50" height="40" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><rect x="35" y="55" width="10" height="35" fill="${rC2}"/><rect x="55" y="55" width="10" height="35" fill="${rC2}"/>`;
        if(bid===1) content += `<rect x="35" y="25" width="30" height="15" fill="${rC2}"/>`;
@@ -831,7 +813,6 @@
     }
 
     function getSpiderSVG(idStr, c1, c2) {
-       if (idStr === 'spAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-sp { animation: asp 0.1s infinite alternate; } @keyframes asp { to { transform: translateY(5px); filter: drop-shadow(0 0 15px ${c1}); } }</style><ellipse cx="50" cy="45" rx="35" ry="25" fill="#111" stroke="${c2}" stroke-width="6"/><circle cx="35" cy="45" r="8" fill="${c1}" class="a-sp"/><circle cx="65" cy="45" r="8" fill="${c1}" class="a-sp"/><path d="M 15 45 L 0 80 M 30 65 L 15 95 M 70 65 L 85 95 M 85 45 L 100 80" stroke="${c1}" stroke-width="8" stroke-linecap="round"/></svg>`;
        const id = parseInt(idStr.replace('sp', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="40" rx="35" ry="25" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 20 40 L 5 70 M 35 55 L 25 85 M 65 55 L 75 85 M 80 40 L 95 70" stroke="${rC2}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
        if(bid===1) content += `<circle cx="35" cy="35" r="5" fill="${rC2}"/><circle cx="65" cy="35" r="5" fill="${rC2}"/>`;
@@ -849,7 +830,6 @@
     }
 
     function getSwingSVG(idStr, c1, c2) {
-       if (idStr === 'swAdmin') return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%"><style>.a-sw { animation: asw 0.1s linear infinite; transform-origin: 50px 50px; } @keyframes asw { to { transform: rotate(360deg); } }</style><ellipse cx="50" cy="50" rx="30" ry="40" fill="#111" stroke="${c1}" stroke-width="8"/><path d="M 50 0 L 50 100 M 0 50 L 100 50" stroke="${c2}" stroke-width="8" class="a-sw"/><circle cx="50" cy="50" r="15" fill="${c2}"/></svg>`;
        const id = parseInt(idStr.replace('sw', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="50" rx="40" ry="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="15" cy="50" r="12" fill="${rC2}"/><circle cx="85" cy="50" r="12" fill="${rC2}"/>`;
        if(bid===1) content += `<circle cx="50" cy="50" r="15" fill="${rC2}"/>`;
@@ -945,6 +925,25 @@
            updateEditPanelUI();
            saveHistory();
        }
+    }
+
+    function rotateSelection(dir) {
+        if (editor.selectedObjs.length === 0) return;
+        if (editor.selectedObjs.length === 1) {
+            let o = editor.selectedObjs[0];
+            o.rot = (o.rot + (dir === 1 ? 90 : 270)) % 360;
+        } else {
+            let minX = Math.min(...editor.selectedObjs.map(o=>o.gx)), maxX = Math.max(...editor.selectedObjs.map(o=>o.gx));
+            let minY = Math.min(...editor.selectedObjs.map(o=>o.gy)), maxY = Math.max(...editor.selectedObjs.map(o=>o.gy));
+            let cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+            editor.selectedObjs.forEach(o => {
+                let dx = o.gx - cx, dy = o.gy - cy;
+                o.gx = Math.round(cx + (dir === 1 ? dy : -dy));
+                o.gy = Math.round(cy + (dir === 1 ? -dx : dx));
+                o.rot = (o.rot + (dir === 1 ? 90 : 270)) % 360;
+            });
+        }
+        saveHistory();
     }
 
     function getDefaultAvatar(username) { 
@@ -1079,7 +1078,7 @@
     let level = [], levelMaxX = 0, input = { jumpHeld: false, clickConsumed: false };
 
     let editor = { 
-      mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: false, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }, hasChangedLevel: false
+      mode: 'build', tool: 0, isDragging: false, swipeEnabled: false, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }, hasChangedLevel: false
     };
 
     const BLANK_LEVEL_DATA = (() => { let str = ""; for(let i=-5; i<=60; i++) str += `${i},-1,0,0;${i},-2,0,0;${i},-3,0,0;`; return str; })();
@@ -1386,19 +1385,23 @@
           else if ([2, 22, 24, 26].includes(obj.type)) { 
             let padBox = getRotatedBox({ x: objX, y: objY + GRID_SIZE - 20, w: GRID_SIZE, h: 20 }, obj.rot, cx, cy);
             if (checkRectCollision(pBox, padBox)) {
-              let force = PAD_FORCE;
-              if (obj.type === 22) force *= 0.7;
-              if (obj.type === 24) force *= 1.4;
-              
-              if (obj.type === 26) {
-                 player.gravityDir *= -1;
-                 player.vy = PAD_FORCE * 0.3 * player.gravityDir;
-              } else {
-                 if (obj.rot === 0 || !obj.rot) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 180) { player.vy = -force; player.gravityDir = -1; }
-                 else if (obj.rot === 90) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 270) { player.vy = force; player.gravityDir = 1; }
-              }
+            let force = PAD_FORCE;
+            if (obj.type === 22) force *= 0.7;
+            if (obj.type === 24) force *= 1.4;
+            
+            if (obj.type === 26) {
+               player.gravityDir *= -1;
+               let bForce = PAD_FORCE * 0.4;
+               if (obj.rot === 0 || !obj.rot) { player.vy = bForce; } 
+               else if (obj.rot === 180) { player.vy = -bForce; }
+               else if (obj.rot === 90) { player.vy = bForce; } 
+               else if (obj.rot === 270) { player.vy = bForce; }
+            } else {
+               if (obj.rot === 0 || !obj.rot) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 180) { player.vy = -force; player.gravityDir = -1; }
+               else if (obj.rot === 90) { player.vy = force; player.gravityDir = 1; } else if (obj.rot === 270) { player.vy = force; player.gravityDir = 1; }
+            }
 
-              if (obj.rot === 0 || !obj.rot) { nextY = padBox.y - pSize; pBox.y = nextY; }
+            if (obj.rot === 0 || !obj.rot) { nextY = padBox.y - pSize; pBox.y = nextY; }
               else if (obj.rot === 180) { nextY = padBox.y + padBox.h; pBox.y = nextY; }
               else if (obj.rot === 90) { player.x = padBox.x + padBox.w; }
               else if (obj.rot === 270) { player.x = padBox.x - pSize; }
@@ -1463,7 +1466,7 @@
 
       ctx.save(); ctx.translate(-state.cameraX, -state.cameraY);
 
-      if (state.mode === 'edit') {
+      if (state.mode === 'edit' && !state.isPlaytesting) {
         ctx.strokeStyle = '#313144'; ctx.lineWidth = 1;
         let startX = Math.floor(state.cameraX / GRID_SIZE) * GRID_SIZE;
         let yOffset = groundY % GRID_SIZE;
@@ -1531,7 +1534,7 @@
             let pCol = obj.type===23?'#f472b6':obj.type===25?'#ef4444':obj.type===27?'#3b82f6':obj.type===34?'#22c55e':'#facc15';
             ctx.strokeStyle = pCol; ctx.fillStyle = pCol+'4d'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, s2 - 4, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.fillStyle = pCol; ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill(); 
         } 
-        else if ([3, 4, 6, 7, 8, 9, 28, 29].includes(obj.type)) {
+        else if ([3, 4, 6, 7, 8, 9, 28, 29, 30, 31, 32, 33].includes(obj.type)) {
           let pColorStr = '#eab308', pFillStr = 'rgba(234, 179, 8, 0.3)', wMult=1;
           if (obj.type === 3) { pColorStr = '#3b82f6'; pFillStr = 'rgba(59, 130, 246, 0.3)'; } 
           if (obj.type === 6) { pColorStr = '#f97316'; pFillStr = 'rgba(249, 115, 22, 0.3)'; } 
@@ -1609,11 +1612,9 @@
         else if (player.gamemode === 6) { if(typeof cachedSpiderImg !== 'undefined' && cachedSpiderImg.complete && cachedSpiderImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedSpiderImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(0, 0, 15, 10, 0, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = c1; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-20, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-10, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(10, 15); ctx.stroke(); ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(20, 15); ctx.stroke(); drawFace(); } }
         else if (player.gamemode === 7) { if(typeof cachedSwingImg !== 'undefined' && cachedSwingImg.complete && cachedSwingImg.src) { ctx.save(); ctx.scale(0.4, 0.4); ctx.translate(-50, -50); ctx.drawImage(cachedSwingImg, 0, 0, 100, 100); ctx.restore(); } else { ctx.fillStyle = c1; ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(-15, 0, 6, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(15, 0, 6, 0, Math.PI*2); ctx.fill(); drawFace(); } }
         else { 
-           if (cachedPlayerImg.complete && cachedPlayerImg.src && cachedPlayerImg.src !== window.location.href) {
-              let r = ALL_ICONS.find(i=>i.id===(myProfile?.equippedIcon || 'i1'))?.rarity;
-              if (myProfile?.equippedIcon === 'iAdmin') r = 'admin';
+           if (typeof cachedPlayerImg !== 'undefined' && cachedPlayerImg.complete && cachedPlayerImg.src) {
+              let r = ALL_ICONS.find(i=>i.id===(myProfile?myProfile.equippedIcon:'i1'))?.rarity;
               if (r==='mythic') { ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 15 + Math.sin(Date.now()/150)*5; }
-              if (r==='admin') { ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 25 + Math.sin(Date.now()/100)*10; }
               ctx.drawImage(cachedPlayerImg, -15, -15, 30, 30); 
               ctx.shadowBlur = 0;
            } else {
@@ -1676,7 +1677,7 @@
 
       if (editor.mode === 'build') {
         level = level.filter(b => !(b.gx === gx && b.gy === gy));
-        let newObj = { gx, gy, type: editor.tool, rot: editor.rot };
+        let newObj = { gx, gy, type: editor.tool, rot: 0 };
         level.push(newObj);
         editor.selectedObjs = [newObj]; 
         updateEditPanelUI();
@@ -1715,326 +1716,145 @@
       }
     });
 
-    canvas.addEventListener('pointermove', (e) => {
-      if (state.mode !== 'edit' || !editor.isDragging) return;
+    window.addEventListener('pointermove', (e) => {
+       if (state.mode !== 'edit' || !editor.isDragging) return;
+       
+       const dx = e.clientX - editor.camDragStartX;
+       const dy = e.clientY - editor.camDragStartY;
+       if (Math.abs(dx) > 5 || Math.abs(dy) > 5) editor.isClick = false;
 
-      if (Math.abs(e.clientX - editor.camDragStartX) > 5 || Math.abs(e.clientY - editor.camDragStartY) > 5) editor.isClick = false;
-
-      if (editor.swipeEnabled) {
-        if (editor.mode === 'edit' && editor.selBox) {
-          const p = getGridPos(e.clientX, e.clientY);
-          editor.selBox.ex = p.worldX; editor.selBox.ey = p.worldY;
-        } else {
-          handleEditorAction(e.clientX, e.clientY);
-        }
-      } else {
-        state.cameraX = editor.initialCamX - (e.clientX - editor.camDragStartX);
-        state.cameraY = editor.initialCamY - (e.clientY - editor.camDragStartY);
-      }
+       if (!editor.swipeEnabled && editor.mode !== 'edit') {
+         state.cameraX = editor.initialCamX - dx;
+         state.cameraY = editor.initialCamY - dy;
+       } else if (editor.swipeEnabled && editor.mode !== 'edit') {
+         handleEditorAction(e.clientX, e.clientY);
+       } else if (editor.mode === 'edit') {
+         if (editor.swipeEnabled && editor.selBox) {
+             const p = getGridPos(e.clientX, e.clientY);
+             editor.selBox.ex = p.worldX; editor.selBox.ey = p.worldY;
+         } else {
+             state.cameraX = editor.initialCamX - dx;
+             state.cameraY = editor.initialCamY - dy;
+         }
+       }
     });
 
     window.addEventListener('pointerup', (e) => {
-      input.jumpHeld = false;
-      if (state.mode !== 'edit' || !editor.isDragging) return;
-      
-      if (editor.mode === 'edit') {
-        if (editor.isClick) {
+       if (state.mode === 'play' || state.isPlaytesting) { input.jumpHeld = false; return; }
+       if (state.mode !== 'edit' || !editor.isDragging) return;
+       editor.isDragging = false;
+       
+       if (editor.isClick) {
+         if (editor.mode === 'build' || editor.mode === 'delete') {
+           handleEditorAction(e.clientX, e.clientY);
+         } else if (editor.mode === 'edit') {
            const {gx, gy} = getGridPos(e.clientX, e.clientY);
-           let obj = level.slice().reverse().find(b => b.gx === gx && b.gy === gy);
-           editor.selectedObjs = obj ? [obj] : [];
+           const clickedObj = level.slice().reverse().find(o => o.gx === gx && o.gy === gy);
+           if (clickedObj) {
+             if (e.shiftKey) {
+               const idx = editor.selectedObjs.indexOf(clickedObj);
+               if (idx > -1) editor.selectedObjs.splice(idx, 1);
+               else editor.selectedObjs.push(clickedObj);
+             } else {
+               editor.selectedObjs = [clickedObj];
+             }
+           } else if (!e.shiftKey) {
+             editor.selectedObjs = [];
+           }
            updateEditPanelUI();
-        } else if (editor.selBox && editor.swipeEnabled) {
-           let minX = Math.min(editor.selBox.sx, editor.selBox.ex), maxX = Math.max(editor.selBox.sx, editor.selBox.ex);
-           let minY = Math.min(editor.selBox.sy, editor.selBox.ey), maxY = Math.max(editor.selBox.sy, editor.selBox.ey);
-           editor.selectedObjs = level.filter(b => {
-             let px = b.gx * GRID_SIZE, py = groundY - (b.gy * GRID_SIZE) - GRID_SIZE;
-             return (px < maxX && px + GRID_SIZE > minX && py < maxY && py + GRID_SIZE > minY);
+         }
+       } else if (editor.mode === 'edit' && editor.selBox) {
+           const sx = Math.min(editor.selBox.sx, editor.selBox.ex), ex = Math.max(editor.selBox.sx, editor.selBox.ex);
+           const sy = Math.min(editor.selBox.sy, editor.selBox.ey), ey = Math.max(editor.selBox.sy, editor.selBox.ey);
+           editor.selectedObjs = level.filter(o => {
+              const ox = o.gx * GRID_SIZE + GRID_SIZE/2, oy = groundY - (o.gy * GRID_SIZE) - GRID_SIZE/2;
+              return ox >= sx && ox <= ex && oy >= sy && oy <= ey;
            });
+           editor.selBox = null;
            updateEditPanelUI();
-        }
-        editor.selBox = null;
-      } else if (!editor.swipeEnabled && editor.isClick && editor.mode !== 'edit') {
-        handleEditorAction(e.clientX, e.clientY);
-      }
-
-      if (editor.hasChangedLevel) { saveHistory(); editor.hasChangedLevel = false; }
-      editor.isDragging = false; editor.lastGx = -1; editor.lastGy = -1;
+       }
+       
+       editor.lastGx = -1; editor.lastGy = -1;
+       if (editor.hasChangedLevel) { saveHistory(); editor.hasChangedLevel = false; }
     });
 
-    document.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-      if (e.code === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); return; }
-      if (e.code === 'KeyT') { document.getElementById('btnSwipeToggle').click(); e.preventDefault(); return; }
-
-      if (e.code === 'KeyZ' && !e.ctrlKey && !e.metaKey) {
-          if (state.mode === 'edit') document.getElementById('btnPlaytest').click();
-          else if (state.isPlaytesting) document.getElementById('btnExitGame').click();
-          return;
-      }
-
-      if (e.ctrlKey || e.metaKey) {
-          if (e.code === 'KeyZ') { undo(); e.preventDefault(); return; }
-          if (e.code === 'KeyY') { redo(); e.preventDefault(); return; }
-          if (e.code === 'KeyD') { duplicateSelected(); e.preventDefault(); return; }
-      }
-
-      if (state.mode === 'play' || state.isPlaytesting) { 
-          if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { 
-              if (!input.jumpHeld) {
-                  input.jumpHeld = true; 
-                  input.clickConsumed = false; 
-                  if (triggerAction()) input.clickConsumed = true; 
+    window.addEventListener('keydown', (e) => {
+       if (document.activeElement.tagName === 'INPUT') return;
+       const k = e.key.toLowerCase();
+       if (['w', 'a', 's', 'd', ' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
+       
+       if (k === ' ' || k === 'arrowup' || k === 'w') {
+         input.jumpHeld = true; input.clickConsumed = false;
+         if ((state.mode === 'play' || state.isPlaytesting) && triggerAction()) input.clickConsumed = true;
+       }
+       
+       if (k === 'z' && !e.ctrlKey && !e.metaKey) { document.getElementById('btnPlaytest').click(); return; }
+       
+       if (state.mode === 'edit' && !state.isPlaytesting) {
+          if (k === 't') document.getElementById('btnSwipeToggle').click();
+          if (e.key === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); }
+          
+          if (editor.selectedObjs.length > 0) {
+              if (k === 'q') document.getElementById('btnEditRotLeft').click();
+              if (k === 'e') document.getElementById('btnEditRotRight').click();
+              if ((e.ctrlKey || e.metaKey) && k === 'd') { duplicateSelected(); e.preventDefault(); }
+              else if (!e.ctrlKey && !e.metaKey) {
+                  if (k === 'w' || k === 'arrowup') document.getElementById('btnNudgeUp').click();
+                  if (k === 's' || k === 'arrowdown') document.getElementById('btnNudgeDown').click();
+                  if (k === 'a' || k === 'arrowleft') document.getElementById('btnNudgeLeft').click();
+                  if (k === 'd' || k === 'arrowright') document.getElementById('btnNudgeRight').click();
               }
           }
-      } 
-      else if (state.mode === 'edit') {
-          let isWASD = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code);
-          if (editor.selectedObjs.length > 0 && isWASD) {
-             if (e.code === 'KeyW') document.getElementById('btnNudgeUp').click();
-             if (e.code === 'KeyA') document.getElementById('btnNudgeLeft').click();
-             if (e.code === 'KeyS') document.getElementById('btnNudgeDown').click();
-             if (e.code === 'KeyD') document.getElementById('btnNudgeRight').click();
-          } else {
-             if(e.code === 'ArrowRight' || (!editor.selectedObjs.length && e.code === 'KeyD')) state.cameraX += GRID_SIZE; 
-             if(e.code === 'ArrowLeft' || (!editor.selectedObjs.length && e.code === 'KeyA')) state.cameraX -= GRID_SIZE;
-             if(e.code === 'ArrowUp' || (!editor.selectedObjs.length && e.code === 'KeyW')) state.cameraY -= GRID_SIZE; 
-             if(e.code === 'ArrowDown' || (!editor.selectedObjs.length && e.code === 'KeyS')) state.cameraY += GRID_SIZE;
+          
+          if (e.ctrlKey || e.metaKey) {
+             if (k === 'z') { if (e.shiftKey) redo(); else undo(); e.preventDefault(); }
+             if (k === 'y') { redo(); e.preventDefault(); }
           }
-          if (editor.selectedObjs.length > 0) {
-             if (e.code === 'KeyQ') document.getElementById('btnEditRotLeft').click();
-             if (e.code === 'KeyE') document.getElementById('btnEditRotRight').click();
-          }
-      }
-    });
-    document.addEventListener('keyup', (e) => { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') input.jumpHeld = false; });
-
-    // ==========================================
-    // 🛠️ EDITOR UI LOGIC
-    // ==========================================
-    const tabBuild = document.getElementById('tabBuild'), tabEditMode = document.getElementById('tabEditMode'), tabDelete = document.getElementById('tabDelete');
-    const panelBuild = document.getElementById('panelBuild'), panelEdit = document.getElementById('panelEdit'), panelDelete = document.getElementById('panelDelete');
-    const btnSwipeToggle = document.getElementById('btnSwipeToggle'), swipeStatus = document.getElementById('swipeStatus');
-
-    function switchEditorMode(m) {
-      editor.mode = m; editor.selectedObjs = []; updateEditPanelUI();
-      
-      tabBuild?.classList.remove('active'); tabEditMode?.classList.remove('active'); tabDelete?.classList.remove('active');
-      panelBuild?.classList.add('hide'); panelEdit?.classList.add('hide'); panelDelete?.classList.add('hide');
-      document.getElementById('buildRotState')?.classList.add('hide');
-      
-      if(m === 'build') { tabBuild?.classList.add('active'); panelBuild?.classList.remove('hide'); document.getElementById('buildRotState')?.classList.remove('hide'); }
-      if(m === 'edit') { tabEditMode?.classList.add('active'); panelEdit?.classList.remove('hide'); panelEdit?.classList.add('flex'); }
-      if(m === 'delete') { tabDelete?.classList.add('active'); panelDelete?.classList.remove('hide'); panelDelete?.classList.add('flex'); }
-    }
-
-    tabBuild?.addEventListener('click', () => switchEditorMode('build'));
-    tabEditMode?.addEventListener('click', () => switchEditorMode('edit'));
-    tabDelete?.addEventListener('click', () => switchEditorMode('delete'));
-
-    btnSwipeToggle?.addEventListener('click', () => {
-      editor.swipeEnabled = !editor.swipeEnabled;
-      if (editor.swipeEnabled) { btnSwipeToggle.classList.add('active'); swipeStatus.textContent = 'ON'; swipeStatus.className = 'text-xs text-green-200'; } 
-      else { btnSwipeToggle.classList.remove('active'); swipeStatus.textContent = 'OFF'; swipeStatus.className = 'text-xs text-red-200'; }
+       }
     });
 
-    document.querySelectorAll('.cat-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        e.currentTarget.classList.add('active');
-        const cat = e.currentTarget.dataset.cat;
-        document.getElementById('cat-blocks').classList.add('hide'); document.getElementById('cat-hazards').classList.add('hide'); document.getElementById('cat-interact').classList.add('hide'); document.getElementById('cat-portals').classList.add('hide'); document.getElementById('cat-triggers').classList.add('hide');
-        document.getElementById('cat-' + cat).classList.remove('hide');
-      });
+    window.addEventListener('keyup', (e) => {
+        const k = e.key.toLowerCase();
+        if (k === ' ' || k === 'arrowup' || k === 'w') input.jumpHeld = false;
     });
 
-    document.querySelectorAll('.tool-btn').forEach(btn => {
-      if(btn.dataset.tool) {
-        btn.addEventListener('click', (e) => {
-          editor.tool = parseInt(e.currentTarget.dataset.tool);
-          document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-          e.currentTarget.classList.add('active');
-        });
-      }
+    // Editor Panel Interactions
+    document.getElementById('btnSwipeToggle').addEventListener('click', () => {
+       editor.swipeEnabled = !editor.swipeEnabled;
+       document.getElementById('swipeStatus').innerText = editor.swipeEnabled ? 'ON' : 'OFF';
+       document.getElementById('btnSwipeToggle').classList.toggle('border-green-400', editor.swipeEnabled);
+       document.getElementById('btnSwipeToggle').classList.toggle('border-green-900', !editor.swipeEnabled);
     });
-
-    document.getElementById('btnBuildRotLeft')?.addEventListener('click', () => { editor.rot = (editor.rot - 90 + 360) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
-    document.getElementById('btnBuildRotRight')?.addEventListener('click', () => { editor.rot = (editor.rot + 90) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
-
-    const editNoSelection = document.getElementById('editNoSelection'), editControls = document.getElementById('editControls');
-    function updateEditPanelUI() {
-      if (editor.selectedObjs.length > 0) {
-        editNoSelection?.classList.add('hide'); editControls?.classList.remove('hide'); editControls?.classList.add('flex');
-      } else {
-        editNoSelection?.classList.remove('hide'); editControls?.classList.add('hide'); editControls?.classList.remove('flex');
-      }
-    }
-
-    document.getElementById('btnNudgeUp')?.addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => o.gy++); saveHistory(); } });
-    document.getElementById('btnNudgeDown')?.addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => { if(o.gy > 0) o.gy--; }); saveHistory(); } });
-    document.getElementById('btnNudgeLeft')?.addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => { if(o.gx > 0) o.gx--; }); saveHistory(); } });
-    document.getElementById('btnNudgeRight')?.addEventListener('click', () => { if(editor.selectedObjs.length) { editor.selectedObjs.forEach(o => o.gx++); saveHistory(); } });
     
-    document.getElementById('btnEditRotLeft')?.addEventListener('click', () => { 
-       if(editor.selectedObjs.length === 0) return;
-       if(editor.selectedObjs.length === 1) { editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) - 90 + 360) % 360; } 
-       else {
-          let minX = Math.min(...editor.selectedObjs.map(o => o.gx)); let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
-          let minY = Math.min(...editor.selectedObjs.map(o => o.gy)); let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
-          let cx = (minX + maxX) / 2; let cy = (minY + maxY) / 2;
+    document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear everything?")) { level = parseLevelString(BLANK_LEVEL_DATA); saveHistory(); editor.selectedObjs = []; updateEditPanelUI(); } });
+
+    ['Up','Down','Left','Right'].forEach(dir => {
+       document.getElementById('btnNudge'+dir).addEventListener('click', () => {
+          if (editor.selectedObjs.length === 0) return;
           editor.selectedObjs.forEach(o => {
-              let dx = o.gx - cx; let dy = o.gy - cy;
-              o.gx = cx - dy; o.gy = cy + dx; 
-              o.rot = ((o.rot||0) - 90 + 360) % 360;
+             if(dir==='Up') o.gy++; if(dir==='Down') o.gy--; if(dir==='Left') o.gx--; if(dir==='Right') o.gx++;
           });
-       } 
-       editor.rot = editor.selectedObjs[0].rot || 0; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`;
-       saveHistory();
+          saveHistory();
+       });
     });
 
-    document.getElementById('btnEditRotRight')?.addEventListener('click', () => { 
-       if(editor.selectedObjs.length === 0) return;
-       if(editor.selectedObjs.length === 1) { editor.selectedObjs[0].rot = ((editor.selectedObjs[0].rot||0) + 90) % 360; } 
-       else {
-          let minX = Math.min(...editor.selectedObjs.map(o => o.gx)); let maxX = Math.max(...editor.selectedObjs.map(o => o.gx));
-          let minY = Math.min(...editor.selectedObjs.map(o => o.gy)); let maxY = Math.max(...editor.selectedObjs.map(o => o.gy));
-          let cx = (minX + maxX) / 2; let cy = (minY + maxY) / 2;
-          editor.selectedObjs.forEach(o => {
-              let dx = o.gx - cx; let dy = o.gy - cy;
-              o.gx = cx + dy; o.gy = cy - dx; 
-              o.rot = ((o.rot||0) + 90) % 360;
-          });
-       } 
-       editor.rot = editor.selectedObjs[0].rot || 0; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`;
-       saveHistory();
-    });
+    document.getElementById('btnEditRotLeft').addEventListener('click', () => { rotateSelection(-1); });
+    document.getElementById('btnEditRotRight').addEventListener('click', () => { rotateSelection(1); });
 
-    document.getElementById('btnDeleteAll')?.addEventListener('click', () => { if(confirm("Clear entire level?")) { level = []; editor.selectedObjs = []; updateEditPanelUI(); saveHistory(); } });
-
-    document.getElementById('btnPlaytest')?.addEventListener('click', () => {
-      editor.restoreState = { camX: state.cameraX, camY: state.cameraY };
-      state.mode = 'play'; state.isPlaytesting = true; state.attempts = 1; resetPlayer();
-      document.getElementById('editorTopRight')?.classList.add('hide');
-      document.getElementById('editorToolbar')?.classList.add('hide');
-      document.getElementById('stats')?.classList.remove('hide');
-      document.getElementById('gameProgressContainer')?.classList.remove('hide');
-      document.getElementById('stats').innerText = `Test: Attempt 1`;
-      document.getElementById('btnExitGame').innerHTML = '<i data-lucide="square" class="w-4 h-4"></i> <span id="lblExitGame">Stop Test (Z)</span>';
-      lucide.createIcons();
-    });
-
-    document.getElementById('btnExitGame')?.addEventListener('click', () => {
-      if (state.isPlaytesting) {
-        state.savedPath = [...state.currentPath];
-        state.isPlaytesting = false; state.mode = 'edit';
-        state.cameraX = editor.restoreState.camX; state.cameraY = editor.restoreState.camY;
-        document.getElementById('editorTopRight')?.classList.remove('hide');
-        document.getElementById('editorToolbar')?.classList.remove('hide');
-        document.getElementById('stats')?.classList.add('hide');
-        document.getElementById('gameProgressContainer')?.classList.add('hide');
-        document.getElementById('btnExitGame').innerHTML = '<i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>';
-        lucide.createIcons();
-        document.getElementById('winOverlay')?.classList.add('hide');
+  async function initAuthApp() {
+    try {
+      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+        await signInWithCustomToken(auth, __initial_auth_token);
       } else {
-        state.mode = 'menu';
-        currentPreviewLevel = null;
-        document.getElementById('gameUI')?.classList.add('hide'); document.getElementById('gameProgressContainer')?.classList.add('hide'); document.getElementById('editorToolbar')?.classList.add('hide'); document.getElementById('editorTopRight')?.classList.add('hide'); document.getElementById('winOverlay')?.classList.add('hide');
-        hubUI.classList.remove('hide');
-        hubUI.classList.remove('opacity-0');
+        await signInAnonymously(auth);
       }
-    });
-
-    document.getElementById('btnMusic')?.addEventListener('click', () => {
-      initAudio(); isMusicOn = !isMusicOn;
-      document.getElementById('btnMusic').innerText = isMusicOn ? '🎵 Music: ON' : '🎵 Music: OFF';
-      document.getElementById('btnMusic').className = isMusicOn ? 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-white font-bold transition-colors shadow' : 'px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow';
-      if (isMusicOn && audioCtx) { nextNoteTime = audioCtx.currentTime + 0.1; }
-    });
-
-    document.getElementById('btnPublish').addEventListener('click', async () => {
-      if(!currentUser || !myProfile) return;
-      let defName = currentEditingLevelId ? currentEditingLevelName : "Untitled Level";
-      const lvlName = prompt("Enter a name for your level:", defName);
-      if (!lvlName || lvlName.trim() === "") return;
-      const lStr = generateLevelString();
-      try {
-        if (currentEditingLevelId) {
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentEditingLevelId), { name: lvlName.trim(), data: lStr, updatedAt: Date.now() }, { merge: true });
-            alert("Level updated successfully!");
-        } else {
-            const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
-            await setDoc(newDocRef, { name: lvlName.trim(), authorId: currentUser.uid, authorName: myProfile.username, data: lStr, plays: 0, difficulty: 'NA', stars: 0, likes: [], comments: [], createdAt: Date.now() });
-            alert("Level published successfully!");
-        }
-        document.getElementById('btnExitGame').click(); 
-      } catch(e) { alert("Failed to publish."); }
-    });
-
-    // ==========================================
-    // 🌐 APP STATE & FIREBASE INTEGRATION
-    // ==========================================
-    const hubUI = document.getElementById('hubUI'), joinSection = document.getElementById('joinSection'), emailAuthForm = document.getElementById('emailAuthForm');
-    const tabLogin = document.getElementById('tabLogin'), tabSignup = document.getElementById('tabSignup'), usernameGroup = document.getElementById('usernameGroup');
-    const adminPanelModal = document.getElementById('adminPanelModal'), adminCommandForm = document.getElementById('adminCommandForm');
-    const loggedInSection = document.getElementById('loggedInSection');
-    const viewMainMenu = document.getElementById('viewMainMenu'), viewBrowser = document.getElementById('viewBrowser'), viewLeaderboard = document.getElementById('viewLeaderboard');
-    const viewIconKit = document.getElementById('viewIconKit'), viewTreasure = document.getElementById('viewTreasure'), viewMyLevels = document.getElementById('viewMyLevels');
-
-    document.getElementById('btnViewBrowser').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewBrowser.classList.remove('hidden'); });
-    document.getElementById('btnViewLeaderboard').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewLeaderboard.classList.remove('hidden'); });
-    document.getElementById('btnViewIconKit').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewIconKit.classList.remove('hidden'); renderIconKit(); });
-    document.getElementById('btnViewTreasure').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewTreasure.classList.remove('hidden'); updateTreasureUI(); });
-    
-    document.getElementById('btnCreateLevel').addEventListener('click', () => { viewMainMenu.classList.add('hidden'); viewMyLevels.classList.remove('hidden'); renderMyLevels(); });
-    document.getElementById('openAdminBtn').addEventListener('click', () => { adminPanelModal.classList.remove('hidden'); adminPanelModal.classList.add('flex'); renderAdminPanel(); });
-    document.getElementById('closeAdminBtn').addEventListener('click', () => { adminPanelModal.classList.add('hidden'); adminPanelModal.classList.remove('flex'); });
-    
-    document.getElementById('btnCreateNewLevel').addEventListener('click', () => { currentEditingLevelId = null; currentEditingLevelName = ""; launchGame(BLANK_LEVEL_DATA, 'edit'); });
-
-    document.querySelectorAll('.btnBackToMain').forEach(btn => {
-      btn.addEventListener('click', () => { 
-         viewBrowser.classList.add('hidden'); viewLeaderboard.classList.add('hidden'); viewIconKit.classList.add('hidden'); viewTreasure.classList.add('hidden'); viewMyLevels.classList.add('hidden');
-         viewMainMenu.classList.remove('hidden'); 
-      });
-    });
-
-    tabLogin.addEventListener('click', () => { isSignupMode = false; usernameGroup.classList.add('hidden'); document.getElementById('usernameInput').removeAttribute('required'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
-    tabSignup.addEventListener('click', () => { isSignupMode = true; usernameGroup.classList.remove('hidden'); document.getElementById('usernameInput').setAttribute('required', 'true'); document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; });
-
-    emailAuthForm.addEventListener('submit', async (e) => {
-      e.preventDefault(); const email = document.getElementById('emailInput').value.trim(), password = document.getElementById('passwordInput').value;
-      try {
-        if (isSignupMode) { pendingUsername = document.getElementById('usernameInput').value.trim(); await createUserWithEmailAndPassword(auth, email, password); } 
-        else await signInWithEmailAndPassword(auth, email, password);
-      } catch (error) { alert("Error: " + error.message); } 
-    });
-
-    document.getElementById('googleLoginBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch (error) { alert("Failed Google Sign-in."); } });
-    document.getElementById('logoutBtn').addEventListener('click', () => { if (confirm("Log out?")) signOut(auth); });
-
-    const mainHeaderTitle = document.getElementById('mainGameTitle');
-    if (mainHeaderTitle) {
-      mainHeaderTitle.addEventListener('click', async () => {
-        if (!currentUser || !myProfile) return;
-        const c = prompt("Secret Command Bypass:");
-        if (c === 'DASH2026') {
-          const currentKings = usersData.filter(d => d.role === 'king');
-          for (let k of currentKings) { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true }); }
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
-          alert("Bypass activated!");
-        }
-      });
+    } catch (e) {
+      console.error("Auth error:", e);
+      document.getElementById('loadingScreen').classList.add('hidden');
     }
-
-    async function initAuthApp() {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
-        else if (typeof __firebase_config !== 'undefined') await signInAnonymously(auth); 
-      } catch (e) {}
-    }
-    
-    onAuthStateChanged(auth, async (user) => {
+  }
+  
+  onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       if (user) {
         const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid);
@@ -2051,519 +1871,351 @@
             });
           }
           pendingUsername = null; setupDatabaseListener();
-        } catch(e) {}
+        } catch(e) {
+          document.getElementById('loadingScreen').classList.add('hidden');
+        }
       } else {
         if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
         myProfile = null; clearTrollEffects();
-        document.getElementById('bannedScreen').classList.add('hidden'); document.getElementById('warningScreen').classList.add('hidden');
-        hubUI.classList.remove('hidden'); joinSection.classList.remove('hidden'); loggedInSection.classList.add('hidden');
+        document.getElementById('bannedScreen').classList.add('hidden');
+        document.getElementById('joinSection').classList.remove('hidden');
+        document.getElementById('loggedInSection').classList.add('hidden');
         document.getElementById('loadingScreen').classList.add('hidden');
       }
-    });
+  });
 
-    initAuthApp();
-
-    function setupDatabaseListener() {
+  function setupDatabaseListener() {
       if (!currentUser) return;
-      if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
+      
+      const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
+      dbUnsubscribe = onSnapshot(uRef, (docSnap) => {
+          if (docSnap.exists()) {
+              myProfile = docSnap.data();
+              document.getElementById('loadingScreen').classList.add('hidden');
+              
+              if (myProfile.banned) {
+                  document.getElementById('bannedScreen').classList.remove('hidden');
+                  document.getElementById('bannedScreen').classList.add('flex');
+                  document.getElementById('hubUI').classList.add('hidden');
+                  return;
+              } else {
+                  document.getElementById('bannedScreen').classList.add('hidden');
+                  document.getElementById('bannedScreen').classList.remove('flex');
+                  document.getElementById('hubUI').classList.remove('hidden');
+              }
+              
+              if (myProfile.warning) {
+                  document.getElementById('warningScreen').classList.remove('hidden');
+                  document.getElementById('warningScreen').classList.add('flex');
+                  document.getElementById('warningMessageText').innerText = myProfile.warning;
+              } else {
+                  document.getElementById('warningScreen').classList.add('hidden');
+                  document.getElementById('warningScreen').classList.remove('flex');
+              }
+              
+              if (myProfile.trollEvent) applyTrollEffect(myProfile.trollEvent);
 
-      dbUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'users'), (snapshot) => {
-        usersData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        const existingProfile = usersData.find(d => d.id === currentUser.uid);
-        if (existingProfile) {
-          myProfile = existingProfile;
-          
-          if (!myProfile.unlockedIcons) myProfile.unlockedIcons = ['i1'];
-          if (!myProfile.unlockedShips) myProfile.unlockedShips = ['sh1'];
-          if (!myProfile.unlockedUfos) myProfile.unlockedUfos = ['u1'];
-          if (!myProfile.unlockedWaves) myProfile.unlockedWaves = ['w1'];
-          if (!myProfile.unlockedBalls) myProfile.unlockedBalls = ['b1'];
-          if (!myProfile.unlockedRobots) myProfile.unlockedRobots = ['r1'];
-          if (!myProfile.unlockedSpiders) myProfile.unlockedSpiders = ['sp1'];
-          if (!myProfile.unlockedSwings) myProfile.unlockedSwings = ['sw1'];
-          if (!myProfile.unlockedCol1) myProfile.unlockedCol1 = ['c1'];
-          if (!myProfile.unlockedCol2) myProfile.unlockedCol2 = ['c20'];
-          
-          if (!myProfile.equippedIcon) myProfile.equippedIcon = 'i1';
-          if (!myProfile.equippedShip) myProfile.equippedShip = 'sh1';
-          if (!myProfile.equippedUfo) myProfile.equippedUfo = 'u1';
-          if (!myProfile.equippedWave) myProfile.equippedWave = 'w1';
-          if (!myProfile.equippedBall) myProfile.equippedBall = 'b1';
-          if (!myProfile.equippedRobot) myProfile.equippedRobot = 'r1';
-          if (!myProfile.equippedSpider) myProfile.equippedSpider = 'sp1';
-          if (!myProfile.equippedSwing) myProfile.equippedSwing = 'sw1';
-          if (!myProfile.equippedCol1) myProfile.equippedCol1 = 'c1';
-          if (!myProfile.equippedCol2) myProfile.equippedCol2 = 'c20';
-          if (!myProfile.keysSpent) myProfile.keysSpent = 0;
-          
-          updatePlayerSprite();
+              document.getElementById('joinSection').classList.add('hidden');
+              document.getElementById('loggedInSection').classList.remove('hidden');
+              
+              document.getElementById('displayUsername').innerText = myProfile.username;
+              document.getElementById('displayPfp').src = myProfile.photoURL || getDefaultAvatar(myProfile.username);
+              document.getElementById('displayScore').innerText = myProfile.score || 0;
+              document.getElementById('displayKeys').innerText = Math.floor((myProfile.score || 0) / 25) - (myProfile.keysSpent || 0);
+              
+              let badgeHtml = '';
+              if (myProfile.role === 'king') badgeHtml = '<span class="bg-yellow-500 text-black text-[10px] font-black px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="crown" class="w-3 h-3"></i> KING</span>';
+              else if (myProfile.role === 'admin') badgeHtml = '<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> ADMIN</span>';
+              else if (myProfile.role === 'mod') badgeHtml = '<span class="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3"></i> MOD</span>';
+              document.getElementById('myRoleBadge').innerHTML = badgeHtml;
+              
+              if (['king', 'admin', 'mod'].includes(myProfile.role)) {
+                  document.getElementById('openAdminBtn').classList.remove('hidden');
+                  document.getElementById('openAdminBtn').classList.add('flex');
+                  if (myProfile.role === 'king') {
+                      document.getElementById('changeCodeBtn').classList.remove('hidden');
+                      document.getElementById('changeCodeBtn').classList.add('flex');
+                  }
+              } else {
+                  document.getElementById('openAdminBtn').classList.add('hidden');
+                  document.getElementById('openAdminBtn').classList.remove('flex');
+              }
+              
+              if (myProfile.role !== 'king') {
+                  document.getElementById('redeemCodeBtn').classList.remove('hidden');
+                  document.getElementById('redeemCodeBtn').classList.add('flex');
+              } else {
+                  document.getElementById('redeemCodeBtn').classList.add('hidden');
+                  document.getElementById('redeemCodeBtn').classList.remove('flex');
+              }
 
-          if (myProfile.banned) { document.getElementById('bannedScreen').classList.remove('hidden'); document.getElementById('bannedScreen').classList.add('flex'); hubUI.classList.add('hidden'); return; } 
-          else { document.getElementById('bannedScreen').classList.add('hidden'); document.getElementById('bannedScreen').classList.remove('flex'); }
-
-          if (myProfile.warning && myProfile.warning.trim() !== "") { document.getElementById('warningMessageText').textContent = myProfile.warning; document.getElementById('warningScreen').classList.remove('hidden'); document.getElementById('warningScreen').classList.add('flex'); } 
-          else { document.getElementById('warningScreen').classList.add('hidden'); document.getElementById('warningScreen').classList.remove('flex'); }
-          
-          if (myProfile.trollEvent) applyTrollEffect(myProfile.trollEvent);
-          updateHubUI();
-          
-          if (currentPreviewLevel) {
-            let myProg = (myProfile.progress && myProfile.progress[currentPreviewLevel.id]) || 0;
-            document.getElementById('prevProgressBar').style.width = `${myProg}%`;
-            document.getElementById('prevProgressText').innerText = `${myProg}%`;
+              updatePlayerSprite();
+              lucide.createIcons();
           }
-          
-          if (!viewTreasure.classList.contains('hidden')) updateTreasureUI();
-          if (!viewIconKit.classList.contains('hidden')) renderIconKit();
-        }
-        
-        if (!usersData.some(d => d.role === 'king') && myProfile && myProfile.role !== 'king') document.getElementById('redeemCodeBtn').classList.remove('hidden');
-        else document.getElementById('redeemCodeBtn').classList.add('hidden');
-        if (!adminPanelModal.classList.contains('hidden')) renderAdminPanel();
-        
-        renderLeaderboard();
-        document.getElementById('loadingScreen').classList.add('hidden');
-      });
+      }, (err) => console.error(err));
 
-      settingsUnsubscribe = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), (snap) => {
-        if (snap.exists()) {
-          globalSettings = snap.data();
-          if (globalSettings.broadcastMsg) { 
-            document.getElementById('globalBannerText').textContent = globalSettings.broadcastMsg; 
-            document.getElementById('globalBanner').classList.remove('-translate-y-full'); 
-          } else { document.getElementById('globalBanner').classList.add('-translate-y-full'); }
-          applyTrollEffect(globalSettings.globalTroll || '');
-        } else {
-          globalSettings = { kingCode: 'KING2026', broadcastMsg: '', globalTroll: '' };
-          applyTrollEffect('');
-        }
-      });
-
-      levelsUnsubscribe = onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'levels')), (snapshot) => {
-        levelsList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderLevelBrowser();
-        if (viewMyLevels && !viewMyLevels.classList.contains('hidden')) renderMyLevels();
-        if (currentPreviewLevel && !document.getElementById('levelPreviewModal').classList.contains('hide')) {
-           const updatedLvl = levelsList.find(l => l.id === currentPreviewLevel.id);
-           if (updatedLvl) { currentPreviewLevel = updatedLvl; populateLevelModal(updatedLvl); }
-        }
-      });
-    }
-
-    function getAvailableKeys() {
-       if(!myProfile) return 0;
-       return Math.floor((myProfile.score || 0) / 25) - (myProfile.keysSpent || 0);
-    }
-
-    function updateHubUI() {
-      joinSection.classList.add('hidden'); loggedInSection.classList.remove('hidden');
-      if (state.mode === 'menu') hubUI.classList.remove('hide');
-      document.getElementById('displayUsername').textContent = myProfile.username;
-      document.getElementById('displayScore').textContent = (myProfile.score || 0).toLocaleString();
-      document.getElementById('displayKeys').textContent = getAvailableKeys().toLocaleString();
-      document.getElementById('displayPfp').src = myProfile.photoURL ? myProfile.photoURL : getDefaultAvatar(myProfile.username);
-      
-      const rb = document.getElementById('myRoleBadge');
-      if (myProfile.role === 'king') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/50">👑 King</span>`;
-      else if (myProfile.role === 'admin') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/50">🛡️ Admin</span>`;
-      else if (myProfile.role === 'mod') rb.innerHTML = `<span class="px-2 py-0.5 rounded text-xs bg-green-500/20 text-green-400 border border-green-500/50">⚔️ Mod</span>`;
-      else rb.innerHTML = '';
-
-      if (['king', 'admin', 'mod'].includes(myProfile.role)) { document.getElementById('openAdminBtn').classList.remove('hidden'); document.getElementById('openAdminBtn').classList.add('flex'); } 
-      else { document.getElementById('openAdminBtn').classList.add('hidden'); document.getElementById('openAdminBtn').classList.remove('flex'); }
-      
-      if (myProfile.role === 'king') document.getElementById('changeCodeBtn').classList.remove('hidden');
-      else document.getElementById('changeCodeBtn').classList.add('hidden');
-      lucide.createIcons();
-    }
-
-    function renderLeaderboard() {
-      const visibleUsers = usersData.filter(u => !u.banned).sort((a,b) => (b.score||0) - (a.score||0));
-      document.getElementById('creatorCount').textContent = `${visibleUsers.length} Creators`;
-      
-      const lbList = document.getElementById('leaderboardViewList');
-      if (visibleUsers.length === 0) { lbList.innerHTML = `<div class="p-8 text-center text-gray-500">No creators yet.</div>`; return; }
-      
-      lbList.innerHTML = visibleUsers.map((u, i) => {
-        let badge = u.role === 'king' ? `<i data-lucide="crown" class="w-4 h-4 text-yellow-500 inline"></i>` : u.role === 'admin' ? `<i data-lucide="shield" class="w-4 h-4 text-indigo-500 inline"></i>` : '';
-        let rankClass = i === 0 ? 'bg-yellow-500/20 text-yellow-400' : i === 1 ? 'bg-gray-300/20 text-gray-300' : i === 2 ? 'bg-amber-700/20 text-amber-500' : 'bg-gray-800 text-gray-400';
-        
-        let randIconId = (u.unlockedIcons && u.unlockedIcons.length > 0) ? u.unlockedIcons[i % u.unlockedIcons.length] : 'i1';
-        let svgStr = getIconSVG(randIconId, '#3b82f6', '#fff');
-        let dataUri = "data:image/svg+xml;base64," + btoa(svgStr);
-
-        return `
-          <div class="bg-gray-800 p-4 rounded-xl border border-gray-700/50 flex items-center justify-between hover:bg-gray-700 transition-colors shadow cursor-pointer btn-open-profile" data-uid="${u.id}">
-            <div class="flex items-center gap-4 pointer-events-none">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${rankClass}">${i + 1}</div>
-              <img src="${escapeHtml(u.photoURL || getDefaultAvatar(u.username))}" class="w-10 h-10 rounded-full border border-gray-600 shrink-0">
-              <img src="${dataUri}" class="w-8 h-8 shrink-0 drop-shadow-md">
-              <h4 class="text-lg font-bold text-white flex items-center gap-2 truncate max-w-[150px] sm:max-w-[300px]">${escapeHtml(u.username)} ${badge}</h4>
-            </div>
-            <div class="flex items-center gap-2 pointer-events-none shrink-0">
-              <span class="text-xl font-bold text-yellow-400 font-mono">${(u.score || 0).toLocaleString()}</span>
-              <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400"></i>
-            </div>
-          </div>
-        `;
-      }).join('');
-      lucide.createIcons();
-      
-      document.querySelectorAll('.btn-open-profile').forEach(el => {
-         el.addEventListener('click', () => openProfileModal(el.dataset.uid));
-      });
-    }
-
-    function openProfileModal(uid) {
-       const u = usersData.find(x => x.id === uid);
-       if(!u) return;
-       document.getElementById('profModalName').innerText = u.username;
-       document.getElementById('profModalImg').src = u.photoURL || getDefaultAvatar(u.username);
-       document.getElementById('profModalStars').innerText = (u.score || 0).toLocaleString();
-       document.getElementById('profModalIconCount').innerText = `${(u.unlockedIcons || ['i1']).length}/${ALL_ICONS.length}`;
-       document.getElementById('profModalColorCount').innerText = `${((u.unlockedCol1 || []).length + (u.unlockedCol2 || []).length)}/${ALL_COLORS.length * 2}`;
-       
-       const rb = document.getElementById('profModalBadge');
-       if (u.role === 'king') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.3)]">👑 The King</span>`;
-       else if (u.role === 'admin') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/50">🛡️ Admin</span>`;
-       else if (u.role === 'mod') rb.innerHTML = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-400 border border-green-500/50">⚔️ Moderator</span>`;
-       else rb.innerHTML = '';
-       
-       let favIconId = u.equippedIcon || 'i1';
-       let favC1 = ALL_COLORS.find(c=>c.id===(u.equippedCol1 || 'c1'))?.val || '#00f0ff';
-       let favC2 = ALL_COLORS.find(c=>c.id===(u.equippedCol2 || 'c20'))?.val || '#ffffff';
-       document.getElementById('profModalFavIcon').innerHTML = getIconSVG(favIconId, favC1, favC2);
-
-       document.getElementById('profileModal').classList.remove('hide');
-    }
-    document.getElementById('btnCloseProfile').addEventListener('click', () => { document.getElementById('profileModal').classList.add('hide'); });
-
-    // --- ICON KIT LOGIC ---
-    let kitTab = 'icons';
-    document.querySelectorAll('.kit-tab-btn').forEach(b => {
-       b.addEventListener('click', (e) => {
-          document.querySelectorAll('.kit-tab-btn').forEach(btn => { btn.classList.remove('active', 'text-white', 'border-blue-500'); btn.classList.add('text-gray-400', 'border-transparent'); });
-          e.currentTarget.classList.remove('text-gray-400', 'border-transparent'); e.currentTarget.classList.add('active', 'text-white', 'border-blue-500');
-          ['kitGridIcons', 'kitGridShips', 'kitGridUfos', 'kitGridWaves', 'kitGridBalls', 'kitGridRobots', 'kitGridSpiders', 'kitGridSwings', 'kitGridAdmin', 'kitGridCol1', 'kitGridCol2'].forEach(id => {
-             if (document.getElementById(id)) document.getElementById(id).classList.add('hide');
-          });
-          if (e.currentTarget.id === 'tabAdminVehicles') { e.currentTarget.classList.remove('text-cyan-400'); e.currentTarget.classList.add('text-cyan-300', 'border-cyan-500'); }
-          
-          if(kitTab==='icons') document.getElementById('kitGridIcons').classList.remove('hide');
-          if(kitTab==='ships') document.getElementById('kitGridShips').classList.remove('hide');
-          if(kitTab==='ufos') document.getElementById('kitGridUfos').classList.remove('hide');
-          if(kitTab==='waves') document.getElementById('kitGridWaves').classList.remove('hide');
-          if(kitTab==='balls') document.getElementById('kitGridBalls').classList.remove('hide');
-          if(kitTab==='robots') document.getElementById('kitGridRobots').classList.remove('hide');
-          if(kitTab==='spiders') document.getElementById('kitGridSpiders').classList.remove('hide');
-          if(kitTab==='swings') document.getElementById('kitGridSwings').classList.remove('hide');
-          if(kitTab==='admin') document.getElementById('kitGridAdmin').classList.remove('hide');
-          if(kitTab==='col1') document.getElementById('kitGridCol1').classList.remove('hide');
-          if(kitTab==='col2') document.getElementById('kitGridCol2').classList.remove('hide');
-       });
-    });
-
-    function renderIconKit() {
-       if(!myProfile) return;
-       const eqI = myProfile.equippedIcon || 'i1', eqSh = myProfile.equippedShip || 'sh1', eqU = myProfile.equippedUfo || 'u1', eqW = myProfile.equippedWave || 'w1';
-       const eqB = myProfile.equippedBall || 'b1', eqR = myProfile.equippedRobot || 'r1', eqSp = myProfile.equippedSpider || 'sp1', eqSw = myProfile.equippedSwing || 'sw1';
-       const eqC1 = myProfile.equippedCol1 || 'c1', eqC2 = myProfile.equippedCol2 || 'c20';
-       const c1Val = ALL_COLORS.find(c=>c.id===eqC1)?.val || '#00f0ff', c2Val = ALL_COLORS.find(c=>c.id===eqC2)?.val || '#ffffff';
-       
-       let previewSVG = '';
-       if (kitTab === 'icons' || kitTab === 'col1' || kitTab === 'col2') previewSVG = getIconSVG(eqI, c1Val, c2Val);
-       if (kitTab === 'ships') previewSVG = getShipSVG(eqSh, c1Val, c2Val);
-       if (kitTab === 'ufos') previewSVG = getUfoSVG(eqU, c1Val, c2Val);
-       if (kitTab === 'waves') previewSVG = getWaveSVG(eqW, c1Val, c2Val);
-       if (kitTab === 'balls') previewSVG = getBallSVG(eqB, c1Val, c2Val);
-       if (kitTab === 'robots') previewSVG = getRobotSVG(eqR, c1Val, c2Val);
-       if (kitTab === 'spiders') previewSVG = getSpiderSVG(eqSp, c1Val, c2Val);
-       if (kitTab === 'swings') previewSVG = getSwingSVG(eqSw, c1Val, c2Val);
-       if (kitTab === 'admin') previewSVG = getIconSVG('iAdmin', c1Val, c2Val);
-
-       document.getElementById('kitPreviewContainer').innerHTML = previewSVG;
-
-       const renderItem = (item, type, isUnlocked, isEquipped, contentHTML) => {
-          return `<button class="relative w-full aspect-square rounded-xl border-[3px] transition-all hover:scale-105 active:scale-95 flex items-center justify-center p-2 
-             ${isUnlocked ? (isEquipped ? 'bg-blue-600/30 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.6)]' : 'bg-gray-800 border-gray-600 rarity-'+item.rarity) : 'bg-gray-900 border-gray-800 opacity-50'}"
-             ${isUnlocked ? `data-equip-${type}="${item.id}"` : 'disabled'}>
-             ${contentHTML}
-             ${!isUnlocked ? `<div class="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center backdrop-blur-[2px]"><i data-lucide="lock" class="w-6 h-6 text-white/50"></i></div>` : ''}
-          </button>`;
-       };
-
-       document.getElementById('kitGridIcons').innerHTML = ALL_ICONS.map(i => renderItem(i, 'icon', (myProfile.unlockedIcons || ['i1']).includes(i.id), eqI === i.id, getIconSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridShips').innerHTML = ALL_SHIPS.map(i => renderItem(i, 'ship', (myProfile.unlockedShips || ['sh1']).includes(i.id), eqSh === i.id, getShipSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridUfos').innerHTML = ALL_UFOS.map(i => renderItem(i, 'ufo', (myProfile.unlockedUfos || ['u1']).includes(i.id), eqU === i.id, getUfoSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridWaves').innerHTML = ALL_WAVES.map(i => renderItem(i, 'wave', (myProfile.unlockedWaves || ['w1']).includes(i.id), eqW === i.id, getWaveSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridBalls').innerHTML = ALL_BALLS.map(i => renderItem(i, 'ball', (myProfile.unlockedBalls || ['b1']).includes(i.id), eqB === i.id, getBallSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridRobots').innerHTML = ALL_ROBOTS.map(i => renderItem(i, 'robot', (myProfile.unlockedRobots || ['r1']).includes(i.id), eqR === i.id, getRobotSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridSpiders').innerHTML = ALL_SPIDERS.map(i => renderItem(i, 'spider', (myProfile.unlockedSpiders || ['sp1']).includes(i.id), eqSp === i.id, getSpiderSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridSwings').innerHTML = ALL_SWINGS.map(i => renderItem(i, 'swing', (myProfile.unlockedSwings || ['sw1']).includes(i.id), eqSw === i.id, getSwingSVG(i.id, '#ccc', '#fff'))).join('');
-       document.getElementById('kitGridCol1').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col1', (myProfile.unlockedCol1 || ['c1']).includes(c.id), eqC1 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       document.getElementById('kitGridCol2').innerHTML = ALL_COLORS.map(c => renderItem(c, 'col2', (myProfile.unlockedCol2 || ['c20']).includes(c.id), eqC2 === c.id, `<div class="w-full h-full rounded-md shadow-inner" style="background-color: ${c.val}"></div>`)).join('');
-       
-       let hasAdmin = (myProfile.unlockedIcons || []).includes('iAdmin');
-       if (hasAdmin && document.getElementById('tabAdminVehicles')) {
-          document.getElementById('tabAdminVehicles').classList.remove('hide');
-          let adminItems = [
-             {id: 'iAdmin', type: 'icon', svg: getIconSVG('iAdmin', '#ccc', '#fff')},
-             {id: 'shAdmin', type: 'ship', svg: getShipSVG('shAdmin', '#ccc', '#fff')},
-             {id: 'uAdmin', type: 'ufo', svg: getUfoSVG('uAdmin', '#ccc', '#fff')},
-             {id: 'wAdmin', type: 'wave', svg: getWaveSVG('wAdmin', '#ccc', '#fff')},
-             {id: 'bAdmin', type: 'ball', svg: getBallSVG('bAdmin', '#ccc', '#fff')},
-             {id: 'rAdmin', type: 'robot', svg: getRobotSVG('rAdmin', '#ccc', '#fff')},
-             {id: 'spAdmin', type: 'spider', svg: getSpiderSVG('spAdmin', '#ccc', '#fff')},
-             {id: 'swAdmin', type: 'swing', svg: getSwingSVG('swAdmin', '#ccc', '#fff')}
-          ];
-          document.getElementById('kitGridAdmin').innerHTML = adminItems.map(i => {
-             let isEq = false;
-             if (i.type === 'icon') isEq = eqI === i.id;
-             else if (i.type === 'ship') isEq = eqSh === i.id;
-             else if (i.type === 'ufo') isEq = eqU === i.id;
-             else if (i.type === 'wave') isEq = eqW === i.id;
-             else if (i.type === 'ball') isEq = eqB === i.id;
-             else if (i.type === 'robot') isEq = eqR === i.id;
-             else if (i.type === 'spider') isEq = eqSp === i.id;
-             else if (i.type === 'swing') isEq = eqSw === i.id;
-             return renderItem({id: i.id, rarity: 'admin'}, i.type, true, isEq, i.svg);
-          }).join('');
-       } else if (document.getElementById('tabAdminVehicles')) {
-          document.getElementById('tabAdminVehicles').classList.add('hide');
-       }
-
-       lucide.createIcons();
-
-       ['icon', 'ship', 'ufo', 'wave', 'ball', 'robot', 'spider', 'swing', 'col1', 'col2'].forEach(t => {
-          document.querySelectorAll(`[data-equip-${t}]`).forEach(b => b.addEventListener('click', async (e) => {
-             const val = e.currentTarget.getAttribute(`data-equip-${t}`);
-             try {
-                let key = t==='icon' ? 'equippedIcon' : t==='ship' ? 'equippedShip' : t==='ufo' ? 'equippedUfo' : t==='wave' ? 'equippedWave' : t==='ball' ? 'equippedBall' : t==='robot' ? 'equippedRobot' : t==='spider' ? 'equippedSpider' : t==='swing' ? 'equippedSwing' : t==='col1' ? 'equippedCol1' : 'equippedCol2';
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { [key]: val }, { merge: true });
-             } catch(err) {}
-          }));
-       });
-    }
-
-    // --- TREASURE / GACHA LOGIC ---
-    function updateTreasureUI() {
-       document.getElementById('treasureKeyCount').innerText = getAvailableKeys().toLocaleString();
-    }
-
-    document.querySelectorAll('.btn-buy-chest').forEach(btn => {
-       btn.addEventListener('click', async (e) => {
-          if (!currentUser || !myProfile) return;
-          const cost = parseInt(e.currentTarget.dataset.cost);
-          const tier = e.currentTarget.dataset.tier;
-          if (getAvailableKeys() < cost) return alert("Not enough keys! Keep beating or publishing levels to earn Stars.");
-          
-          let availI = ALL_ICONS.filter(x => !(myProfile.unlockedIcons || []).includes(x.id));
-          let availSh = ALL_SHIPS.filter(x => !(myProfile.unlockedShips || []).includes(x.id));
-          let availU = ALL_UFOS.filter(x => !(myProfile.unlockedUfos || []).includes(x.id));
-          let availW = ALL_WAVES.filter(x => !(myProfile.unlockedWaves || []).includes(x.id));
-          let availB = ALL_BALLS.filter(x => !(myProfile.unlockedBalls || []).includes(x.id));
-          let availR = ALL_ROBOTS.filter(x => !(myProfile.unlockedRobots || []).includes(x.id));
-          let availSp = ALL_SPIDERS.filter(x => !(myProfile.unlockedSpiders || []).includes(x.id));
-          let availSw = ALL_SWINGS.filter(x => !(myProfile.unlockedSwings || []).includes(x.id));
-          let availC1 = ALL_COLORS.filter(x => !(myProfile.unlockedCol1 || []).includes(x.id));
-          let availC2 = ALL_COLORS.filter(x => !(myProfile.unlockedCol2 || []).includes(x.id));
-          
-          let allAvail = [];
-          if (tier === 'vehicle') {
-             allAvail = [...availSh.map(x=>({...x, type:'ship'})), ...availU.map(x=>({...x, type:'ufo'})), ...availW.map(x=>({...x, type:'wave'})), ...availB.map(x=>({...x, type:'ball'})), ...availR.map(x=>({...x, type:'robot'})), ...availSp.map(x=>({...x, type:'spider'})), ...availSw.map(x=>({...x, type:'swing'}))];
-          } else {
-             allAvail = [...availI.map(x=>({...x, type:'icon'})), ...availC1.map(x=>({...x, type:'col1'})), ...availC2.map(x=>({...x, type:'col2'}))];
+      settingsUnsubscribe = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), (docSnap) => {
+          if (docSnap.exists()) {
+              globalSettings = { ...globalSettings, ...docSnap.data() };
+              if (globalSettings.broadcastMsg) {
+                  document.getElementById('globalBannerText').innerText = globalSettings.broadcastMsg;
+                  document.getElementById('globalBanner').classList.remove('-translate-y-full');
+              } else {
+                  document.getElementById('globalBanner').classList.add('-translate-y-full');
+              }
+              if (globalSettings.globalTroll && (!myProfile || !['king', 'admin'].includes(myProfile.role))) {
+                  applyTrollEffect(globalSettings.globalTroll);
+              }
           }
+      }, (err) => console.error(err));
 
-          if (allAvail.length===0) return alert("You have unlocked everything in this chest tier!");
+      const levelsQuery = query(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
+      levelsUnsubscribe = onSnapshot(levelsQuery, (snapshot) => {
+          levelsList = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.createdAt - a.createdAt);
+          renderLevelBrowser();
+          renderMyLevels();
+      }, (err) => console.error(err));
 
-          const filterPool = (pool, rarities) => { let p = pool.filter(x => rarities.includes(x.rarity)); return p.length > 0 ? p : pool; }; 
-          
-          if (tier === 'wood') {
-             allAvail = filterPool(allAvail, ['common', 'rare']);
-          } else if (tier === 'gold') {
-             allAvail = filterPool(allAvail, ['rare', 'epic', 'legendary']);
-          } else if (tier === 'demon') {
-             allAvail = filterPool(allAvail, ['epic', 'legendary', 'mythic']);
-          }
+      onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'users')), (snapshot) => {
+          usersData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderLeaderboard();
+          renderAdminDirectory();
+      }, (err) => console.error(err));
+  }
 
-          let rewards = [];
-          for(let k=0; k< (tier==='vehicle'?1:3); k++) {
-              if (allAvail.length === 0) break;
-              let idx = Math.floor(Math.random() * allAvail.length);
-              rewards.push(allAvail[idx]);
-              allAvail.splice(idx, 1);
-          }
+  // AUTH TAB SWITCHING
+  document.getElementById('tabLogin').addEventListener('click', () => { isSignupMode = false; document.getElementById('tabLogin').classList.replace('border-gray-700','border-blue-500'); document.getElementById('tabLogin').classList.replace('text-gray-500','text-white'); document.getElementById('tabSignup').classList.replace('border-blue-500','border-gray-700'); document.getElementById('tabSignup').classList.replace('text-white','text-gray-500'); document.getElementById('usernameGroup').classList.add('hidden'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
+  document.getElementById('tabSignup').addEventListener('click', () => { isSignupMode = true; document.getElementById('tabSignup').classList.replace('border-gray-700','border-blue-500'); document.getElementById('tabSignup').classList.replace('text-gray-500','text-white'); document.getElementById('tabLogin').classList.replace('border-blue-500','border-gray-700'); document.getElementById('tabLogin').classList.replace('text-white','text-gray-500'); document.getElementById('usernameGroup').classList.remove('hidden'); document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; });
 
-          try {
-             let newKeysSpent = (myProfile.keysSpent || 0) + cost;
-             let updates = { keysSpent: newKeysSpent };
-             
-             rewards.forEach(rw => {
-                 let arrKey = rw.type === 'icon' ? 'unlockedIcons' : rw.type === 'ship' ? 'unlockedShips' : rw.type === 'ufo' ? 'unlockedUfos' : rw.type === 'wave' ? 'unlockedWaves' : rw.type === 'ball' ? 'unlockedBalls' : rw.type === 'robot' ? 'unlockedRobots' : rw.type === 'spider' ? 'unlockedSpiders' : rw.type === 'swing' ? 'unlockedSwings' : rw.type === 'col1' ? 'unlockedCol1' : 'unlockedCol2';
-                 updates[arrKey] = [...new Set([...(myProfile[arrKey] || []), rw.id])];
-                 myProfile[arrKey] = updates[arrKey]; 
-             });
-             
-             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), updates, { merge: true });
-             triggerChestAnimation(tier, rewards);
-          } catch(err) { alert("Error opening chest."); }
-       });
-    });
-
-    function triggerChestAnimation(tier, rewards) {
-       const mainArea = document.getElementById('treasureMainArea');
-       const openArea = document.getElementById('treasureOpenArea');
-       const animCont = document.getElementById('chestAnimContainer');
-       const rewardCont = document.getElementById('rewardsContainer');
-       const btnCont = document.getElementById('btnTreasureContinue');
-       const flash = document.getElementById('flashScreen');
-
-       mainArea.classList.add('hide'); openArea.classList.remove('hide');
-       rewardCont.classList.add('hide'); btnCont.classList.add('hide'); rewardCont.innerHTML = '';
-       
-       let chestCol = tier==='wood'?'bg-yellow-900 border-yellow-700':tier==='gold'?'bg-yellow-500 border-yellow-300':tier==='vehicle'?'bg-blue-950 border-blue-500 shadow-[0_0_50px_blue]':'bg-red-950 border-red-500 shadow-[0_0_50px_red]';
-       animCont.innerHTML = `<div class="w-full h-full ${chestCol} border-8 rounded-2xl flex items-center justify-center relative chest-shaking"><div class="absolute top-1/2 left-0 w-full h-4 bg-black/50 -translate-y-1/2"></div><div class="w-12 h-16 bg-gray-300 border-4 border-black rounded-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
-       
-       setTimeout(() => {
-          animCont.innerHTML = '';
-          flash.classList.add('flash-screen');
-          
-          setTimeout(() => {
-             flash.classList.remove('flash-screen');
-             rewardCont.classList.remove('hide');
-             
-             rewardCont.innerHTML = rewards.map((rw, i) => {
-                 let svgHTML = '';
-                 if(rw.type === 'icon') svgHTML = getIconSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'ship') svgHTML = getShipSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'ufo') svgHTML = getUfoSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'wave') svgHTML = getWaveSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'ball') svgHTML = getBallSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'robot') svgHTML = getRobotSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'spider') svgHTML = getSpiderSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'swing') svgHTML = getSwingSVG(rw.id, '#ccc', '#fff');
-                 else if(rw.type === 'col1' || rw.type === 'col2') svgHTML = `<div class="w-full h-full rounded-xl shadow-inner" style="background-color: ${rw.val}"></div>`;
-
-                 return `
-                    <div class="flex flex-col items-center card-flip" style="animation-delay: ${i*0.2}s">
-                       <div class="w-24 h-24 md:w-40 md:h-40 bg-gray-800 border-4 rounded-2xl flex items-center justify-center p-4 rarity-${rw.rarity}">${svgHTML}</div>
-                       <p class="text-white font-bold mt-4 tracking-widest uppercase">${rw.type}</p>
-                       <p class="text-xs text-gray-400 uppercase">${rw.rarity}</p>
-                    </div>
-                 `;
-             }).join('');
-             
-             setTimeout(() => { btnCont.classList.remove('hide'); }, 1500);
-          }, 500);
-       }, 1500);
-    }
-
-    document.getElementById('btnTreasureContinue').addEventListener('click', () => {
-       document.getElementById('treasureOpenArea').classList.add('hide');
-       document.getElementById('treasureMainArea').classList.remove('hide');
-       updateTreasureUI();
-    });
-
-    const cmdTarget = document.getElementById('cmdTarget');
-    const cmdAction = document.getElementById('cmdAction');
-    const cmdParamContainer = document.getElementById('cmdParamContainer');
-    const cmdParamLabel = document.getElementById('cmdParamLabel');
-    const cmdParamNumber = document.getElementById('cmdParamNumber');
-    const cmdParamText = document.getElementById('cmdParamText');
-    const cmdParamRole = document.getElementById('cmdParamRole');
-
-    cmdAction.addEventListener('change', () => {
-      const act = cmdAction.value; cmdParamNumber.classList.add('hidden'); cmdParamText.classList.add('hidden'); cmdParamRole.classList.add('hidden'); cmdParamContainer.classList.remove('hidden');
-      if (act.includes('Score')) { cmdParamNumber.classList.remove('hidden'); cmdParamNumber.required = true; cmdParamText.required = false; cmdParamLabel.textContent = "Amount (Stars)"; } 
-      else if (act === 'warn' || act === 'globalMsg') { cmdParamText.classList.remove('hidden'); cmdParamText.required = true; cmdParamNumber.required = false; cmdParamLabel.textContent = "Message Text"; } 
-      else if (act === 'role') { cmdParamRole.classList.remove('hidden'); cmdParamLabel.textContent = "Select New Role"; } 
-      else if (act === 'rewardAdmin') { cmdParamContainer.classList.add('hidden'); }
-      else { cmdParamContainer.classList.add('hidden'); cmdParamNumber.required = false; cmdParamText.required = false; }
-    });
-
-    adminCommandForm.addEventListener('submit', async (e) => {
-      e.preventDefault(); if (!myProfile) return;
-      const targetId = cmdTarget.value, act = cmdAction.value, valNum = Number(cmdParamNumber.value), valText = cmdParamText.value.trim(), valRole = cmdParamRole.value;
-
-      if (targetId === 'GLOBAL') {
-        if (myProfile.role !== 'king' && myProfile.role !== 'admin') return alert("Only Admins/King can use GLOBAL commands.");
-        const setRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global');
-        try {
-          if (act === 'globalMsg') { await setDoc(setRef, { broadcastMsg: valText }, { merge: true }); alert("Message broadcasted."); cmdParamText.value = ''; } 
-          else if (act.startsWith('troll_')) { if (act === 'troll_clear') { await setDoc(setRef, { globalTroll: '' }, { merge: true }); alert("Global trolls cleared."); } else { await setDoc(setRef, { globalTroll: act }, { merge: true }); alert(`Global Troll activated.`); setTimeout(async () => { await setDoc(setRef, { globalTroll: '' }, { merge: true }); }, 10000); } } else alert("Cannot use this command globally yet.");
-        } catch(err) { alert("Failed global command."); } return;
-      }
-
-      const tUser = usersData.find(p => p.id === targetId); if (!tUser) return alert("Target not found.");
-      if (tUser.role === 'king' && myProfile.role !== 'king') return alert("Action Denied: Cannot target King.");
-      if (tUser.role === 'admin' && myProfile.role === 'mod') return alert("Action Denied: Mods cannot target Admins.");
-      if ((act === 'ban' || act === 'unban') && myProfile.role === 'mod') return alert("Action Denied: Mods cannot ban.");
-      if (act === 'role' && myProfile.role !== 'king') return alert("Action Denied: Only King can change roles.");
-
-      const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', targetId);
+  // AUTH FORMS
+  document.getElementById('emailAuthForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const em = document.getElementById('emailInput').value; const pw = document.getElementById('passwordInput').value; const un = document.getElementById('usernameInput').value;
+      document.getElementById('emailSubmitBtn').disabled = true; document.getElementById('emailSubmitBtn').innerText = 'Processing...';
       try {
-        let nScore = tUser.score || 0;
-        if (act === 'addScore') nScore += valNum; else if (act === 'subScore') nScore = Math.max(0, nScore - valNum); else if (act === 'setScore') nScore = Math.max(0, valNum);
-        
-        if (act.includes('Score')) { await setDoc(uRef, { score: nScore }, { merge: true }); cmdParamNumber.value = ''; alert("Stars updated.");} 
-        else if (act === 'warn') { await setDoc(uRef, { warning: valText }, { merge: true }); cmdParamText.value = ''; alert(`Warning sent.`); }
-        else if (act === 'ban') { await setDoc(uRef, { banned: true }, { merge: true }); alert("Player banned."); }
-        else if (act === 'unban') { await setDoc(uRef, { banned: false }, { merge: true }); alert("Player unbanned."); }
-        else if (act.startsWith('troll_')) { if (act === 'troll_clear') await setDoc(uRef, { trollEvent: '' }, { merge: true }); else { await setDoc(uRef, { trollEvent: act }, { merge: true }); alert(`Troll sent.`); } }
-        else if (act === 'role') {
-          if (valRole === 'king') { if(!confirm(`WARNING: Transfer crown?`)) return; await setDoc(uRef, { role: 'king' }, { merge: true }); await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'admin' }, { merge: true }); } else await setDoc(uRef, { role: valRole }, { merge: true });
-        }
-        else if (act === 'rewardAdmin') {
-            let nI = [...new Set([...(tUser.unlockedIcons || []), 'iAdmin'])];
-            let nSh = [...new Set([...(tUser.unlockedShips || []), 'shAdmin'])];
-            let nU = [...new Set([...(tUser.unlockedUfos || []), 'uAdmin'])];
-            let nW = [...new Set([...(tUser.unlockedWaves || []), 'wAdmin'])];
-            let nB = [...new Set([...(tUser.unlockedBalls || []), 'bAdmin'])];
-            let nR = [...new Set([...(tUser.unlockedRobots || []), 'rAdmin'])];
-            let nSp = [...new Set([...(tUser.unlockedSpiders || []), 'spAdmin'])];
-            let nSw = [...new Set([...(tUser.unlockedSwings || []), 'swAdmin'])];
-            await setDoc(uRef, { 
-                unlockedIcons: nI, unlockedShips: nSh, unlockedUfos: nU, unlockedWaves: nW, 
-                unlockedBalls: nB, unlockedRobots: nR, unlockedSpiders: nSp, unlockedSwings: nSw 
-            }, { merge: true });
-            alert("Admin gear set rewarded to player!");
-        }
-      } catch (err) { alert("Command failed."); }
-    });
+          if (isSignupMode) { if(!un.trim()) { throw new Error("Username required."); } pendingUsername = un.trim(); await createUserWithEmailAndPassword(auth, em, pw); } 
+          else { await signInWithEmailAndPassword(auth, em, pw); }
+      } catch(err) { alert(err.message); document.getElementById('emailSubmitBtn').disabled = false; document.getElementById('emailSubmitBtn').innerText = isSignupMode ? 'Sign Up' : 'Log In'; }
+  });
+  
+  document.getElementById('googleLoginBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch(err) { alert(err.message); } });
+  document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); location.reload(); });
+  document.getElementById('deleteAccountBtn').addEventListener('click', async () => { if(confirm("Are you sure? This is permanent!")) { try { if(currentUser) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid)); await deleteUser(currentUser); alert("Account deleted."); location.reload(); } } catch(err) { alert("Error deleting account. You may need to sign in again first."); } } });
+  document.getElementById('dismissWarningBtn').addEventListener('click', async () => { if(currentUser) { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warning: '' }, { merge: true }); document.getElementById('warningScreen').classList.add('hidden'); document.getElementById('warningScreen').classList.remove('flex'); } });
+  document.getElementById('closeBannerBtn').addEventListener('click', () => { document.getElementById('globalBanner').classList.add('-translate-y-full'); });
 
-    document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
-      if (!currentUser || !myProfile) return; 
-      const currentKings = usersData.filter(d => d.role === 'king');
+  // ADMIN PANEL
+  document.getElementById('openAdminBtn').addEventListener('click', () => { document.getElementById('adminPanelModal').classList.remove('hidden'); document.getElementById('adminPanelModal').classList.add('flex'); });
+  document.getElementById('closeAdminBtn').addEventListener('click', () => { document.getElementById('adminPanelModal').classList.add('hidden'); document.getElementById('adminPanelModal').classList.remove('flex'); });
+  
+  document.getElementById('cmdAction').addEventListener('change', (e) => {
+      const a = e.target.value; const pc = document.getElementById('cmdParamContainer');
+      document.getElementById('cmdParamNumber').classList.add('hidden'); document.getElementById('cmdParamText').classList.add('hidden'); document.getElementById('cmdParamRole').classList.add('hidden');
+      if (['addScore', 'subScore', 'setScore'].includes(a)) { pc.classList.remove('hidden'); document.getElementById('cmdParamLabel').innerText = 'Stars Amount'; document.getElementById('cmdParamNumber').classList.remove('hidden'); }
+      else if (['warn', 'globalMsg'].includes(a)) { pc.classList.remove('hidden'); document.getElementById('cmdParamLabel').innerText = 'Message Text'; document.getElementById('cmdParamText').classList.remove('hidden'); }
+      else if (a === 'role') { pc.classList.remove('hidden'); document.getElementById('cmdParamLabel').innerText = 'Select Role'; document.getElementById('cmdParamRole').classList.remove('hidden'); }
+      else { pc.classList.add('hidden'); }
+  });
+
+  document.getElementById('adminCommandForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const target = document.getElementById('cmdTarget').value; const action = document.getElementById('cmdAction').value;
+      const paramNum = parseInt(document.getElementById('cmdParamNumber').value) || 0; const paramTxt = document.getElementById('cmdParamText').value; const paramRole = document.getElementById('cmdParamRole').value;
       
-      const c = prompt("Enter secret code:"); if (!c) return;
+      try {
+          if (action === 'globalMsg') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: paramTxt }, { merge: true }); alert("Global broadcast sent."); return; }
+          if (action.startsWith('troll_')) { 
+              if (target === 'GLOBAL') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: action }, { merge: true }); alert("Global troll activated."); }
+              else { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', target), { trollEvent: action }, { merge: true }); alert("Player trolled."); }
+              return;
+          }
+          if (action === 'troll_clear') {
+              if (target === 'GLOBAL') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: '' }, { merge: true }); }
+              else { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', target), { trollEvent: '' }, { merge: true }); }
+              alert("Trolls cleared."); return;
+          }
+
+          if (target === 'GLOBAL') return alert("This action cannot be performed globally.");
+          
+          const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', target);
+          const uSnap = await getDoc(uRef);
+          if (!uSnap.exists()) return;
+          const uData = uSnap.data();
+
+          if (action === 'addScore') await setDoc(uRef, { score: (uData.score || 0) + paramNum }, { merge: true });
+          else if (action === 'subScore') await setDoc(uRef, { score: Math.max(0, (uData.score || 0) - paramNum) }, { merge: true });
+          else if (action === 'setScore') await setDoc(uRef, { score: Math.max(0, paramNum) }, { merge: true });
+          else if (action === 'warn') await setDoc(uRef, { warning: paramTxt }, { merge: true });
+          else if (action === 'ban') await setDoc(uRef, { banned: true }, { merge: true });
+          else if (action === 'unban') await setDoc(uRef, { banned: false }, { merge: true });
+          else if (action === 'role') await setDoc(uRef, { role: paramRole }, { merge: true });
+          else if (action === 'iconHack') {
+              await setDoc(uRef, { 
+                  unlockedIcons: ALL_ICONS.map(i=>i.id), unlockedShips: ALL_SHIPS.map(i=>i.id), unlockedUfos: ALL_UFOS.map(i=>i.id), unlockedWaves: ALL_WAVES.map(i=>i.id), 
+                  unlockedBalls: ALL_BALLS.map(i=>i.id), unlockedRobots: ALL_ROBOTS.map(i=>i.id), unlockedSpiders: ALL_SPIDERS.map(i=>i.id), unlockedSwings: ALL_SWINGS.map(i=>i.id),
+                  unlockedCol1: ALL_COLORS.map(c=>c.id), unlockedCol2: ALL_COLORS.map(c=>c.id)
+              }, { merge: true });
+          }
+          alert("Command executed successfully!");
+      } catch(err) { alert("Error executing command."); }
+  });
+
+  // ==========================================
+  // 🖱️ RESTORED UI EVENT LISTENERS 
+  // ==========================================
+  
+  // Hub Navigation
+  document.getElementById('btnViewBrowser').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewBrowser').classList.remove('hidden'); });
+  document.getElementById('btnCreateLevel').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewMyLevels').classList.remove('hidden'); });
+  document.getElementById('btnViewLeaderboard').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewLeaderboard').classList.remove('hidden'); });
+  document.getElementById('btnViewIconKit').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewIconKit').classList.remove('hidden'); if(typeof renderIconKit === 'function') renderIconKit(); });
+  document.getElementById('btnViewTreasure').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewTreasure').classList.remove('hidden'); if(typeof updateTreasureUI === 'function') updateTreasureUI(); });
+  
+  document.querySelectorAll('.btnBackToMain').forEach(btn => { 
+      btn.addEventListener('click', () => { 
+          document.getElementById('viewBrowser').classList.add('hidden'); 
+          document.getElementById('viewMyLevels').classList.add('hidden'); 
+          document.getElementById('viewLeaderboard').classList.add('hidden'); 
+          document.getElementById('viewIconKit').classList.add('hidden'); 
+          document.getElementById('viewTreasure').classList.add('hidden'); 
+          document.getElementById('viewMainMenu').classList.remove('hidden'); 
+      }); 
+  });
+
+  // Game/Editor Launch Logic
+  function launchGame(levelDataStr, mode) {
+      level = parseLevelString(levelDataStr);
+      state.mode = mode;
+      state.isPlaytesting = false;
+      document.getElementById('hubUI').classList.add('hide');
+      document.getElementById('hubUI').classList.add('opacity-0');
+      document.getElementById('gameUI').classList.remove('hide');
+      document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)';
       
-      if (c === 'DASH2026') {
-        for (let k of currentKings) {
-             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', k.id), { role: 'user' }, { merge: true });
-        }
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: '', globalTroll: '' }, { merge: true });
-        alert("Bypass activated! Crown stolen and bugs cleared.");
-      } 
-      else if (c === globalSettings.kingCode) {
-        if (currentKings.length > 0) return alert("Crown is already taken!");
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true }); 
-        alert("Crown claimed!");
-      } 
-      else {
-        alert("Incorrect code.");
+      if (mode === 'edit') {
+          document.getElementById('editorToolbar').classList.remove('hide');
+          document.getElementById('editorTopRight').classList.remove('hide');
+          switchEditorMode('build');
+      } else {
+          document.getElementById('editorToolbar').classList.add('hide');
+          document.getElementById('editorTopRight').classList.add('hide');
       }
-    });
-    
-    document.getElementById('changeCodeBtn').addEventListener('click', async () => {
-      if (!myProfile || myProfile.role !== 'king') return; const n = prompt("Enter new King Code:", globalSettings.kingCode);
-      if (n && n.trim() !== '') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { kingCode: n.trim() }, { merge: true }); alert("Code updated."); }
-    });
+      historyList = []; historyIndex = -1; saveHistory();
+      resetPlayer();
+      lucide.createIcons();
+  }
 
-    function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+  document.getElementById('btnCreateNewLevel').addEventListener('click', () => { 
+      currentEditingLevelId = null; 
+      currentEditingLevelName = prompt("Enter Level Name:", "New Level") || "New Level"; 
+      launchGame(BLANK_LEVEL_DATA, 'edit'); 
+  });
 
-    level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
-  </script>
+  document.getElementById('btnPlaytest').addEventListener('click', () => { 
+      if (state.isPlaytesting) {
+          state.isPlaytesting = false;
+          state.savedPath = [...state.currentPath];
+          document.getElementById('editorToolbar').classList.remove('hide');
+      } else {
+          state.isPlaytesting = true;
+          document.getElementById('editorToolbar').classList.add('hide');
+      }
+      document.getElementById('btnPlaytest').innerHTML = state.isPlaytesting ? '<i data-lucide="square" class="w-5 h-5 text-red-400"></i> Stop (Z)' : '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)'; 
+      resetPlayer(); 
+      lucide.createIcons(); 
+  });
+
+  document.getElementById('btnExitGame').addEventListener('click', () => { 
+      state.isPlaytesting = false; 
+      document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)'; 
+      document.getElementById('gameUI').classList.add('hide'); 
+      document.getElementById('editorToolbar').classList.add('hide'); 
+      document.getElementById('editorTopRight').classList.add('hide'); 
+      document.getElementById('hubUI').classList.remove('hide', 'opacity-0'); 
+      state.mode = 'menu'; 
+      lucide.createIcons(); 
+  });
+
+  document.getElementById('btnPublish').addEventListener('click', async () => { 
+      if (!currentUser || !myProfile) return alert("Must be logged in to publish."); 
+      if (level.length === 0) return alert("Cannot publish an empty level."); 
+      try { 
+          const lvlId = currentEditingLevelId || 'lvl_' + Date.now(); 
+          const lvlData = { name: currentEditingLevelName, authorId: currentUser.uid, authorName: myProfile.username, data: generateLevelString(), plays: currentPreviewLevel ? (currentPreviewLevel.plays||0) : 0, likes: currentPreviewLevel ? (currentPreviewLevel.likes||[]) : [], comments: currentPreviewLevel ? (currentPreviewLevel.comments||[]) : [], stars: currentPreviewLevel ? (currentPreviewLevel.stars||0) : 0, difficulty: currentPreviewLevel ? (currentPreviewLevel.difficulty||'NA') : 'NA', createdAt: Date.now() }; 
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), lvlData, { merge: true }); 
+          alert("Level published successfully!"); document.getElementById('btnExitGame').click(); 
+      } catch(err) { alert("Failed to publish level."); } 
+  });
+
+  // Editor Tabs & Categories
+  document.querySelectorAll('.cat-btn').forEach(btn => { 
+      btn.addEventListener('click', (e) => { 
+          document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); 
+          e.currentTarget.classList.add('active'); 
+          const cat = e.currentTarget.dataset.cat; 
+          ['blocks', 'hazards', 'interact', 'portals', 'triggers'].forEach(c => { document.getElementById('cat-' + c).classList.add('hide'); }); 
+          document.getElementById('cat-' + cat).classList.remove('hide'); 
+      }); 
+  });
+
+  document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => { 
+      btn.addEventListener('click', (e) => { 
+          document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active', 'border-green-400')); 
+          e.currentTarget.classList.add('active', 'border-green-400'); 
+          editor.tool = parseInt(e.currentTarget.dataset.tool); 
+      }); 
+  });
+
+  document.getElementById('tabBuild').addEventListener('click', () => switchEditorMode('build'));
+  document.getElementById('tabEditMode').addEventListener('click', () => switchEditorMode('edit'));
+  document.getElementById('tabDelete').addEventListener('click', () => switchEditorMode('delete'));
+
+  function switchEditorMode(mode) {
+      editor.mode = mode; 
+      document.querySelectorAll('.ed-btn').forEach(b => b.classList.remove('active'));
+      if(mode === 'build') document.getElementById('tabBuild').classList.add('active');
+      if(mode === 'edit') document.getElementById('tabEditMode').classList.add('active');
+      if(mode === 'delete') document.getElementById('tabDelete').classList.add('active');
+      
+      document.getElementById('panelBuild').classList.add('hide'); 
+      document.getElementById('panelEdit').classList.add('hide'); 
+      document.getElementById('panelDelete').classList.add('hide');
+      
+      if(mode === 'build') document.getElementById('panelBuild').classList.remove('hide');
+      if(mode === 'edit') document.getElementById('panelEdit').classList.remove('hide');
+      if(mode === 'delete') document.getElementById('panelDelete').classList.remove('hide');
+      
+      editor.selectedObjs = []; updateEditPanelUI();
+  }
+  
+  function updateEditPanelUI() {
+      if (editor.selectedObjs.length > 0) { 
+          document.getElementById('editNoSelection').classList.add('hide'); 
+          document.getElementById('editControls').classList.remove('hide'); 
+          document.getElementById('editControls').classList.add('flex'); 
+      } else { 
+          document.getElementById('editNoSelection').classList.remove('hide'); 
+          document.getElementById('editControls').classList.add('hide'); 
+          document.getElementById('editControls').classList.remove('flex'); 
+      }
+  }
+
+  // Modals & Miscellaneous
+  document.getElementById('btnClosePreview').addEventListener('click', () => { document.getElementById('levelPreviewModal').classList.add('hide'); });
+  document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
+  document.getElementById('btnWinReplay').addEventListener('click', () => { state.attempts++; document.getElementById('stats').innerText = `Attempt ${state.attempts}`; resetPlayer(); });
+  document.getElementById('btnMusic').addEventListener('click', () => { isMusicOn = !isMusicOn; document.getElementById('btnMusic').innerText = `🎵 Music: ${isMusicOn ? 'ON' : 'OFF'}`; if (isMusicOn) initAudio(); });
+  document.getElementById('btnCloseProfile').addEventListener('click', () => { document.getElementById('profileModal').classList.add('hide'); });
+
+  // Temporary fix for render stubs (in case they are not in the file yet)
+  window.renderLevelBrowser = window.renderLevelBrowser || function() {};
+  window.renderMyLevels = window.renderMyLevels || function() {};
+  window.renderLeaderboard = window.renderLeaderboard || function() {};
+  window.renderAdminDirectory = window.renderAdminDirectory || function() {};
+
+  lucide.createIcons();
+  level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
+  initAuthApp();
+</script>
 </body>
 </html>
