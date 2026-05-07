@@ -2237,8 +2237,9 @@
           document.getElementById('prevLevelId').innerText = l.id;
           document.getElementById('prevDownloads').innerText = l.plays || 0;
           document.getElementById('prevLikes').innerText = (l.likes || []).length;
-          document.getElementById('prevDiffText').innerText = l.difficulty || 'NA';
-          document.getElementById('prevDiffFace').innerHTML = getDifficultySVG(l.difficulty || 'NA');
+          document.getElementById('iconModalLike').classList.toggle('text-yellow-400', currentUser && (l.likes || []).includes(currentUser.uid));
+          document.getElementById('prevDiffFace').innerHTML = getDifficultyFace(l.difficulty || 'NA');
+          
           if (l.stars > 0) {
              document.getElementById('prevStarsBadge').classList.remove('hidden');
              document.getElementById('prevStarsNum').innerText = l.stars;
@@ -2251,13 +2252,71 @@
           document.getElementById('prevProgressText').innerText = prog + '%';
           document.getElementById('levelPreviewModal').classList.remove('hide');
           
+          renderComments(l);
+
           document.getElementById('btnModalPlay').onclick = () => {
               document.getElementById('levelPreviewModal').classList.add('hide');
               launchGame(l.data, 'play');
               setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', l.id), { plays: (l.plays||0) + 1 }, { merge: true });
           };
+          
+          document.getElementById('btnModalLike').onclick = async () => {
+              if(!currentUser || currentUser.isAnonymous) return alert("Must be logged in with an account to like levels.");
+              let likes = l.likes || [];
+              if(likes.includes(currentUser.uid)) likes = likes.filter(u => u !== currentUser.uid);
+              else likes.push(currentUser.uid);
+              
+              document.getElementById('prevLikes').innerText = likes.length;
+              document.getElementById('iconModalLike').classList.toggle('text-yellow-400', likes.includes(currentUser.uid));
+              await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', l.id), { likes: likes }, { merge: true });
+          };
       }
   };
+
+  window.renderComments = function(l) {
+      const list = document.getElementById('prevCommentsList');
+      const comments = l.comments || [];
+      document.getElementById('prevCommentCount').innerText = comments.length;
+      if (comments.length === 0) {
+          list.innerHTML = '<p class="text-gray-400 text-center text-sm py-4">No comments yet. Be the first!</p>';
+          return;
+      }
+      list.innerHTML = comments.slice().reverse().map(c => `
+          <div class="bg-black/50 border border-black p-3 rounded-lg flex flex-col gap-1">
+              <div class="flex justify-between items-center">
+                  <span class="text-yellow-400 font-bold text-xs">${escapeHtml(c.username)}</span>
+                  <span class="text-gray-500 text-[10px]">${new Date(c.time).toLocaleDateString()}</span>
+              </div>
+              <p class="text-white text-sm break-words">${escapeHtml(c.text)}</p>
+          </div>
+      `).join('');
+  };
+
+  document.getElementById('commentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser || currentUser.isAnonymous || !myProfile) return alert("You must be signed in with an account to comment.");
+      const input = document.getElementById('commentInput');
+      const text = input.value.trim();
+      if (!text || !currentPreviewLevel) return;
+      
+      const btn = e.target.querySelector('button');
+      btn.disabled = true; btn.innerText = '...';
+      
+      try {
+          const lRef = doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id);
+          const lSnap = await getDoc(lRef);
+          if (lSnap.exists()) {
+              const currentComments = lSnap.data().comments || [];
+              currentComments.push({ uid: currentUser.uid, username: myProfile.username, text: text, time: Date.now() });
+              await setDoc(lRef, { comments: currentComments }, { merge: true });
+              input.value = '';
+              renderComments({ ...lSnap.data(), comments: currentComments });
+          }
+      } catch (err) {
+          alert("Failed to post comment.");
+      }
+      btn.disabled = false; btn.innerText = 'Post';
+  });
 
   window.renderMyLevels = function() {
       if(!currentUser) return;
