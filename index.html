@@ -670,7 +670,7 @@
     // ==========================================
     // 🎨 ASSET DICTIONARIES (ICONS & COLORS & FACES)
     // ==========================================
-    function getDifficultySVG(diff) {
+    window.getDifficultySVG = function(diff) {
         let inner = `<circle cx="50" cy="50" r="40" fill="#6b7280" stroke="#fff" stroke-width="6"/><text x="50" y="58" font-size="24" font-weight="bold" fill="#fff" text-anchor="middle" font-family="sans-serif">NA</text>`;
         if (diff === 'Auto') { inner = `<circle cx="50" cy="50" r="40" fill="#facc15" stroke="#fff" stroke-width="6"/><path d="M35 45 Q50 65 65 45" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="35" cy="35" r="5" fill="#000"/><circle cx="65" cy="35" r="5" fill="#000"/>`; }
         if (diff === 'Easy') { inner = `<circle cx="50" cy="50" r="40" fill="#3b82f6" stroke="#fff" stroke-width="6"/><path d="M30 55 Q50 75 70 55" stroke="#000" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/>`; }
@@ -680,9 +680,9 @@
         if (diff === 'Insane') { inner = `<circle cx="50" cy="50" r="40" fill="#ec4899" stroke="#fff" stroke-width="6"/><path d="M30 65 Q50 45 70 65" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M20 25 L45 45 M80 25 L55 45" stroke="#000" stroke-width="8" stroke-linecap="round"/><circle cx="35" cy="45" r="5" fill="#fff"/><circle cx="65" cy="45" r="5" fill="#fff"/>`; }
         if (diff === 'Demon') { inner = `<circle cx="50" cy="50" r="40" fill="#dc2626" stroke="#fff" stroke-width="6"/><path d="M20 20 L35 35 M80 20 L65 35" stroke="#fff" stroke-width="8" stroke-linecap="round"/><path d="M30 70 Q50 40 70 70" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="35" cy="45" r="6" fill="#fff"/><circle cx="65" cy="45" r="6" fill="#fff"/>`; }
         return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">${inner}</svg>`;
-    }
+    };
 
-    function getIconSVG(idStr, c1, c2) {
+    window.getIconSVG = function(idStr, c1, c2) {
        const id = parseInt(idStr.replace('i', ''));
        let content = `<rect x="5" y="5" width="90" height="90" fill="${c1}" stroke="${c2}" stroke-width="6" rx="10" />`; 
        switch(id) {
@@ -728,9 +728,9 @@
           case 40: content += `<style>.m-10 { animation: m10 5s linear infinite; transform-origin: center; } @keyframes m10 { 100% { transform: rotate(360deg); } }</style><path d="M 50 5 L 60 40 L 95 50 L 60 60 L 50 95 L 40 60 L 5 50 L 40 40 Z" fill="${c1}" stroke="${c2}" stroke-width="4" class="m-10"/><path d="M 50 15 L 55 45 L 85 50 L 55 55 L 50 85 L 45 55 L 15 50 L 45 45 Z" fill="${c2}" class="m-10" style="animation-direction: reverse; animation-duration: 2.5s;"/>`; break;
        }
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
+    };
 
-    function getShipSVG(idStr, c1, c2) {
+    window.getShipSVG = function(idStr, c1, c2) {
        const id = parseInt(idStr.replace('sh', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<path d="M 20 30 L 80 50 L 20 70 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`; 
        if(bid===2) content = `<rect x="15" y="30" width="70" height="40" rx="20" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
@@ -744,9 +744,9 @@
        if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 10 50 L 90 50" stroke="${rC2}" stroke-width="8"/>`;
        if(id > 10) content += `<circle cx="25" cy="50" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
+    };
 
-    function getUfoSVG(idStr, c1, c2) {
+    window.getUfoSVG = function(idStr, c1, c2) {
        const id = parseInt(idStr.replace('u', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="65" rx="40" ry="15" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 30 65 Q 50 10 70 65" fill="${rC2}"/>`;
        if(bid===2) content = `<rect x="20" y="55" width="60" height="20" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="50" cy="40" r="20" fill="${rC2}"/>`;
@@ -760,9 +760,9 @@
        if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="8"/><circle cx="50" cy="50" r="10" fill="#111"/>`;
        if(id > 10) content += `<circle cx="50" cy="25" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
+    };
 
-    function getWaveSVG(idStr, c1, c2) {
+    window.getWaveSVG = function(idStr, c1, c2) {
        const id = parseInt(idStr.replace('w', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<polygon points="10,50 50,10 90,50 50,90" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
        if(bid===2) content = `<path d="M 20 50 L 60 20 L 60 80 Z" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
@@ -776,9 +776,9 @@
        if(bid===10) content = `<circle cx="50" cy="50" r="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><polygon points="40,30 70,50 40,70" fill="${rC2}"/>`;
        if(id > 10) content += `<circle cx="50" cy="50" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
+    };
 
-    function getBallSVG(idStr, c1, c2) {
+    window.getBallSVG = function(idStr, c1, c2) {
        const id = parseInt(idStr.replace('b', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<circle cx="50" cy="50" r="45" fill="${rC1}" stroke="${rC2}" stroke-width="6"/>`;
        if(bid===1) content += `<circle cx="50" cy="50" r="20" fill="${rC2}"/>`;
@@ -793,9 +793,9 @@
        if(bid===10) content += `<circle cx="50" cy="50" r="45" fill="none" stroke="${rC2}" stroke-width="12"/><circle cx="50" cy="50" r="25" fill="${rC2}"/>`;
        if(id > 10) content += `<circle cx="50" cy="20" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
+    };
 
-    function getRobotSVG(idStr, c1, c2) {
+    window.getRobotSVG = function(idStr, c1, c2) {
        const id = parseInt(idStr.replace('r', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<rect x="25" y="10" width="50" height="40" rx="10" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><rect x="35" y="55" width="10" height="35" fill="${rC2}"/><rect x="55" y="55" width="10" height="35" fill="${rC2}"/>`;
        if(bid===1) content += `<rect x="35" y="25" width="30" height="15" fill="${rC2}"/>`;
@@ -810,9 +810,9 @@
        if(bid===10) content += `<path d="M 30 20 L 70 40 M 30 40 L 70 20" stroke="${rC2}" stroke-width="6"/>`;
        if(id > 10) content += `<circle cx="50" cy="18" r="4" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
+    };
 
-    function getSpiderSVG(idStr, c1, c2) {
+    window.getSpiderSVG = function(idStr, c1, c2) {
        const id = parseInt(idStr.replace('sp', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="40" rx="35" ry="25" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><path d="M 20 40 L 5 70 M 35 55 L 25 85 M 65 55 L 75 85 M 80 40 L 95 70" stroke="${rC2}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
        if(bid===1) content += `<circle cx="35" cy="35" r="5" fill="${rC2}"/><circle cx="65" cy="35" r="5" fill="${rC2}"/>`;
@@ -827,9 +827,9 @@
        if(bid===10) content += `<circle cx="50" cy="40" r="15" fill="${rC2}"/><circle cx="50" cy="40" r="5" fill="${rC1}"/>`;
        if(id > 10) content += `<circle cx="50" cy="25" r="4" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
+    };
 
-    function getSwingSVG(idStr, c1, c2) {
+    window.getSwingSVG = function(idStr, c1, c2) {
        const id = parseInt(idStr.replace('sw', '')); let rC1 = id > 10 ? c2 : c1, rC2 = id > 10 ? c1 : c2; let bid = ((id - 1) % 10) + 1;
        let content = `<ellipse cx="50" cy="50" rx="40" ry="30" fill="${rC1}" stroke="${rC2}" stroke-width="6"/><circle cx="15" cy="50" r="12" fill="${rC2}"/><circle cx="85" cy="50" r="12" fill="${rC2}"/>`;
        if(bid===1) content += `<circle cx="50" cy="50" r="15" fill="${rC2}"/>`;
@@ -844,7 +844,7 @@
        if(bid===10) content += `<circle cx="35" cy="50" r="8" fill="${rC2}"/><circle cx="65" cy="50" r="8" fill="${rC2}"/>`;
        if(id > 10) content += `<circle cx="50" cy="30" r="6" fill="#fff" opacity="0.3"/>`;
        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">${content}</svg>`;
-    }
+    };
 
     const ALL_ICONS = Array.from({length: 40}, (_, i) => {
        let id = `i${i+1}`; let rarity = i < 10 ? 'common' : i < 18 ? 'rare' : i < 24 ? 'epic' : i < 30 ? 'legendary' : 'mythic'; return { id, rarity };
@@ -871,14 +871,14 @@
        if (!myProfile) return;
        const c1 = ALL_COLORS.find(c => c.id === myProfile.equippedCol1)?.val || '#00f0ff';
        const c2 = ALL_COLORS.find(c => c.id === myProfile.equippedCol2)?.val || '#ffffff';
-       cachedPlayerImg.src = "data:image/svg+xml;base64," + btoa(getIconSVG(myProfile.equippedIcon || 'i1', c1, c2));
-       if (typeof getShipSVG === 'function') cachedShipImg.src = "data:image/svg+xml;base64," + btoa(getShipSVG(myProfile.equippedShip || 'sh1', c1, c2));
-       if (typeof getUfoSVG === 'function') cachedUfoImg.src = "data:image/svg+xml;base64," + btoa(getUfoSVG(myProfile.equippedUfo || 'u1', c1, c2));
-       if (typeof getWaveSVG === 'function') cachedWaveImg.src = "data:image/svg+xml;base64," + btoa(getWaveSVG(myProfile.equippedWave || 'w1', c1, c2));
-       if (typeof getBallSVG === 'function') cachedBallImg.src = "data:image/svg+xml;base64," + btoa(getBallSVG(myProfile.equippedBall || 'b1', c1, c2));
-       if (typeof getRobotSVG === 'function') cachedRobotImg.src = "data:image/svg+xml;base64," + btoa(getRobotSVG(myProfile.equippedRobot || 'r1', c1, c2));
-       if (typeof getSpiderSVG === 'function') cachedSpiderImg.src = "data:image/svg+xml;base64," + btoa(getSpiderSVG(myProfile.equippedSpider || 'sp1', c1, c2));
-       if (typeof getSwingSVG === 'function') cachedSwingImg.src = "data:image/svg+xml;base64," + btoa(getSwingSVG(myProfile.equippedSwing || 'sw1', c1, c2));
+       cachedPlayerImg.src = "data:image/svg+xml;base64," + btoa(window.getIconSVG(myProfile.equippedIcon || 'i1', c1, c2));
+       if (typeof window.getShipSVG === 'function') cachedShipImg.src = "data:image/svg+xml;base64," + btoa(window.getShipSVG(myProfile.equippedShip || 'sh1', c1, c2));
+       if (typeof window.getUfoSVG === 'function') cachedUfoImg.src = "data:image/svg+xml;base64," + btoa(window.getUfoSVG(myProfile.equippedUfo || 'u1', c1, c2));
+       if (typeof window.getWaveSVG === 'function') cachedWaveImg.src = "data:image/svg+xml;base64," + btoa(window.getWaveSVG(myProfile.equippedWave || 'w1', c1, c2));
+       if (typeof window.getBallSVG === 'function') cachedBallImg.src = "data:image/svg+xml;base64," + btoa(window.getBallSVG(myProfile.equippedBall || 'b1', c1, c2));
+       if (typeof window.getRobotSVG === 'function') cachedRobotImg.src = "data:image/svg+xml;base64," + btoa(window.getRobotSVG(myProfile.equippedRobot || 'r1', c1, c2));
+       if (typeof window.getSpiderSVG === 'function') cachedSpiderImg.src = "data:image/svg+xml;base64," + btoa(window.getSpiderSVG(myProfile.equippedSpider || 'sp1', c1, c2));
+       if (typeof window.getSwingSVG === 'function') cachedSwingImg.src = "data:image/svg+xml;base64," + btoa(window.getSwingSVG(myProfile.equippedSwing || 'sw1', c1, c2));
     }
 
     // ==========================================
@@ -1526,7 +1526,7 @@
         else if (obj.type === 20) { ctx.fillStyle = C_SPIKE; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(12, s2); ctx.lineTo(-12, s2); ctx.closePath(); ctx.fill(); } 
         else if (obj.type === 21) { ctx.fillStyle = '#4b5563'; ctx.beginPath(); ctx.arc(0, 0, s2-4, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#9ca3af'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -s2+8, 3, 0, Math.PI*2); ctx.fill(); } 
         else if ([2, 22, 24, 26].includes(obj.type)) { 
-            let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#facc15';
+            let pCol = obj.type===22?'#f472b6':obj.type===24?'#ef4444':obj.type===26?'#3b82f6':'#fcd34d';
             let pDark = obj.type===22?'#db2777':obj.type===24?'#b91c1c':obj.type===26?'#1d4ed8':'#b45309';
             ctx.fillStyle = pDark; ctx.fillRect(-s2, s2 - 10, GRID_SIZE, 10); ctx.fillStyle = pCol; ctx.beginPath(); ctx.ellipse(0, s2 - 10, s2 - 2, 4, 0, 0, Math.PI * 2); ctx.fill(); 
         } 
@@ -1670,736 +1670,777 @@
 
     function handleEditorAction(clientX, clientY) {
       const {gx, gy} = getGridPos(clientX, clientY);
-      if (gx < 0) return;
-
-      if (editor.isDragging && editor.lastGx === gx && editor.lastGy === gy) return;
+      if (gx === editor.lastGx && gy === editor.lastGy && editor.isDragging && !editor.isClick) return; 
       editor.lastGx = gx; editor.lastGy = gy;
 
       if (editor.mode === 'build') {
-        level = level.filter(b => !(b.gx === gx && b.gy === gy));
-        let newObj = { gx, gy, type: editor.tool, rot: 0 };
-        level.push(newObj);
-        editor.selectedObjs = [newObj]; 
-        updateEditPanelUI();
+        level = level.filter(b => b.gx !== gx || b.gy !== gy); 
+        level.push({ gx, gy, type: parseInt(editor.tool), rot: 0 });
         editor.hasChangedLevel = true;
-      } 
-      else if (editor.mode === 'delete') {
-        let prevLen = level.length;
-        level = level.filter(b => !(b.gx === gx && b.gy === gy));
-        if(level.length !== prevLen) editor.hasChangedLevel = true;
+      } else if (editor.mode === 'delete') {
+        let initialLen = level.length;
+        level = level.filter(b => b.gx !== gx || b.gy !== gy);
+        if (level.length !== initialLen) editor.hasChangedLevel = true;
+        editor.selectedObjs = editor.selectedObjs.filter(b => b.gx !== gx || b.gy !== gy);
+        updateEditPanelUI();
       }
     }
 
-    canvas.addEventListener('pointerdown', (e) => {
-      if (e.target !== canvas) return;
-      
-      if (state.mode === 'play' || state.isPlaytesting) { 
-          input.jumpHeld = true; 
-          input.clickConsumed = false; 
-          if (triggerAction()) input.clickConsumed = true; 
-          return; 
-      }
-      if (state.mode !== 'edit') return;
-      
-      editor.isDragging = true; editor.isClick = true;
-      editor.camDragStartX = e.clientX; editor.camDragStartY = e.clientY;
-      editor.initialCamX = state.cameraX; editor.initialCamY = state.cameraY;
-      
-      if (editor.swipeEnabled) {
-        if (editor.mode === 'edit') {
-          editor.selectedObjs = []; updateEditPanelUI();
-          const p = getGridPos(e.clientX, e.clientY);
-          editor.selBox = { sx: p.worldX, sy: p.worldY, ex: p.worldX, ey: p.worldY };
-        } else {
-          handleEditorAction(e.clientX, e.clientY);
-        }
-      }
-    });
-
-    window.addEventListener('pointermove', (e) => {
-       if (state.mode !== 'edit' || !editor.isDragging) return;
-       
-       const dx = e.clientX - editor.camDragStartX;
-       const dy = e.clientY - editor.camDragStartY;
-       if (Math.abs(dx) > 5 || Math.abs(dy) > 5) editor.isClick = false;
-
-       if (!editor.swipeEnabled && editor.mode !== 'edit') {
-         state.cameraX = editor.initialCamX - dx;
-         state.cameraY = editor.initialCamY - dy;
-       } else if (editor.swipeEnabled && editor.mode !== 'edit') {
-         handleEditorAction(e.clientX, e.clientY);
-       } else if (editor.mode === 'edit') {
-         if (editor.swipeEnabled && editor.selBox) {
-             const p = getGridPos(e.clientX, e.clientY);
-             editor.selBox.ex = p.worldX; editor.selBox.ey = p.worldY;
-         } else {
-             state.cameraX = editor.initialCamX - dx;
-             state.cameraY = editor.initialCamY - dy;
-         }
-       }
-    });
-
-    window.addEventListener('pointerup', (e) => {
-       if (state.mode === 'play' || state.isPlaytesting) { input.jumpHeld = false; return; }
-       if (state.mode !== 'edit' || !editor.isDragging) return;
-       editor.isDragging = false;
-       
-       if (editor.isClick) {
-         if (editor.mode === 'build' || editor.mode === 'delete') {
-           handleEditorAction(e.clientX, e.clientY);
-         } else if (editor.mode === 'edit') {
-           const {gx, gy} = getGridPos(e.clientX, e.clientY);
-           const clickedObj = level.slice().reverse().find(o => o.gx === gx && o.gy === gy);
-           if (clickedObj) {
-             if (e.shiftKey) {
-               const idx = editor.selectedObjs.indexOf(clickedObj);
-               if (idx > -1) editor.selectedObjs.splice(idx, 1);
-               else editor.selectedObjs.push(clickedObj);
-             } else {
-               editor.selectedObjs = [clickedObj];
-             }
-           } else if (!e.shiftKey) {
-             editor.selectedObjs = [];
-           }
-           updateEditPanelUI();
-         }
-       } else if (editor.mode === 'edit' && editor.selBox) {
-           const sx = Math.min(editor.selBox.sx, editor.selBox.ex), ex = Math.max(editor.selBox.sx, editor.selBox.ex);
-           const sy = Math.min(editor.selBox.sy, editor.selBox.ey), ey = Math.max(editor.selBox.sy, editor.selBox.ey);
-           editor.selectedObjs = level.filter(o => {
-              const ox = o.gx * GRID_SIZE + GRID_SIZE/2, oy = groundY - (o.gy * GRID_SIZE) - GRID_SIZE/2;
-              return ox >= sx && ox <= ex && oy >= sy && oy <= ey;
-           });
-           editor.selBox = null;
-           updateEditPanelUI();
-       }
-       
-       editor.lastGx = -1; editor.lastGy = -1;
-       if (editor.hasChangedLevel) { saveHistory(); editor.hasChangedLevel = false; }
-    });
-
-    window.addEventListener('keydown', (e) => {
-       if (document.activeElement.tagName === 'INPUT') return;
-       const k = e.key.toLowerCase();
-       if (['w', 'a', 's', 'd', ' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
-       
-       if (k === ' ' || k === 'arrowup' || k === 'w') {
-         input.jumpHeld = true; input.clickConsumed = false;
-         if ((state.mode === 'play' || state.isPlaytesting) && triggerAction()) input.clickConsumed = true;
-       }
-       
-       if (k === 'z' && !e.ctrlKey && !e.metaKey) { document.getElementById('btnPlaytest').click(); return; }
-       
-       if (state.mode === 'edit' && !state.isPlaytesting) {
-          if (k === 't') document.getElementById('btnSwipeToggle').click();
-          if (e.key === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); }
-          
-          if (editor.selectedObjs.length > 0) {
-              if (k === 'q') document.getElementById('btnEditRotLeft').click();
-              if (k === 'e') document.getElementById('btnEditRotRight').click();
-              if ((e.ctrlKey || e.metaKey) && k === 'd') { duplicateSelected(); e.preventDefault(); }
-              else if (!e.ctrlKey && !e.metaKey) {
-                  if (k === 'w' || k === 'arrowup') document.getElementById('btnNudgeUp').click();
-                  if (k === 's' || k === 'arrowdown') document.getElementById('btnNudgeDown').click();
-                  if (k === 'a' || k === 'arrowleft') document.getElementById('btnNudgeLeft').click();
-                  if (k === 'd' || k === 'arrowright') document.getElementById('btnNudgeRight').click();
-              }
-          }
-          
-          if (e.ctrlKey || e.metaKey) {
-             if (k === 'z') { if (e.shiftKey) redo(); else undo(); e.preventDefault(); }
-             if (k === 'y') { redo(); e.preventDefault(); }
-          }
-       }
-    });
-
-    window.addEventListener('keyup', (e) => {
-        const k = e.key.toLowerCase();
-        if (k === ' ' || k === 'arrowup' || k === 'w') input.jumpHeld = false;
-    });
-
-    // Editor Panel Interactions
-    document.getElementById('btnSwipeToggle').addEventListener('click', () => {
-       editor.swipeEnabled = !editor.swipeEnabled;
-       document.getElementById('swipeStatus').innerText = editor.swipeEnabled ? 'ON' : 'OFF';
-       document.getElementById('btnSwipeToggle').classList.toggle('border-green-400', editor.swipeEnabled);
-       document.getElementById('btnSwipeToggle').classList.toggle('border-green-900', !editor.swipeEnabled);
+    // Input handlers
+    canvas.addEventListener('mousedown', e => {
+      if (state.mode !== 'edit' || state.isPlaytesting) { input.jumpHeld = true; input.clickConsumed = false; return; }
+      editor.isDragging = true; editor.isClick = true; editor.camDragStartX = e.clientX; editor.camDragStartY = e.clientY; editor.initialCamX = state.cameraX; editor.initialCamY = state.cameraY;
+      if (editor.mode === 'edit' && !editor.swipeEnabled) { const { worldX, worldY } = getGridPos(e.clientX, e.clientY); editor.selBox = { sx: worldX, sy: worldY, ex: worldX, ey: worldY }; }
+      else if (editor.swipeEnabled || editor.mode === 'build' || editor.mode === 'delete') handleEditorAction(e.clientX, e.clientY);
     });
     
-    document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear everything?")) { level = parseLevelString(BLANK_LEVEL_DATA); saveHistory(); editor.selectedObjs = []; updateEditPanelUI(); } });
+    canvas.addEventListener('mousemove', e => {
+      if (state.mode === 'edit' && editor.isDragging) {
+        if (Math.abs(e.clientX - editor.camDragStartX) > 5 || Math.abs(e.clientY - editor.camDragStartY) > 5) editor.isClick = false;
+        if (editor.mode === 'edit' && !editor.swipeEnabled && editor.selBox) { const { worldX, worldY } = getGridPos(e.clientX, e.clientY); editor.selBox.ex = worldX; editor.selBox.ey = worldY; }
+        else if (editor.swipeEnabled) handleEditorAction(e.clientX, e.clientY);
+        else { state.cameraX = editor.initialCamX - (e.clientX - editor.camDragStartX); state.cameraY = editor.initialCamY - (e.clientY - editor.camDragStartY); }
+      }
+    });
+    
+    window.addEventListener('mouseup', e => {
+      input.jumpHeld = false; input.clickConsumed = false;
+      if (state.mode === 'edit' && editor.isDragging) {
+        if (editor.mode === 'edit' && !editor.swipeEnabled && editor.selBox) {
+          let minX = Math.min(editor.selBox.sx, editor.selBox.ex), maxX = Math.max(editor.selBox.sx, editor.selBox.ex), minY = Math.min(editor.selBox.sy, editor.selBox.ey), maxY = Math.max(editor.selBox.sy, editor.selBox.ey);
+          if (editor.isClick) { const { gx, gy } = getGridPos(e.clientX, e.clientY); let clicked = level.filter(o => o.gx === gx && o.gy === gy); if (e.shiftKey) editor.selectedObjs.push(...clicked); else editor.selectedObjs = clicked; }
+          else { let selected = level.filter(o => { let px = o.gx * GRID_SIZE, py = groundY - (o.gy * GRID_SIZE) - GRID_SIZE; return px + GRID_SIZE > minX && px < maxX && py + GRID_SIZE > minY && py < maxY; }); if (e.shiftKey) editor.selectedObjs.push(...selected); else editor.selectedObjs = selected; }
+          editor.selectedObjs = [...new Set(editor.selectedObjs)]; editor.selBox = null; updateEditPanelUI();
+        } else if (editor.hasChangedLevel) { saveHistory(); editor.hasChangedLevel = false; }
+      }
+      editor.isDragging = false; editor.lastGx = -1; editor.lastGy = -1;
+    });
 
-    ['Up','Down','Left','Right'].forEach(dir => {
-       document.getElementById('btnNudge'+dir).addEventListener('click', () => {
-          if (editor.selectedObjs.length === 0) return;
-          editor.selectedObjs.forEach(o => {
-             if(dir==='Up') o.gy++; if(dir==='Down') o.gy--; if(dir==='Left') o.gx--; if(dir==='Right') o.gx++;
-          });
-          saveHistory();
+    // Touch support
+    canvas.addEventListener('touchstart', e => {
+      if (state.mode !== 'edit' || state.isPlaytesting) { input.jumpHeld = true; input.clickConsumed = false; return; }
+      let touch = e.touches[0]; editor.isDragging = true; editor.isClick = true; editor.camDragStartX = touch.clientX; editor.camDragStartY = touch.clientY; editor.initialCamX = state.cameraX; editor.initialCamY = state.cameraY;
+      if (editor.mode === 'edit' && !editor.swipeEnabled) { const { worldX, worldY } = getGridPos(touch.clientX, touch.clientY); editor.selBox = { sx: worldX, sy: worldY, ex: worldX, ey: worldY }; }
+      else if (editor.swipeEnabled || editor.mode === 'build' || editor.mode === 'delete') handleEditorAction(touch.clientX, touch.clientY);
+    });
+    
+    canvas.addEventListener('touchmove', e => {
+      if (state.mode === 'edit' && editor.isDragging) {
+        let touch = e.touches[0];
+        if (Math.abs(touch.clientX - editor.camDragStartX) > 5 || Math.abs(touch.clientY - editor.camDragStartY) > 5) editor.isClick = false;
+        if (editor.mode === 'edit' && !editor.swipeEnabled && editor.selBox) { const { worldX, worldY } = getGridPos(touch.clientX, touch.clientY); editor.selBox.ex = worldX; editor.selBox.ey = worldY; }
+        else if (editor.swipeEnabled) handleEditorAction(touch.clientX, touch.clientY);
+        else { state.cameraX = editor.initialCamX - (touch.clientX - editor.camDragStartX); state.cameraY = editor.initialCamY - (touch.clientY - editor.camDragStartY); }
+      }
+    }, {passive: false});
+    
+    window.addEventListener('touchend', e => {
+      input.jumpHeld = false; input.clickConsumed = false;
+      if (state.mode === 'edit' && editor.isDragging) {
+        if (editor.mode === 'edit' && !editor.swipeEnabled && editor.selBox) {
+           let minX = Math.min(editor.selBox.sx, editor.selBox.ex), maxX = Math.max(editor.selBox.sx, editor.selBox.ex), minY = Math.min(editor.selBox.sy, editor.selBox.ey), maxY = Math.max(editor.selBox.sy, editor.selBox.ey);
+           let selected = level.filter(o => { let px = o.gx * GRID_SIZE, py = groundY - (o.gy * GRID_SIZE) - GRID_SIZE; return px + GRID_SIZE > minX && px < maxX && py + GRID_SIZE > minY && py < maxY; }); 
+           editor.selectedObjs = selected; editor.selBox = null; updateEditPanelUI();
+        } else if (editor.hasChangedLevel) { saveHistory(); editor.hasChangedLevel = false; }
+      }
+      editor.isDragging = false; editor.lastGx = -1; editor.lastGy = -1;
+    });
+
+    // Keyboard support
+    window.addEventListener('keydown', e => {
+      if (state.mode === 'menu') return;
+      if (e.code === 'Space' || e.code === 'ArrowUp') { input.jumpHeld = true; input.clickConsumed = false; if (e.target === document.body) e.preventDefault(); }
+      if (e.code === 'KeyZ') document.getElementById('btnPlaytest').click();
+      if (state.mode === 'edit' && !state.isPlaytesting && e.target.tagName !== 'INPUT') {
+         if (e.code === 'KeyW') { editor.selectedObjs.forEach(o => o.gy += 1); saveHistory(); }
+         if (e.code === 'KeyS') { editor.selectedObjs.forEach(o => o.gy -= 1); saveHistory(); }
+         if (e.code === 'KeyA') { editor.selectedObjs.forEach(o => o.gx -= 1); saveHistory(); }
+         if (e.code === 'KeyD') { editor.selectedObjs.forEach(o => o.gx += 1); saveHistory(); }
+         if (e.code === 'KeyQ') rotateSelection(-1);
+         if (e.code === 'KeyE') rotateSelection(1);
+         if (e.code === 'KeyT') toggleSwipe();
+         if (e.code === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); }
+         if ((e.metaKey || e.ctrlKey) && e.code === 'KeyD') { e.preventDefault(); duplicateSelected(); }
+         if ((e.metaKey || e.ctrlKey) && e.code === 'KeyZ') { e.preventDefault(); undo(); }
+         if ((e.metaKey || e.ctrlKey) && e.code === 'KeyY') { e.preventDefault(); redo(); }
+      }
+    });
+    window.addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'ArrowUp') input.jumpHeld = false; });
+
+    // Editor UI Event Listeners
+    function toggleSwipe() { editor.swipeEnabled = !editor.swipeEnabled; document.getElementById('swipeStatus').innerText = editor.swipeEnabled ? 'ON' : 'OFF'; document.getElementById('swipeStatus').className = editor.swipeEnabled ? 'text-xs text-green-300' : 'text-xs text-red-200'; }
+    document.getElementById('btnSwipeToggle').addEventListener('click', toggleSwipe);
+
+    function updateEditPanelUI() {
+       let selCount = editor.selectedObjs.length;
+       if (selCount > 0) { document.getElementById('editNoSelection').classList.add('hide'); document.getElementById('editControls').classList.remove('hide'); } 
+       else { document.getElementById('editNoSelection').classList.remove('hide'); document.getElementById('editControls').classList.add('hide'); }
+    }
+    
+    document.getElementById('tabBuild').addEventListener('click', () => setEditorMode('build'));
+    document.getElementById('tabEditMode').addEventListener('click', () => setEditorMode('edit'));
+    document.getElementById('tabDelete').addEventListener('click', () => setEditorMode('delete'));
+
+    function setEditorMode(mode) {
+       editor.mode = mode;
+       document.getElementById('tabBuild').classList.remove('active'); document.getElementById('tabEditMode').classList.remove('active'); document.getElementById('tabDelete').classList.remove('active', 'delete');
+       document.getElementById('panelBuild').classList.add('hide'); document.getElementById('panelEdit').classList.add('hide'); document.getElementById('panelDelete').classList.add('hide');
+       
+       if (mode === 'build') { document.getElementById('tabBuild').classList.add('active'); document.getElementById('panelBuild').classList.remove('hide'); }
+       if (mode === 'edit') { document.getElementById('tabEditMode').classList.add('active'); document.getElementById('panelEdit').classList.remove('hide'); updateEditPanelUI(); }
+       if (mode === 'delete') { document.getElementById('tabDelete').classList.add('active', 'delete'); document.getElementById('panelDelete').classList.remove('hide'); }
+    }
+
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+       btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          ['blocks', 'hazards', 'interact', 'portals', 'triggers'].forEach(c => document.getElementById(`cat-${c}`).classList.add('hide'));
+          document.getElementById(`cat-${e.target.dataset.cat}`).classList.remove('hide');
        });
     });
 
-    document.getElementById('btnEditRotLeft').addEventListener('click', () => { rotateSelection(-1); });
-    document.getElementById('btnEditRotRight').addEventListener('click', () => { rotateSelection(1); });
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+       if (btn.hasAttribute('data-tool')) {
+          btn.addEventListener('click', (e) => {
+             document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+             e.currentTarget.classList.add('active');
+             editor.tool = parseInt(e.currentTarget.dataset.tool);
+          });
+       }
+    });
 
-  async function initAuthApp() {
-    try {
-      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        await signInWithCustomToken(auth, __initial_auth_token);
-      } else {
-        await signInAnonymously(auth);
-      }
-    } catch (e) {
-      console.error("Auth error:", e);
-      document.getElementById('loadingScreen').classList.add('hidden');
+    document.getElementById('btnDeleteAll').addEventListener('click', () => { level = []; editor.selectedObjs = []; updateEditPanelUI(); saveHistory(); });
+    document.getElementById('btnNudgeUp').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.gy += 1); saveHistory(); });
+    document.getElementById('btnNudgeDown').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.gy -= 1); saveHistory(); });
+    document.getElementById('btnNudgeLeft').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.gx -= 1); saveHistory(); });
+    document.getElementById('btnNudgeRight').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.gx += 1); saveHistory(); });
+    document.getElementById('btnEditRotLeft').addEventListener('click', () => rotateSelection(-1));
+    document.getElementById('btnEditRotRight').addEventListener('click', () => rotateSelection(1));
+
+    // Music & Play Controls
+    document.getElementById('btnMusic').addEventListener('click', () => {
+       isMusicOn = !isMusicOn; document.getElementById('btnMusic').innerText = `🎵 Music: ${isMusicOn ? 'ON' : 'OFF'}`;
+       if (isMusicOn) initAudio();
+    });
+
+    document.getElementById('btnPlaytest').addEventListener('click', () => {
+       if (!state.isPlaytesting) {
+          state.isPlaytesting = true; editor.restoreState = { camX: state.cameraX, camY: state.cameraY };
+          document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="stop-circle" class="w-5 h-5"></i> Stop (Z)';
+          document.getElementById('btnPlaytest').classList.replace('bg-blue-600', 'bg-red-600'); document.getElementById('btnPlaytest').classList.replace('hover:bg-blue-500', 'hover:bg-red-500');
+          state.attempts = 1; document.getElementById('stats').innerText = `Attempt 1`; resetPlayer();
+       } else {
+          state.isPlaytesting = false; state.cameraX = editor.restoreState.camX; state.cameraY = editor.restoreState.camY;
+          document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)';
+          document.getElementById('btnPlaytest').classList.replace('bg-red-600', 'bg-blue-600'); document.getElementById('btnPlaytest').classList.replace('hover:bg-red-500', 'hover:bg-blue-500');
+          player.y = groundY - 30; player.x = state.cameraX + canvas.width/2; player.vy = 0; player.gamemode = 0; player.gravityDir = 1; player.speedMultiplier = 1; player.sizeMultiplier = 1;
+       }
+    });
+
+    document.getElementById('btnExitGame').addEventListener('click', () => {
+       document.getElementById('gameUI').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide');
+       document.getElementById('winOverlay').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide');
+       document.getElementById('hubUI').classList.remove('hide');
+       state.mode = 'menu'; state.isPlaytesting = false; isMusicOn = false; document.getElementById('btnMusic').innerText = `🎵 Music: OFF`;
+       currentPreviewLevel = null; currentEditingLevelId = null;
+    });
+    document.getElementById('btnWinExit').addEventListener('click', () => document.getElementById('btnExitGame').click());
+    document.getElementById('btnWinReplay').addEventListener('click', () => { state.attempts++; document.getElementById('stats').innerText = `Attempt ${state.attempts}`; resetPlayer(); });
+
+    // Hub Navigation
+    function showHubView(viewId) {
+       ['viewMainMenu', 'viewBrowser', 'viewMyLevels', 'viewLeaderboard', 'viewIconKit', 'viewTreasure'].forEach(id => {
+          document.getElementById(id).classList.add('hidden');
+       });
+       document.getElementById(viewId).classList.remove('hidden');
+       if (viewId === 'viewIconKit') renderIconKit();
+       if (viewId === 'viewTreasure') updateTreasureUI();
     }
-  }
-  
-  onAuthStateChanged(auth, async (user) => {
-      currentUser = user;
-      if (user) {
-        const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', user.uid);
+    document.querySelectorAll('.btnBackToMain').forEach(btn => btn.addEventListener('click', () => showHubView('viewMainMenu')));
+    document.getElementById('btnViewBrowser').addEventListener('click', () => showHubView('viewBrowser'));
+    document.getElementById('btnCreateLevel').addEventListener('click', () => showHubView('viewMyLevels'));
+    document.getElementById('btnViewLeaderboard').addEventListener('click', () => showHubView('viewLeaderboard'));
+    document.getElementById('btnViewIconKit').addEventListener('click', () => showHubView('viewIconKit'));
+    document.getElementById('btnViewTreasure').addEventListener('click', () => showHubView('viewTreasure'));
+
+    // ==========================================
+    // 🎨 ICON KIT ENGINE
+    // ==========================================
+    function renderIconKit() {
+       if (!myProfile) return;
+       let unlocked = myProfile.unlocked || {};
+       let currentTab = document.querySelector('.kit-tab-btn.active')?.dataset.tab || 'icons';
+       
+       const buildGrid = (arr, prefix, gridId, equippedProp, isColor) => {
+          let html = ''; let count = 0;
+          arr.forEach(item => {
+             let hasItem = unlocked[item.id] || item.rarity === 'common';
+             if (hasItem) count++;
+             let isEquipped = myProfile[equippedProp] === item.id || (!myProfile[equippedProp] && item.id === (isColor ? (equippedProp === 'equippedCol1' ? 'c1' : 'c2') : prefix + '1'));
+             let borderClass = hasItem ? `border-2 ${isEquipped ? 'border-green-400 shadow-[0_0_15px_#4ade80]' : 'border-gray-600 hover:border-gray-400'} cursor-pointer rarity-${item.rarity}` : 'border-2 border-red-900/50 opacity-30 cursor-not-allowed';
+             let inner = '';
+             if (isColor) {
+                inner = `<div class="w-full h-full rounded" style="background-color: ${item.val}"></div>`;
+             } else {
+                let svgFn = window.getIconSVG;
+                if(prefix==='sh') svgFn = window.getShipSVG; else if(prefix==='u') svgFn = window.getUfoSVG; else if(prefix==='w') svgFn = window.getWaveSVG; else if(prefix==='b') svgFn = window.getBallSVG; else if(prefix==='r') svgFn = window.getRobotSVG; else if(prefix==='sp') svgFn = window.getSpiderSVG; else if(prefix==='sw') svgFn = window.getSwingSVG;
+                let c1 = ALL_COLORS.find(c => c.id === (myProfile.equippedCol1 || 'c1'))?.val || '#00f0ff';
+                let c2 = ALL_COLORS.find(c => c.id === (myProfile.equippedCol2 || 'c2'))?.val || '#ffffff';
+                inner = svgFn(item.id, hasItem ? c1 : '#555', hasItem ? c2 : '#222');
+             }
+             html += `<div class="aspect-square bg-gray-800 rounded-xl p-2 flex items-center justify-center transition-all ${borderClass}" data-id="${item.id}" data-type="${equippedProp}" ${hasItem?'':'title="Locked"'} onclick="${hasItem ? `equipItem('${equippedProp}', '${item.id}')` : ''}">${inner}${isEquipped ? '<div class="absolute -top-2 -right-2 bg-green-500 rounded-full p-1 shadow"><i data-lucide="check" class="w-3 h-3 text-white"></i></div>' : ''}</div>`;
+          });
+          document.getElementById(gridId).innerHTML = html;
+          return count;
+       };
+
+       document.getElementById('kitCountIcons').innerText = buildGrid(ALL_ICONS, 'i', 'kitGridIcons', 'equippedIcon', false);
+       document.getElementById('kitCountShips').innerText = buildGrid(ALL_SHIPS, 'sh', 'kitGridShips', 'equippedShip', false);
+       document.getElementById('kitCountUfos').innerText = buildGrid(ALL_UFOS, 'u', 'kitGridUfos', 'equippedUfo', false);
+       document.getElementById('kitCountWaves').innerText = buildGrid(ALL_WAVES, 'w', 'kitGridWaves', 'equippedWave', false);
+       document.getElementById('kitCountBalls').innerText = buildGrid(ALL_BALLS, 'b', 'kitGridBalls', 'equippedBall', false);
+       document.getElementById('kitCountRobots').innerText = buildGrid(ALL_ROBOTS, 'r', 'kitGridRobots', 'equippedRobot', false);
+       document.getElementById('kitCountSpiders').innerText = buildGrid(ALL_SPIDERS, 'sp', 'kitGridSpiders', 'equippedSpider', false);
+       document.getElementById('kitCountSwings').innerText = buildGrid(ALL_SWINGS, 'sw', 'kitGridSwings', 'equippedSwing', false);
+       document.getElementById('kitCountCol1').innerText = buildGrid(ALL_COLORS, 'c', 'kitGridCol1', 'equippedCol1', true);
+       document.getElementById('kitCountCol2').innerText = buildGrid(ALL_COLORS, 'c', 'kitGridCol2', 'equippedCol2', true);
+
+       let pC1 = ALL_COLORS.find(c => c.id === (myProfile.equippedCol1 || 'c1'))?.val || '#00f0ff';
+       let pC2 = ALL_COLORS.find(c => c.id === (myProfile.equippedCol2 || 'c2'))?.val || '#ffffff';
+       let pSvgFn = window.getIconSVG; let pPrefix = myProfile.equippedIcon || 'i1';
+       if(currentTab==='ships') { pSvgFn = window.getShipSVG; pPrefix = myProfile.equippedShip || 'sh1'; }
+       else if(currentTab==='ufos') { pSvgFn = window.getUfoSVG; pPrefix = myProfile.equippedUfo || 'u1'; }
+       else if(currentTab==='waves') { pSvgFn = window.getWaveSVG; pPrefix = myProfile.equippedWave || 'w1'; }
+       else if(currentTab==='balls') { pSvgFn = window.getBallSVG; pPrefix = myProfile.equippedBall || 'b1'; }
+       else if(currentTab==='robots') { pSvgFn = window.getRobotSVG; pPrefix = myProfile.equippedRobot || 'r1'; }
+       else if(currentTab==='spiders') { pSvgFn = window.getSpiderSVG; pPrefix = myProfile.equippedSpider || 'sp1'; }
+       else if(currentTab==='swings') { pSvgFn = window.getSwingSVG; pPrefix = myProfile.equippedSwing || 'sw1'; }
+       
+       document.getElementById('kitPreviewContainer').innerHTML = pSvgFn(pPrefix, pC1, pC2);
+       lucide.createIcons();
+    }
+
+    window.equipItem = async function(prop, id) {
+       if (!currentUser) return;
+       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { [prop]: id }, { merge: true }); } catch(e) {}
+    };
+
+    document.querySelectorAll('.kit-tab-btn').forEach(btn => {
+       btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.kit-tab-btn').forEach(b => { b.classList.remove('active', 'text-white', 'border-blue-500'); b.classList.add('text-gray-400', 'border-transparent'); });
+          e.currentTarget.classList.add('active', 'text-white', 'border-blue-500'); e.currentTarget.classList.remove('text-gray-400', 'border-transparent');
+          ['Icons', 'Ships', 'Ufos', 'Waves', 'Balls', 'Robots', 'Spiders', 'Swings', 'Col1', 'Col2'].forEach(c => document.getElementById(`kitGrid${c}`).classList.add('hide'));
+          let target = e.currentTarget.dataset.tab;
+          document.getElementById(`kitGrid${target.charAt(0).toUpperCase() + target.slice(1)}`).classList.remove('hide');
+          renderIconKit();
+       });
+    });
+
+    // ==========================================
+    // 🗝️ TREASURE ROOM ENGINE
+    // ==========================================
+    function updateTreasureUI() {
+       if (!myProfile) return;
+       let stars = myProfile.score || 0;
+       let earnedKeys = Math.floor(stars / 25);
+       let spentKeys = myProfile.spentKeys || 0;
+       let currentKeys = Math.max(0, earnedKeys - spentKeys);
+       document.getElementById('treasureKeyCount').innerText = currentKeys;
+       
+       document.querySelectorAll('.btn-buy-chest').forEach(btn => {
+          let cost = parseInt(btn.dataset.cost);
+          if (currentKeys >= cost) { btn.classList.remove('opacity-50', 'cursor-not-allowed'); btn.classList.add('hover:bg-blue-500'); btn.disabled = false; } 
+          else { btn.classList.add('opacity-50', 'cursor-not-allowed'); btn.classList.remove('hover:bg-blue-500'); btn.disabled = true; }
+       });
+    }
+
+    window.openChest = async function(tier, cost) {
+       if (!currentUser || !myProfile) return;
+       let stars = myProfile.score || 0; let earnedKeys = Math.floor(stars / 25); let spentKeys = myProfile.spentKeys || 0; let currentKeys = earnedKeys - spentKeys;
+       if (currentKeys < cost) return;
+
+       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { spentKeys: spentKeys + cost }, { merge: true }); } catch(e) {}
+
+       document.getElementById('treasureMainArea').classList.add('hide');
+       let openArea = document.getElementById('treasureOpenArea'); openArea.classList.remove('hide');
+       let animContainer = document.getElementById('chestAnimContainer');
+       let rewardsContainer = document.getElementById('rewardsContainer'); rewardsContainer.innerHTML = ''; rewardsContainer.classList.add('hide');
+       let btnContinue = document.getElementById('btnTreasureContinue'); btnContinue.classList.add('hide');
+       let flashScreen = document.getElementById('flashScreen'); flashScreen.classList.remove('flash-screen');
+
+       let chestSVG = '';
+       if (tier === 'wood') chestSVG = `<div class="w-full h-full bg-yellow-900 border-8 border-yellow-700 rounded-xl relative shadow-2xl"><div class="absolute top-1/2 left-0 w-full h-4 bg-yellow-950 -translate-y-1/2"></div><div class="w-12 h-16 bg-gray-400 border-4 border-gray-600 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
+       if (tier === 'gold') chestSVG = `<div class="w-full h-full bg-yellow-500 border-8 border-yellow-300 rounded-xl relative shadow-[0_0_50px_rgba(202,138,4,0.6)]"><div class="absolute top-1/2 left-0 w-full h-4 bg-yellow-700 -translate-y-1/2"></div><div class="w-12 h-16 bg-gray-200 border-4 border-white rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
+       if (tier === 'vehicle') chestSVG = `<div class="w-full h-full bg-blue-950 border-8 border-blue-500 rounded-xl relative shadow-[0_0_50px_rgba(59,130,246,0.6)]"><div class="absolute top-1/2 left-0 w-full h-4 bg-black -translate-y-1/2"></div><div class="w-12 h-16 bg-blue-600 border-4 border-blue-300 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
+       if (tier === 'demon') chestSVG = `<div class="w-full h-full bg-red-950 border-8 border-red-500 rounded-xl relative shadow-[0_0_50px_rgba(239,68,68,0.8)]"><div class="absolute top-1/2 left-0 w-full h-4 bg-black -translate-y-1/2"></div><div class="w-12 h-16 bg-red-600 border-4 border-red-300 rounded absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div></div>`;
+       
+       animContainer.innerHTML = chestSVG;
+       animContainer.className = 'relative z-10 w-48 h-48 mb-12 chest-shaking';
+
+       setTimeout(() => {
+          animContainer.classList.remove('chest-shaking');
+          animContainer.classList.add('hide');
+          flashScreen.classList.add('flash-screen');
+
+          let drops = []; let numDrops = tier === 'wood' ? 1 : tier === 'demon' ? 3 : 2;
+          let pool = [];
+          if (tier === 'wood') { pool = [...ALL_ICONS.filter(i=>['common','rare'].includes(i.rarity)), ...ALL_COLORS.filter(c=>['common','rare'].includes(c.rarity))]; }
+          else if (tier === 'gold') { pool = [...ALL_ICONS.filter(i=>['rare','epic','legendary'].includes(i.rarity)), ...ALL_COLORS.filter(c=>['rare','epic','legendary'].includes(c.rarity))]; }
+          else if (tier === 'vehicle') { pool = [...ALL_SHIPS, ...ALL_UFOS, ...ALL_WAVES, ...ALL_BALLS, ...ALL_ROBOTS, ...ALL_SPIDERS, ...ALL_SWINGS]; }
+          else if (tier === 'demon') { pool = [...ALL_ICONS, ...ALL_SHIPS, ...ALL_UFOS, ...ALL_WAVES, ...ALL_BALLS, ...ALL_ROBOTS, ...ALL_SPIDERS, ...ALL_SWINGS, ...ALL_COLORS].filter(x => ['epic','legendary','mythic'].includes(x.rarity)); }
+
+          for(let i=0; i<numDrops; i++) drops.push(pool[Math.floor(Math.random() * pool.length)]);
+
+          let unlockedUpdates = { ...myProfile.unlocked };
+          drops.forEach(d => { unlockedUpdates[d.id] = true; });
+          setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { unlocked: unlockedUpdates }, { merge: true });
+
+          rewardsContainer.classList.remove('hide');
+          drops.forEach((d, idx) => {
+             let svgContent = ''; let isColor = d.id.startsWith('c');
+             if (isColor) svgContent = `<div class="w-full h-full rounded-xl" style="background-color: ${d.val}"></div>`;
+             else {
+                let fn = window.getIconSVG;
+                if(d.id.startsWith('sh')) fn = window.getShipSVG; else if(d.id.startsWith('u')) fn = window.getUfoSVG; else if(d.id.startsWith('w')) fn = window.getWaveSVG; else if(d.id.startsWith('b')) fn = window.getBallSVG; else if(d.id.startsWith('r')) fn = window.getRobotSVG; else if(d.id.startsWith('sp')) fn = window.getSpiderSVG; else if(d.id.startsWith('sw')) fn = window.getSwingSVG;
+                svgContent = fn(d.id, '#ccc', '#fff');
+             }
+
+             let cardHTML = `<div class="w-32 h-32 md:w-48 md:h-48 bg-gray-800 rounded-2xl p-4 border-4 rarity-${d.rarity} card-flip shadow-2xl flex flex-col items-center justify-center relative" style="animation-delay: ${idx * 0.2}s">
+                 <div class="w-full h-full p-2 flex items-center justify-center drop-shadow-lg">${svgContent}</div>
+                 <div class="absolute -bottom-4 bg-gray-900 px-4 py-1 rounded-full border border-gray-600 font-bold text-xs uppercase text-white shadow">${d.rarity}</div>
+             </div>`;
+             rewardsContainer.innerHTML += cardHTML;
+          });
+
+          setTimeout(() => { btnContinue.classList.remove('hide'); lucide.createIcons(); }, 1000);
+       }, 1500);
+    };
+
+    document.querySelectorAll('.btn-buy-chest').forEach(btn => {
+       btn.addEventListener('click', async (e) => {
+          let cost = parseInt(e.currentTarget.dataset.cost);
+          let tier = e.currentTarget.dataset.tier;
+          window.openChest(tier, cost);
+       });
+    });
+
+    document.getElementById('btnTreasureContinue').addEventListener('click', () => {
+       document.getElementById('treasureOpenArea').classList.add('hide');
+       document.getElementById('treasureMainArea').classList.remove('hide');
+       updateTreasureUI();
+    });
+
+    // ==========================================
+    // 🌐 LEVEL PUBLISHING & BROWSING
+    // ==========================================
+    document.getElementById('btnPublish').addEventListener('click', async () => {
+        if (!currentUser || !myProfile || level.length === 0) return;
+        
+        let levelStr = generateLevelString();
+        let lengthStr = levelMaxX < 2000 ? 'Tiny' : levelMaxX < 8000 ? 'Short' : levelMaxX < 20000 ? 'Medium' : 'Long';
+        
+        let lvlData = {
+            authorId: currentUser.uid,
+            authorName: myProfile.username,
+            name: currentEditingLevelName || "Unnamed Level",
+            data: levelStr,
+            length: lengthStr,
+            downloads: 0,
+            likes: 0,
+            stars: 0,
+            difficulty: 'NA',
+            timestamp: Date.now()
+        };
+
         try {
-          const uSnap = await getDoc(uRef);
-          if (!uSnap.exists()) {
-            const uName = pendingUsername || user.displayName || 'Player ' + Math.floor(Math.random() * 1000);
-            await setDoc(uRef, { 
-               username: uName, score: 0, role: 'user', banned: false, warning: '', trollEvent: '', photoURL: user.photoURL || getDefaultAvatar(uName), joinedAt: Date.now(), progress: {},
-               unlockedIcons: ['i1'], unlockedShips: ['sh1'], unlockedUfos: ['u1'], unlockedWaves: ['w1'], unlockedBalls: ['b1'], unlockedRobots: ['r1'], unlockedSpiders: ['sp1'], unlockedSwings: ['sw1'],
-               unlockedCol1: ['c1'], unlockedCol2: ['c20'], 
-               equippedIcon: 'i1', equippedShip: 'sh1', equippedUfo: 'u1', equippedWave: 'w1', equippedBall: 'b1', equippedRobot: 'r1', equippedSpider: 'sp1', equippedSwing: 'sw1',
-               equippedCol1: 'c1', equippedCol2: 'c20', keysSpent: 0
-            });
-          }
-          pendingUsername = null; setupDatabaseListener();
-        } catch(e) {
-          document.getElementById('loadingScreen').classList.add('hidden');
-        }
-      } else {
-        if (dbUnsubscribe) dbUnsubscribe(); if (settingsUnsubscribe) settingsUnsubscribe(); if (levelsUnsubscribe) levelsUnsubscribe();
-        myProfile = null; clearTrollEffects();
-        document.getElementById('bannedScreen').classList.add('hidden');
-        document.getElementById('joinSection').classList.remove('hidden');
-        document.getElementById('loggedInSection').classList.add('hidden');
-        document.getElementById('loadingScreen').classList.add('hidden');
-      }
-  });
+            let levelRef;
+            if (currentEditingLevelId) {
+                levelRef = doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentEditingLevelId);
+                await setDoc(levelRef, { data: levelStr, length: lengthStr, timestamp: Date.now() }, { merge: true });
+            } else {
+                levelRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
+                await setDoc(levelRef, lvlData);
+                currentEditingLevelId = levelRef.id;
+            }
+            showBanner("Level Published Successfully!", "bg-green-600");
+        } catch(e) { showBanner("Error publishing level", "bg-red-600"); }
+    });
 
-  function setupDatabaseListener() {
-      if (!currentUser) return;
-      
-      const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid);
-      dbUnsubscribe = onSnapshot(uRef, (docSnap) => {
-          if (docSnap.exists()) {
-              myProfile = docSnap.data();
-              document.getElementById('loadingScreen').classList.add('hidden');
-              
-              if (myProfile.banned) {
-                  document.getElementById('bannedScreen').classList.remove('hidden');
-                  document.getElementById('bannedScreen').classList.add('flex');
-                  document.getElementById('hubUI').classList.add('hidden');
-                  return;
-              } else {
-                  document.getElementById('bannedScreen').classList.add('hidden');
-                  document.getElementById('bannedScreen').classList.remove('flex');
-                  document.getElementById('hubUI').classList.remove('hidden');
-              }
-              
-              if (myProfile.warning) {
-                  document.getElementById('warningScreen').classList.remove('hidden');
-                  document.getElementById('warningScreen').classList.add('flex');
-                  document.getElementById('warningMessageText').innerText = myProfile.warning;
-              } else {
-                  document.getElementById('warningScreen').classList.add('hidden');
-                  document.getElementById('warningScreen').classList.remove('flex');
-              }
-              
-              if (myProfile.trollEvent) applyTrollEffect(myProfile.trollEvent);
+    window.playLevel = async function(lvlId) {
+       let lvl = levelsList.find(l => l.id === lvlId);
+       if (!lvl) return;
+       currentPreviewLevel = lvl;
+       document.getElementById('prevLevelId').innerText = `ID: ${lvl.id}`;
+       document.getElementById('prevLevelName').innerText = lvl.name;
+       document.getElementById('prevAuthorName').innerText = lvl.authorName;
+       document.getElementById('prevDownloads').innerText = lvl.downloads || 0;
+       document.getElementById('prevLikes').innerText = lvl.likes || 0;
+       document.getElementById('prevLength').innerText = lvl.length || 'Tiny';
+       document.getElementById('prevDiffFace').innerHTML = window.getDifficultySVG(lvl.difficulty || 'NA');
+       document.getElementById('prevDiffText').innerText = (lvl.difficulty || 'NA').toUpperCase();
+       
+       if ((lvl.stars || 0) > 0) {
+          document.getElementById('prevStarsBadge').classList.remove('hidden');
+          document.getElementById('prevStarsNum').innerText = lvl.stars;
+       } else { document.getElementById('prevStarsBadge').classList.add('hidden'); }
 
+       let prog = myProfile && myProfile.progress ? (myProfile.progress[lvl.id] || 0) : 0;
+       document.getElementById('prevProgressBar').style.width = `${prog}%`;
+       document.getElementById('prevProgressText').innerText = `${prog}%`;
+
+       document.getElementById('levelPreviewModal').classList.remove('hide');
+       
+       let cmtsHtml = '';
+       if (lvl.comments && lvl.comments.length > 0) {
+          lvl.comments.slice().reverse().forEach(c => {
+             let pfp = getDefaultAvatar(c.author);
+             cmtsHtml += `<div class="bg-black/40 p-3 rounded border border-white/5 flex gap-3"><img src="${pfp}" class="w-8 h-8 rounded-full border border-gray-600"><div class="flex-1"><p class="text-xs font-bold ${['king','admin'].includes(c.role)?'text-yellow-400':c.role==='mod'? 'text-green-400':'text-blue-300'}">${c.author}</p><p class="text-white text-sm break-words">${c.text}</p></div></div>`;
+          });
+          document.getElementById('prevCommentCount').innerText = lvl.comments.length;
+       } else { cmtsHtml = '<p class="text-gray-500 text-sm italic text-center mt-4">No comments yet.</p>'; document.getElementById('prevCommentCount').innerText = '0'; }
+       document.getElementById('prevCommentsList').innerHTML = cmtsHtml;
+    };
+
+    document.getElementById('btnClosePreview').addEventListener('click', () => { document.getElementById('levelPreviewModal').classList.add('hide'); currentPreviewLevel = null; });
+    
+    document.getElementById('btnModalPlay').addEventListener('click', () => {
+       if (!currentPreviewLevel) return;
+       document.getElementById('levelPreviewModal').classList.add('hide');
+       document.getElementById('hubUI').classList.add('hide');
+       document.getElementById('gameUI').classList.remove('hide');
+       document.getElementById('gameProgressContainer').classList.remove('hide');
+       
+       level = parseLevelString(currentPreviewLevel.data || '');
+       levelMaxX = 1; for (let o of level) if (o.gx > levelMaxX) levelMaxX = o.gx; levelMaxX *= GRID_SIZE;
+
+       if (currentUser) setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { downloads: (currentPreviewLevel.downloads || 0) + 1 }, { merge: true });
+
+       state.mode = 'play'; state.isPlaytesting = false; state.attempts = 1; document.getElementById('stats').innerText = `Attempt 1`;
+       resetPlayer();
+    });
+
+    document.getElementById('btnModalLike').addEventListener('click', async () => {
+       if (!currentUser || !currentPreviewLevel) return;
+       try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { likes: (currentPreviewLevel.likes || 0) + 1 }, { merge: true }); document.getElementById('iconModalLike').classList.add('fill-yellow-400'); } catch(e){}
+    });
+
+    document.getElementById('commentForm').addEventListener('submit', async (e) => {
+       e.preventDefault();
+       if (!currentUser || !myProfile || !currentPreviewLevel) return;
+       let input = document.getElementById('commentInput');
+       let text = input.value.trim(); if (!text) return;
+       
+       let newComment = { author: myProfile.username, role: myProfile.role || 'user', text: text, ts: Date.now() };
+       let updatedComments = currentPreviewLevel.comments || []; updatedComments.push(newComment);
+       
+       try {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id), { comments: updatedComments }, { merge: true });
+          input.value = ''; window.playLevel(currentPreviewLevel.id);
+       } catch(e) {}
+    });
+
+    document.getElementById('btnCreateNewLevel').addEventListener('click', () => {
+       level = parseLevelString(BLANK_LEVEL_DATA); editor.selectedObjs = []; updateEditPanelUI();
+       currentEditingLevelId = null; currentEditingLevelName = prompt("Enter Level Name:", "My New Level") || "Unnamed Level";
+       document.getElementById('hubUI').classList.add('hide');
+       document.getElementById('gameUI').classList.remove('hide'); document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide');
+       setEditorMode('build'); state.mode = 'edit'; state.isPlaytesting = false; resetPlayer();
+    });
+
+    window.editLevel = function(lvlId) {
+       let lvl = levelsList.find(l => l.id === lvlId); if (!lvl) return;
+       level = parseLevelString(lvl.data || ''); editor.selectedObjs = []; updateEditPanelUI();
+       currentEditingLevelId = lvl.id; currentEditingLevelName = lvl.name;
+       document.getElementById('hubUI').classList.add('hide');
+       document.getElementById('gameUI').classList.remove('hide'); document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide');
+       setEditorMode('build'); state.mode = 'edit'; state.isPlaytesting = false; resetPlayer();
+    };
+
+    function renderLevelLists() {
+       let communityHTML = ''; let myLevelsHTML = '';
+       levelsList.sort((a, b) => (b.likes || 0) - (a.likes || 0)).forEach(lvl => {
+          let html = `
+          <div class="bg-gray-900 border border-gray-700 rounded-xl p-4 flex gap-4 hover:border-gray-500 transition-colors group relative overflow-hidden shadow-md">
+             <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+             <div class="w-16 h-16 flex-shrink-0 cursor-pointer transition-transform hover:scale-110 active:scale-95" onclick="playLevel('${lvl.id}')">
+                ${window.getDifficultySVG(lvl.difficulty || 'NA')}
+             </div>
+             <div class="flex-1 min-w-0 flex flex-col justify-center">
+                <div class="flex justify-between items-start">
+                   <h4 class="text-xl font-bold text-white truncate cursor-pointer hover:text-blue-400 transition-colors" onclick="playLevel('${lvl.id}')">${lvl.name}</h4>
+                   ${(lvl.stars||0) > 0 ? `<div class="flex items-center gap-1 bg-yellow-900/50 border border-yellow-600 px-2 py-0.5 rounded-full"><i data-lucide="star" class="w-3 h-3 text-yellow-400 fill-yellow-400"></i><span class="text-xs font-bold text-yellow-400">${lvl.stars}</span></div>` : ''}
+                </div>
+                <p class="text-gray-400 text-sm truncate">By <span class="text-blue-300 font-semibold cursor-pointer hover:underline" onclick="showProfile('${lvl.authorId}')">${lvl.authorName}</span></p>
+                <div class="flex gap-4 mt-2 text-xs font-bold text-gray-500">
+                   <span class="flex items-center gap-1"><i data-lucide="play-circle" class="w-4 h-4"></i> ${lvl.downloads||0}</span>
+                   <span class="flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4"></i> ${lvl.likes||0}</span>
+                   <span class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i> ${lvl.length||'Tiny'}</span>
+                </div>
+             </div>
+             ${currentUser && lvl.authorId === currentUser.uid ? `<div class="flex flex-col gap-2 justify-center"><button class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded shadow transition-colors z-10" onclick="editLevel('${lvl.id}')"><i data-lucide="edit-2" class="w-5 h-5"></i></button></div>` : ''}
+          </div>`;
+          communityHTML += html;
+          if (currentUser && lvl.authorId === currentUser.uid) myLevelsHTML += html;
+       });
+       document.getElementById('levelBrowserList').innerHTML = communityHTML || '<p class="text-gray-500 text-center mt-8 font-bold">No levels found.</p>';
+       document.getElementById('myLevelsList').innerHTML = myLevelsHTML || '<p class="text-gray-500 text-center mt-8 font-bold">You haven\'t created any levels yet.</p>';
+       document.getElementById('levelCount').innerText = `${levelsList.length} Levels`;
+       lucide.createIcons();
+    }
+
+    function renderLeaderboard() {
+       let sortedUsers = usersData.filter(u => (u.score || 0) > 0).sort((a,b) => (b.score || 0) - (a.score || 0));
+       let html = '';
+       sortedUsers.forEach((u, idx) => {
+          let badge = u.role === 'king' ? '👑' : u.role === 'admin' ? '🛡️' : u.role === 'mod' ? '⚔️' : '';
+          let pfp = u.pfp || getDefaultAvatar(u.username);
+          html += `<div class="bg-gray-900 border border-gray-700 rounded-xl p-4 flex items-center gap-4 hover:border-gray-500 transition-colors cursor-pointer shadow-sm" onclick="showProfile('${u.id}')">
+             <div class="w-8 font-black text-2xl text-gray-500 text-center">#${idx+1}</div>
+             <img src="${pfp}" class="w-12 h-12 rounded-full border-2 border-gray-700 object-cover">
+             <div class="flex-1">
+                <p class="font-bold text-white text-lg">${u.username} <span class="text-sm">${badge}</span></p>
+                <p class="text-yellow-400 font-mono text-sm font-bold flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> ${u.score || 0} Stars</p>
+             </div>
+          </div>`;
+       });
+       document.getElementById('leaderboardViewList').innerHTML = html || '<p class="text-gray-500 text-center mt-8 font-bold">Leaderboard is empty.</p>';
+       document.getElementById('creatorCount').innerText = `${sortedUsers.length} Creators`;
+       lucide.createIcons();
+    }
+
+    window.showProfile = function(userId) {
+       let u = usersData.find(x => x.id === userId); if (!u) return;
+       document.getElementById('profModalName').innerText = u.username;
+       document.getElementById('profModalImg').src = u.pfp || getDefaultAvatar(u.username);
+       
+       let badgeHtml = '';
+       if(u.role === 'king') badgeHtml = '<span class="bg-yellow-500 text-black font-black px-3 py-1 rounded-full text-xs shadow-[0_0_15px_#eab308] tracking-widest uppercase">KING</span>';
+       else if(u.role === 'admin') badgeHtml = '<span class="bg-red-600 text-white font-black px-3 py-1 rounded-full text-xs shadow-[0_0_15px_#dc2626] tracking-widest uppercase">ADMIN</span>';
+       else if(u.role === 'mod') badgeHtml = '<span class="bg-green-600 text-white font-black px-3 py-1 rounded-full text-xs shadow-[0_0_15px_#16a34a] tracking-widest uppercase">MODERATOR</span>';
+       document.getElementById('profModalBadge').innerHTML = badgeHtml;
+
+       document.getElementById('profModalStars').innerText = u.score || 0;
+       document.getElementById('profModalIconCount').innerText = `${Object.keys(u.unlocked||{}).filter(k=>k.startsWith('i')).length + 10}/40`;
+       document.getElementById('profModalColorCount').innerText = `${Object.keys(u.unlocked||{}).filter(k=>k.startsWith('c')).length + 12}/60`;
+
+       let c1 = ALL_COLORS.find(c => c.id === (u.equippedCol1 || 'c1'))?.val || '#00f0ff';
+       let c2 = ALL_COLORS.find(c => c.id === (u.equippedCol2 || 'c2'))?.val || '#ffffff';
+       document.getElementById('profModalFavIcon').innerHTML = window.getIconSVG(u.equippedIcon || 'i1', c1, c2);
+
+       document.getElementById('profileModal').classList.remove('hide');
+    };
+    document.getElementById('btnCloseProfile').addEventListener('click', () => document.getElementById('profileModal').classList.add('hide'));
+
+    // ==========================================
+    // 🔐 FIREBASE AUTH & SYNCHRONIZATION
+    // ==========================================
+    const initAuth = async () => {
+      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+        try { await signInWithCustomToken(auth, __initial_auth_token); } catch(e){}
+      } else { try { await signInAnonymously(auth); } catch(e){} }
+    };
+    
+    initAuth().then(() => {
+        onAuthStateChanged(auth, user => {
+           currentUser = user;
+           if (user && !user.isAnonymous) {
               document.getElementById('joinSection').classList.add('hidden');
               document.getElementById('loggedInSection').classList.remove('hidden');
-              
-              document.getElementById('displayUsername').innerText = myProfile.username;
-              document.getElementById('displayPfp').src = myProfile.photoURL || getDefaultAvatar(myProfile.username);
-              document.getElementById('displayScore').innerText = myProfile.score || 0;
-              document.getElementById('displayKeys').innerText = Math.floor((myProfile.score || 0) / 25) - (myProfile.keysSpent || 0);
-              
-              let badgeHtml = '';
-              if (myProfile.role === 'king') badgeHtml = '<span class="bg-yellow-500 text-black text-[10px] font-black px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="crown" class="w-3 h-3"></i> KING</span>';
-              else if (myProfile.role === 'admin') badgeHtml = '<span class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> ADMIN</span>';
-              else if (myProfile.role === 'mod') badgeHtml = '<span class="bg-blue-500 text-white text-[10px] font-black px-2 py-0.5 rounded flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3"></i> MOD</span>';
-              document.getElementById('myRoleBadge').innerHTML = badgeHtml;
-              
-              if (['king', 'admin', 'mod'].includes(myProfile.role)) {
-                  document.getElementById('openAdminBtn').classList.remove('hidden');
-                  document.getElementById('openAdminBtn').classList.add('flex');
-                  if (myProfile.role === 'king') {
-                      document.getElementById('changeCodeBtn').classList.remove('hidden');
-                      document.getElementById('changeCodeBtn').classList.add('flex');
-                  }
-              } else {
-                  document.getElementById('openAdminBtn').classList.add('hidden');
-                  document.getElementById('openAdminBtn').classList.remove('flex');
-              }
-              
-              if (myProfile.role !== 'king') {
-                  document.getElementById('redeemCodeBtn').classList.remove('hidden');
-                  document.getElementById('redeemCodeBtn').classList.add('flex');
-              } else {
-                  document.getElementById('redeemCodeBtn').classList.add('hidden');
-                  document.getElementById('redeemCodeBtn').classList.remove('flex');
-              }
+              document.getElementById('loadingScreen').classList.add('hidden');
+              setupListeners(user.uid);
+           } else {
+              document.getElementById('joinSection').classList.remove('hidden');
+              document.getElementById('loggedInSection').classList.add('hidden');
+              document.getElementById('loadingScreen').classList.add('hidden');
+              if(dbUnsubscribe) dbUnsubscribe(); if(levelsUnsubscribe) levelsUnsubscribe(); if(settingsUnsubscribe) settingsUnsubscribe();
+           }
+        });
+    });
 
-              updatePlayerSprite();
-              lucide.createIcons();
-          }
-      }, (err) => console.error(err));
+    document.getElementById('tabLogin').addEventListener('click', () => { isSignupMode = false; document.getElementById('tabLogin').className = 'flex-1 pb-2 border-b-2 border-blue-500 font-bold text-white transition-colors'; document.getElementById('tabSignup').className = 'flex-1 pb-2 border-b-2 border-gray-700 font-bold text-gray-500 transition-colors hover:text-gray-300'; document.getElementById('usernameGroup').classList.add('hidden'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
+    document.getElementById('tabSignup').addEventListener('click', () => { isSignupMode = true; document.getElementById('tabSignup').className = 'flex-1 pb-2 border-b-2 border-blue-500 font-bold text-white transition-colors'; document.getElementById('tabLogin').className = 'flex-1 pb-2 border-b-2 border-gray-700 font-bold text-gray-500 transition-colors hover:text-gray-300'; document.getElementById('usernameGroup').classList.remove('hidden'); document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; });
 
-      settingsUnsubscribe = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), (docSnap) => {
-          if (docSnap.exists()) {
-              globalSettings = { ...globalSettings, ...docSnap.data() };
-              if (globalSettings.broadcastMsg) {
-                  document.getElementById('globalBannerText').innerText = globalSettings.broadcastMsg;
-                  document.getElementById('globalBanner').classList.remove('-translate-y-full');
-              } else {
-                  document.getElementById('globalBanner').classList.add('-translate-y-full');
-              }
-              if (globalSettings.globalTroll && (!myProfile || !['king', 'admin'].includes(myProfile.role))) {
-                  applyTrollEffect(globalSettings.globalTroll);
-              }
-          }
-      }, (err) => console.error(err));
+    document.getElementById('emailAuthForm').addEventListener('submit', async e => {
+       e.preventDefault();
+       let email = document.getElementById('emailInput').value, pass = document.getElementById('passwordInput').value;
+       document.getElementById('loadingScreen').classList.remove('hidden');
+       try {
+          if (isSignupMode) {
+             let u = document.getElementById('usernameInput').value.trim(); if (!u) return alert("Username required");
+             pendingUsername = u;
+             await createUserWithEmailAndPassword(auth, email, pass);
+          } else { await signInWithEmailAndPassword(auth, email, pass); }
+       } catch(err) { alert(err.message); document.getElementById('loadingScreen').classList.add('hidden'); }
+    });
 
-      const levelsQuery = query(collection(db, 'artifacts', appId, 'public', 'data', 'levels'));
-      levelsUnsubscribe = onSnapshot(levelsQuery, (snapshot) => {
-          levelsList = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => b.createdAt - a.createdAt);
-          renderLevelBrowser();
-          renderMyLevels();
-      }, (err) => console.error(err));
+    document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+       document.getElementById('loadingScreen').classList.remove('hidden');
+       try { await signInWithPopup(auth, googleProvider); } catch(err) { alert(err.message); document.getElementById('loadingScreen').classList.add('hidden'); }
+    });
 
-      onSnapshot(query(collection(db, 'artifacts', appId, 'public', 'data', 'users')), (snapshot) => {
-          usersData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-          renderLeaderboard();
-          renderAdminDirectory();
-      }, (err) => console.error(err));
-  }
+    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+    document.getElementById('deleteAccountBtn').addEventListener('click', async () => { if (confirm("Are you sure? This cannot be undone.")) { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid)); await deleteUser(currentUser); } catch(e){} } });
 
-  // AUTH TAB SWITCHING
-  document.getElementById('tabLogin').addEventListener('click', () => { isSignupMode = false; document.getElementById('tabLogin').classList.replace('border-gray-700','border-blue-500'); document.getElementById('tabLogin').classList.replace('text-gray-500','text-white'); document.getElementById('tabSignup').classList.replace('border-blue-500','border-gray-700'); document.getElementById('tabSignup').classList.replace('text-white','text-gray-500'); document.getElementById('usernameGroup').classList.add('hidden'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; });
-  document.getElementById('tabSignup').addEventListener('click', () => { isSignupMode = true; document.getElementById('tabSignup').classList.replace('border-gray-700','border-blue-500'); document.getElementById('tabSignup').classList.replace('text-gray-500','text-white'); document.getElementById('tabLogin').classList.replace('border-blue-500','border-gray-700'); document.getElementById('tabLogin').classList.replace('text-white','text-gray-500'); document.getElementById('usernameGroup').classList.remove('hidden'); document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; });
+    function showBanner(msg, bgClass) {
+       const b = document.getElementById('globalBanner');
+       b.className = `fixed top-0 left-0 right-0 text-white p-3 font-bold text-center z-[150] shadow-xl transform transition-transform duration-500 flex justify-center items-center gap-3 ${bgClass}`;
+       document.getElementById('globalBannerText').innerText = msg;
+       b.classList.remove('-translate-y-full');
+       setTimeout(() => b.classList.add('-translate-y-full'), 5000);
+    }
+    document.getElementById('closeBannerBtn').addEventListener('click', () => document.getElementById('globalBanner').classList.add('-translate-y-full'));
 
-  // AUTH FORMS
-  document.getElementById('emailAuthForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const em = document.getElementById('emailInput').value; const pw = document.getElementById('passwordInput').value; const un = document.getElementById('usernameInput').value;
-      document.getElementById('emailSubmitBtn').disabled = true; document.getElementById('emailSubmitBtn').innerText = 'Processing...';
-      try {
-          if (isSignupMode) { if(!un.trim()) { throw new Error("Username required."); } pendingUsername = un.trim(); await createUserWithEmailAndPassword(auth, em, pw); } 
-          else { await signInWithEmailAndPassword(auth, em, pw); }
-      } catch(err) { alert(err.message); document.getElementById('emailSubmitBtn').disabled = false; document.getElementById('emailSubmitBtn').innerText = isSignupMode ? 'Sign Up' : 'Log In'; }
-  });
-  
-  document.getElementById('googleLoginBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch(err) { alert(err.message); } });
-  document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); location.reload(); });
-  document.getElementById('deleteAccountBtn').addEventListener('click', async () => { if(confirm("Are you sure? This is permanent!")) { try { if(currentUser) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid)); await deleteUser(currentUser); alert("Account deleted."); location.reload(); } } catch(err) { alert("Error deleting account. You may need to sign in again first."); } } });
-  document.getElementById('dismissWarningBtn').addEventListener('click', async () => { if(currentUser) { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warning: '' }, { merge: true }); document.getElementById('warningScreen').classList.add('hidden'); document.getElementById('warningScreen').classList.remove('flex'); } });
-  document.getElementById('closeBannerBtn').addEventListener('click', () => { document.getElementById('globalBanner').classList.add('-translate-y-full'); });
-
-  // ADMIN PANEL
-  document.getElementById('openAdminBtn').addEventListener('click', () => { document.getElementById('adminPanelModal').classList.remove('hidden'); document.getElementById('adminPanelModal').classList.add('flex'); });
-  document.getElementById('closeAdminBtn').addEventListener('click', () => { document.getElementById('adminPanelModal').classList.add('hidden'); document.getElementById('adminPanelModal').classList.remove('flex'); });
-  
-  document.getElementById('cmdAction').addEventListener('change', (e) => {
-      const a = e.target.value; const pc = document.getElementById('cmdParamContainer');
-      document.getElementById('cmdParamNumber').classList.add('hidden'); document.getElementById('cmdParamText').classList.add('hidden'); document.getElementById('cmdParamRole').classList.add('hidden');
-      if (['addScore', 'subScore', 'setScore'].includes(a)) { pc.classList.remove('hidden'); document.getElementById('cmdParamLabel').innerText = 'Stars Amount'; document.getElementById('cmdParamNumber').classList.remove('hidden'); }
-      else if (['warn', 'globalMsg'].includes(a)) { pc.classList.remove('hidden'); document.getElementById('cmdParamLabel').innerText = 'Message Text'; document.getElementById('cmdParamText').classList.remove('hidden'); }
-      else if (a === 'role') { pc.classList.remove('hidden'); document.getElementById('cmdParamLabel').innerText = 'Select Role'; document.getElementById('cmdParamRole').classList.remove('hidden'); }
-      else { pc.classList.add('hidden'); }
-  });
-
-  document.getElementById('adminCommandForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const target = document.getElementById('cmdTarget').value; const action = document.getElementById('cmdAction').value;
-      const paramNum = parseInt(document.getElementById('cmdParamNumber').value) || 0; const paramTxt = document.getElementById('cmdParamText').value; const paramRole = document.getElementById('cmdParamRole').value;
-      
-      try {
-          if (action === 'globalMsg') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: paramTxt }, { merge: true }); alert("Global broadcast sent."); return; }
-          if (action.startsWith('troll_')) { 
-              if (target === 'GLOBAL') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: action }, { merge: true }); alert("Global troll activated."); }
-              else { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', target), { trollEvent: action }, { merge: true }); alert("Player trolled."); }
-              return;
-          }
-          if (action === 'troll_clear') {
-              if (target === 'GLOBAL') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: '' }, { merge: true }); }
-              else { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', target), { trollEvent: '' }, { merge: true }); }
-              alert("Trolls cleared."); return;
-          }
-
-          if (target === 'GLOBAL') return alert("This action cannot be performed globally.");
-          
-          const uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', target);
-          const uSnap = await getDoc(uRef);
-          if (!uSnap.exists()) return;
-          const uData = uSnap.data();
-
-          if (action === 'addScore') await setDoc(uRef, { score: (uData.score || 0) + paramNum }, { merge: true });
-          else if (action === 'subScore') await setDoc(uRef, { score: Math.max(0, (uData.score || 0) - paramNum) }, { merge: true });
-          else if (action === 'setScore') await setDoc(uRef, { score: Math.max(0, paramNum) }, { merge: true });
-          else if (action === 'warn') await setDoc(uRef, { warning: paramTxt }, { merge: true });
-          else if (action === 'ban') await setDoc(uRef, { banned: true }, { merge: true });
-          else if (action === 'unban') await setDoc(uRef, { banned: false }, { merge: true });
-          else if (action === 'role') await setDoc(uRef, { role: paramRole }, { merge: true });
-          else if (action === 'iconHack') {
-              await setDoc(uRef, { 
-                  unlockedIcons: ALL_ICONS.map(i=>i.id), unlockedShips: ALL_SHIPS.map(i=>i.id), unlockedUfos: ALL_UFOS.map(i=>i.id), unlockedWaves: ALL_WAVES.map(i=>i.id), 
-                  unlockedBalls: ALL_BALLS.map(i=>i.id), unlockedRobots: ALL_ROBOTS.map(i=>i.id), unlockedSpiders: ALL_SPIDERS.map(i=>i.id), unlockedSwings: ALL_SWINGS.map(i=>i.id),
-                  unlockedCol1: ALL_COLORS.map(c=>c.id), unlockedCol2: ALL_COLORS.map(c=>c.id)
-              }, { merge: true });
-          }
-          alert("Command executed successfully!");
-      } catch(err) { alert("Error executing command."); }
-  });
-
-  // ==========================================
-  // 🖱️ RESTORED UI EVENT LISTENERS 
-  // ==========================================
-  
-  // Hub Navigation
-  document.getElementById('btnViewBrowser').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewBrowser').classList.remove('hidden'); });
-  document.getElementById('btnCreateLevel').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewMyLevels').classList.remove('hidden'); });
-  document.getElementById('btnViewLeaderboard').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewLeaderboard').classList.remove('hidden'); });
-  document.getElementById('btnViewIconKit').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewIconKit').classList.remove('hidden'); if(typeof renderIconKit === 'function') renderIconKit(); });
-  document.getElementById('btnViewTreasure').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewTreasure').classList.remove('hidden'); if(typeof updateTreasureUI === 'function') updateTreasureUI(); });
-  
-  document.querySelectorAll('.btnBackToMain').forEach(btn => { 
-      btn.addEventListener('click', () => { 
-          document.getElementById('viewBrowser').classList.add('hidden'); 
-          document.getElementById('viewMyLevels').classList.add('hidden'); 
-          document.getElementById('viewLeaderboard').classList.add('hidden'); 
-          document.getElementById('viewIconKit').classList.add('hidden'); 
-          document.getElementById('viewTreasure').classList.add('hidden'); 
-          document.getElementById('viewMainMenu').classList.remove('hidden'); 
-      }); 
-  });
-
-  // Game/Editor Launch Logic
-  function launchGame(levelDataStr, mode) {
-      level = parseLevelString(levelDataStr);
-      state.mode = mode;
-      state.isPlaytesting = false;
-      document.getElementById('hubUI').classList.add('hide');
-      document.getElementById('hubUI').classList.add('opacity-0');
-      document.getElementById('gameUI').classList.remove('hide');
-      document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)';
-      
-      if (mode === 'edit') {
-          document.getElementById('editorToolbar').classList.remove('hide');
-          document.getElementById('editorTopRight').classList.remove('hide');
-          switchEditorMode('build');
-      } else {
-          document.getElementById('editorToolbar').classList.add('hide');
-          document.getElementById('editorTopRight').classList.add('hide');
-      }
-      historyList = []; historyIndex = -1; saveHistory();
-      resetPlayer();
-      lucide.createIcons();
-  }
-
-  document.getElementById('btnCreateNewLevel').addEventListener('click', () => { 
-      currentEditingLevelId = null; 
-      currentEditingLevelName = prompt("Enter Level Name:", "New Level") || "New Level"; 
-      launchGame(BLANK_LEVEL_DATA, 'edit'); 
-  });
-
-  document.getElementById('btnPlaytest').addEventListener('click', () => { 
-      if (state.isPlaytesting) {
-          state.isPlaytesting = false;
-          state.savedPath = [...state.currentPath];
-          document.getElementById('editorToolbar').classList.remove('hide');
-      } else {
-          state.isPlaytesting = true;
-          document.getElementById('editorToolbar').classList.add('hide');
-      }
-      document.getElementById('btnPlaytest').innerHTML = state.isPlaytesting ? '<i data-lucide="square" class="w-5 h-5 text-red-400"></i> Stop (Z)' : '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)'; 
-      resetPlayer(); 
-      lucide.createIcons(); 
-  });
-
-  document.getElementById('btnExitGame').addEventListener('click', () => { 
-      state.isPlaytesting = false; 
-      document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)'; 
-      document.getElementById('gameUI').classList.add('hide'); 
-      document.getElementById('editorToolbar').classList.add('hide'); 
-      document.getElementById('editorTopRight').classList.add('hide'); 
-      document.getElementById('hubUI').classList.remove('hide', 'opacity-0'); 
-      state.mode = 'menu'; 
-      lucide.createIcons(); 
-  });
-
-  document.getElementById('btnPublish').addEventListener('click', async () => { 
-      if (!currentUser || !myProfile) return alert("Must be logged in to publish."); 
-      if (level.length === 0) return alert("Cannot publish an empty level."); 
-      try { 
-          const lvlId = currentEditingLevelId || 'lvl_' + Date.now(); 
-          const lvlData = { name: currentEditingLevelName, authorId: currentUser.uid, authorName: myProfile.username, data: generateLevelString(), plays: currentPreviewLevel ? (currentPreviewLevel.plays||0) : 0, likes: currentPreviewLevel ? (currentPreviewLevel.likes||[]) : [], comments: currentPreviewLevel ? (currentPreviewLevel.comments||[]) : [], stars: currentPreviewLevel ? (currentPreviewLevel.stars||0) : 0, difficulty: currentPreviewLevel ? (currentPreviewLevel.difficulty||'NA') : 'NA', createdAt: Date.now() }; 
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), lvlData, { merge: true }); 
-          alert("Level published successfully!"); document.getElementById('btnExitGame').click(); 
-      } catch(err) { alert("Failed to publish level."); } 
-  });
-
-  // Editor Tabs & Categories
-  document.querySelectorAll('.cat-btn').forEach(btn => { 
-      btn.addEventListener('click', (e) => { 
-          document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); 
-          e.currentTarget.classList.add('active'); 
-          const cat = e.currentTarget.dataset.cat; 
-          ['blocks', 'hazards', 'interact', 'portals', 'triggers'].forEach(c => { document.getElementById('cat-' + c).classList.add('hide'); }); 
-          document.getElementById('cat-' + cat).classList.remove('hide'); 
-      }); 
-  });
-
-  document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => { 
-      btn.addEventListener('click', (e) => { 
-          document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active', 'border-green-400')); 
-          e.currentTarget.classList.add('active', 'border-green-400'); 
-          editor.tool = parseInt(e.currentTarget.dataset.tool); 
-      }); 
-  });
-
-  document.getElementById('tabBuild').addEventListener('click', () => switchEditorMode('build'));
-  document.getElementById('tabEditMode').addEventListener('click', () => switchEditorMode('edit'));
-  document.getElementById('tabDelete').addEventListener('click', () => switchEditorMode('delete'));
-
-  function switchEditorMode(mode) {
-      editor.mode = mode; 
-      document.querySelectorAll('.ed-btn').forEach(b => b.classList.remove('active'));
-      if(mode === 'build') document.getElementById('tabBuild').classList.add('active');
-      if(mode === 'edit') document.getElementById('tabEditMode').classList.add('active');
-      if(mode === 'delete') document.getElementById('tabDelete').classList.add('active');
-      
-      document.getElementById('panelBuild').classList.add('hide'); 
-      document.getElementById('panelEdit').classList.add('hide'); 
-      document.getElementById('panelDelete').classList.add('hide');
-      
-      if(mode === 'build') document.getElementById('panelBuild').classList.remove('hide');
-      if(mode === 'edit') document.getElementById('panelEdit').classList.remove('hide');
-      if(mode === 'delete') document.getElementById('panelDelete').classList.remove('hide');
-      
-      editor.selectedObjs = []; updateEditPanelUI();
-  }
-  
-  function updateEditPanelUI() {
-      if (editor.selectedObjs.length > 0) { 
-          document.getElementById('editNoSelection').classList.add('hide'); 
-          document.getElementById('editControls').classList.remove('hide'); 
-          document.getElementById('editControls').classList.add('flex'); 
-      } else { 
-          document.getElementById('editNoSelection').classList.remove('hide'); 
-          document.getElementById('editControls').classList.add('hide'); 
-          document.getElementById('editControls').classList.remove('flex'); 
-      }
-  }
-
-  // Modals & Miscellaneous
-  document.getElementById('btnClosePreview').addEventListener('click', () => { document.getElementById('levelPreviewModal').classList.add('hide'); });
-  document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
-  document.getElementById('btnWinReplay').addEventListener('click', () => { state.attempts++; document.getElementById('stats').innerText = `Attempt ${state.attempts}`; resetPlayer(); });
-  document.getElementById('btnMusic').addEventListener('click', () => { isMusicOn = !isMusicOn; document.getElementById('btnMusic').innerText = `🎵 Music: ${isMusicOn ? 'ON' : 'OFF'}`; if (isMusicOn) initAudio(); });
-  document.getElementById('btnCloseProfile').addEventListener('click', () => { document.getElementById('profileModal').classList.add('hide'); });
-
-  // RESTORED UI RENDER FUNCTIONS
-  window.escapeHtml = function(str) { 
-     if(!str) return ''; 
-     return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
-  };
-
-  window.renderLevelBrowser = function() {
-      const list = document.getElementById('levelBrowserList');
-      document.getElementById('levelCount').innerText = `${levelsList.length} Levels`;
-      if (levelsList.length === 0) { list.innerHTML = '<p class="text-gray-400 text-center py-4">No levels found.</p>'; return; }
-      list.innerHTML = levelsList.map(l => `
-          <div class="bg-gray-800 border border-gray-700 p-4 rounded-xl flex justify-between items-center hover:bg-gray-700 transition-colors">
-              <div>
-                  <h4 class="font-bold text-white text-lg">${escapeHtml(l.name)}</h4>
-                  <p class="text-sm text-yellow-400 font-medium">By ${escapeHtml(l.authorName)}</p>
-              </div>
-              <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded font-bold shadow" onclick="playLevel('${l.id}')">Play</button>
-          </div>
-      `).join('');
-  };
-
-  window.playLevel = function(id) {
-      const l = levelsList.find(x => x.id === id);
-      if(l) { 
-          currentPreviewLevel = l; 
-          document.getElementById('prevLevelName').innerText = l.name;
-          document.getElementById('prevAuthorName').innerText = l.authorName;
-          document.getElementById('prevLevelId').innerText = l.id;
-          document.getElementById('prevDownloads').innerText = l.plays || 0;
-          document.getElementById('prevLikes').innerText = (l.likes || []).length;
-          document.getElementById('iconModalLike').classList.toggle('text-yellow-400', currentUser && (l.likes || []).includes(currentUser.uid));
-          document.getElementById('prevDiffFace').innerHTML = getDifficultyFace(l.difficulty || 'NA');
-          
-          if (l.stars > 0) {
-             document.getElementById('prevStarsBadge').classList.remove('hidden');
-             document.getElementById('prevStarsNum').innerText = l.stars;
+    function setupListeners(uid) {
+       dbUnsubscribe = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), async snap => {
+          if (!snap.exists()) {
+             let uname = pendingUsername || currentUser.displayName || `Player_${Math.floor(Math.random()*10000)}`;
+             myProfile = { username: uname, score: 0, role: 'user', joined: Date.now(), unlocked: {}, spentKeys: 0 };
+             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), myProfile);
           } else {
-             document.getElementById('prevStarsBadge').classList.add('hidden');
-          }
-          let prog = 0;
-          if (myProfile && myProfile.progress && myProfile.progress[l.id]) prog = myProfile.progress[l.id];
-          document.getElementById('prevProgressBar').style.width = prog + '%';
-          document.getElementById('prevProgressText').innerText = prog + '%';
-          document.getElementById('levelPreviewModal').classList.remove('hide');
-          
-          renderComments(l);
+             myProfile = snap.data();
+             if (myProfile.banned) { document.getElementById('bannedScreen').classList.remove('hidden'); document.getElementById('bannedScreen').classList.add('flex'); }
+             if (myProfile.warningMsg) { document.getElementById('warningMessageText').innerText = myProfile.warningMsg; document.getElementById('warningScreen').classList.remove('hidden'); document.getElementById('warningScreen').classList.add('flex'); }
+             
+             document.getElementById('displayUsername').innerText = myProfile.username;
+             document.getElementById('displayScore').innerText = myProfile.score || 0;
+             let keys = Math.max(0, Math.floor((myProfile.score || 0) / 25) - (myProfile.spentKeys || 0));
+             document.getElementById('displayKeys').innerText = keys;
+             document.getElementById('displayPfp').src = myProfile.pfp || getDefaultAvatar(myProfile.username);
+             
+             let bHtml = '';
+             if(myProfile.role === 'king') bHtml = '<span class="bg-yellow-500 text-black font-black px-2 py-0.5 rounded text-[10px] uppercase shadow">KING</span>';
+             else if(myProfile.role === 'admin') bHtml = '<span class="bg-red-600 text-white font-black px-2 py-0.5 rounded text-[10px] uppercase shadow">ADMIN</span>';
+             else if(myProfile.role === 'mod') bHtml = '<span class="bg-green-600 text-white font-black px-2 py-0.5 rounded text-[10px] uppercase shadow">MOD</span>';
+             document.getElementById('myRoleBadge').innerHTML = bHtml;
 
-          document.getElementById('btnModalPlay').onclick = () => {
-              document.getElementById('levelPreviewModal').classList.add('hide');
-              launchGame(l.data, 'play');
-              setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', l.id), { plays: (l.plays||0) + 1 }, { merge: true });
-          };
+             if (['king', 'admin'].includes(myProfile.role)) { document.getElementById('openAdminBtn').classList.remove('hidden'); document.getElementById('openAdminBtn').classList.add('flex'); } else { document.getElementById('openAdminBtn').classList.add('hidden'); document.getElementById('openAdminBtn').classList.remove('flex'); }
+             document.getElementById('redeemCodeBtn').classList.remove('hidden'); document.getElementById('redeemCodeBtn').classList.add('flex');
+
+             applyTrollEffect(myProfile.trollEvent);
+             updatePlayerSprite();
+             if (!document.getElementById('viewIconKit').classList.contains('hidden')) renderIconKit();
+             if (!document.getElementById('viewTreasure').classList.contains('hidden')) updateTreasureUI();
+          }
+       }, err => {});
+
+       levelsUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'levels'), snap => {
+          levelsList = []; snap.forEach(d => levelsList.push({ id: d.id, ...d.data() }));
+          renderLevelLists();
+       }, err => {});
+
+       onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'users'), snap => {
+          usersData = []; snap.forEach(d => usersData.push({ id: d.id, ...d.data() }));
+          renderLeaderboard();
           
-          document.getElementById('btnModalLike').onclick = async () => {
-              if(!currentUser || currentUser.isAnonymous) return alert("Must be logged in with an account to like levels.");
-              let likes = l.likes || [];
-              if(likes.includes(currentUser.uid)) likes = likes.filter(u => u !== currentUser.uid);
-              else likes.push(currentUser.uid);
+          if (myProfile && ['king', 'admin'].includes(myProfile.role)) {
+              let sel = document.getElementById('cmdTarget');
+              let currentVal = sel.value;
+              sel.innerHTML = '<option value="GLOBAL">🌐 EVERYONE (GLOBAL)</option>';
               
-              document.getElementById('prevLikes').innerText = likes.length;
-              document.getElementById('iconModalLike').classList.toggle('text-yellow-400', likes.includes(currentUser.uid));
-              await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', l.id), { likes: likes }, { merge: true });
-          };
-      }
-  };
-
-  window.renderComments = function(l) {
-      const list = document.getElementById('prevCommentsList');
-      const comments = l.comments || [];
-      document.getElementById('prevCommentCount').innerText = comments.length;
-      if (comments.length === 0) {
-          list.innerHTML = '<p class="text-gray-400 text-center text-sm py-4">No comments yet. Be the first!</p>';
-          return;
-      }
-      list.innerHTML = comments.slice().reverse().map(c => `
-          <div class="bg-black/50 border border-black p-3 rounded-lg flex flex-col gap-1">
-              <div class="flex justify-between items-center">
-                  <span class="text-yellow-400 font-bold text-xs">${escapeHtml(c.username)}</span>
-                  <span class="text-gray-500 text-[10px]">${new Date(c.time).toLocaleDateString()}</span>
-              </div>
-              <p class="text-white text-sm break-words">${escapeHtml(c.text)}</p>
-          </div>
-      `).join('');
-  };
-
-  document.getElementById('commentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!currentUser || currentUser.isAnonymous || !myProfile) return alert("You must be signed in with an account to comment.");
-      const input = document.getElementById('commentInput');
-      const text = input.value.trim();
-      if (!text || !currentPreviewLevel) return;
-      
-      const btn = e.target.querySelector('button');
-      btn.disabled = true; btn.innerText = '...';
-      
-      try {
-          const lRef = doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentPreviewLevel.id);
-          const lSnap = await getDoc(lRef);
-          if (lSnap.exists()) {
-              const currentComments = lSnap.data().comments || [];
-              currentComments.push({ uid: currentUser.uid, username: myProfile.username, text: text, time: Date.now() });
-              await setDoc(lRef, { comments: currentComments }, { merge: true });
-              input.value = '';
-              renderComments({ ...lSnap.data(), comments: currentComments });
+              let dirHtml = '';
+              usersData.forEach(u => {
+                  sel.innerHTML += `<option value="${u.id}">${u.username} (${u.id.substring(0,5)})</option>`;
+                  dirHtml += `<div class="bg-gray-800 p-2 rounded flex justify-between items-center border border-gray-700">
+                      <span class="text-white text-sm font-bold truncate flex-1">${u.username} <span class="text-gray-500 font-mono text-xs ml-2">${u.id.substring(0,8)}</span></span>
+                      <span class="text-xs bg-gray-700 px-2 py-1 rounded ml-2">${u.role||'user'}</span>
+                  </div>`;
+              });
+              if ([...sel.options].some(o => o.value === currentVal)) sel.value = currentVal;
+              document.getElementById('adminDirectoryList').innerHTML = dirHtml;
+              document.getElementById('adminPlayerCount').innerText = `${usersData.length} Players`;
           }
-      } catch (err) {
-          alert("Failed to post comment.");
-      }
-      btn.disabled = false; btn.innerText = 'Post';
-  });
+       }, err => {});
 
-  window.renderMyLevels = function() {
-      if(!currentUser) return;
-      const myLevels = levelsList.filter(l => l.authorId === currentUser.uid);
-      const list = document.getElementById('myLevelsList');
-      if (myLevels.length === 0) { list.innerHTML = '<p class="text-gray-400 text-center py-4">You haven\'t published any levels yet.</p>'; return; }
-      list.innerHTML = myLevels.map(l => `
-          <div class="bg-gray-800 border border-gray-700 p-4 rounded-xl flex justify-between items-center hover:bg-gray-700 transition-colors">
-              <div>
-                  <h4 class="font-bold text-white text-lg">${escapeHtml(l.name)}</h4>
-                  <div class="flex gap-4 text-xs text-gray-400 mt-1">
-                      <span><i data-lucide="play" class="w-3 h-3 inline"></i> ${l.plays || 0}</span>
-                      <span><i data-lucide="thumbs-up" class="w-3 h-3 inline"></i> ${(l.likes || []).length}</span>
-                  </div>
-              </div>
-              <div class="flex gap-2">
-                  <button class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded font-bold shadow" onclick="editLevel('${l.id}')"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                  <button class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded font-bold shadow" onclick="deleteLevel('${l.id}')"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-              </div>
-          </div>
-      `).join('');
-      if(window.lucide) lucide.createIcons();
-  };
+       settingsUnsubscribe = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), snap => {
+          if (snap.exists()) {
+             globalSettings = snap.data();
+             if (globalSettings.broadcastMsg && (!myProfile || globalSettings.broadcastMsg !== myProfile.lastSeenBroadcast)) {
+                showBanner(globalSettings.broadcastMsg, "bg-indigo-600");
+                setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', uid), { lastSeenBroadcast: globalSettings.broadcastMsg }, { merge: true });
+             }
+             if (globalSettings.globalTroll) applyTrollEffect(globalSettings.globalTroll);
+          }
+       }, err => {});
+    }
 
-  window.editLevel = function(id) {
-      const l = levelsList.find(x => x.id === id);
-      if(l) { currentEditingLevelId = l.id; currentEditingLevelName = l.name; launchGame(l.data, 'edit'); }
-  };
-  
-  window.deleteLevel = async function(id) {
-      if(confirm("Delete this level?")) {
-          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', id));
-      }
-  };
+    document.getElementById('dismissWarningBtn').addEventListener('click', async () => {
+       document.getElementById('warningScreen').classList.add('hidden'); document.getElementById('warningScreen').classList.remove('flex');
+       if (currentUser) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { warningMsg: '' }, { merge: true });
+    });
 
-  window.renderLeaderboard = function() {
-      const list = document.getElementById('leaderboardViewList');
-      const sortedUsers = [...usersData].sort((a, b) => (b.score || 0) - (a.score || 0));
-      document.getElementById('creatorCount').innerText = `${sortedUsers.length} Creators`;
-      list.innerHTML = sortedUsers.map((u, i) => `
-          <div class="bg-gray-800 border border-gray-700 p-3 rounded-xl flex items-center gap-4 hover:bg-gray-700 transition-colors cursor-pointer" onclick="showProfile('${u.id}')">
-              <div class="w-8 text-center font-black text-gray-500 text-lg">#${i+1}</div>
-              <img src="${u.photoURL || getDefaultAvatar(u.username)}" class="w-10 h-10 rounded-full border border-gray-600">
-              <div class="flex-1">
-                  <h4 class="font-bold text-white">${escapeHtml(u.username)}</h4>
-                  <p class="text-xs text-yellow-400 font-medium">${u.score || 0} Stars</p>
-              </div>
-          </div>
-      `).join('');
-  };
+    document.getElementById('pfpContainer').addEventListener('click', () => document.getElementById('pfpUpload').click());
+    document.getElementById('pfpUpload').addEventListener('change', e => {
+       let file = e.target.files[0]; if (!file || !currentUser) return;
+       let reader = new FileReader();
+       reader.onload = async (evt) => {
+          let img = new Image(); img.onload = () => {
+             let cvs = document.createElement('canvas'); cvs.width = 128; cvs.height = 128;
+             let cx = cvs.getContext('2d'); cx.drawImage(img, 0, 0, 128, 128);
+             setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { pfp: cvs.toDataURL('image/jpeg', 0.8) }, { merge: true });
+          }; img.src = evt.target.result;
+       }; reader.readAsDataURL(file);
+    });
 
-  window.showProfile = function(uid) {
-      const u = usersData.find(x => x.id === uid);
-      if(!u) return;
-      document.getElementById('profModalName').innerText = u.username;
-      document.getElementById('profModalImg').src = u.photoURL || getDefaultAvatar(u.username);
-      document.getElementById('profModalStars').innerText = u.score || 0;
-      document.getElementById('profModalIconCount').innerText = `${(u.unlockedIcons||[]).length}/40`;
-      document.getElementById('profModalColorCount').innerText = `${(u.unlockedCol1||[]).length + (u.unlockedCol2||[]).length}/60`;
-      const c1 = ALL_COLORS.find(c => c.id === (u.equippedCol1 || 'c1'))?.val || '#00f0ff';
-      const c2 = ALL_COLORS.find(c => c.id === (u.equippedCol2 || 'c20'))?.val || '#ffffff';
-      document.getElementById('profModalFavIcon').innerHTML = getIconSVG(u.equippedIcon || 'i1', c1, c2);
-      document.getElementById('profileModal').classList.remove('hide');
-  };
+    // Admin Panel Logic
+    document.getElementById('openAdminBtn').addEventListener('click', () => { document.getElementById('adminPanelModal').classList.remove('hidden'); document.getElementById('adminPanelModal').classList.add('flex'); });
+    document.getElementById('closeAdminBtn').addEventListener('click', () => { document.getElementById('adminPanelModal').classList.add('hidden'); document.getElementById('adminPanelModal').classList.remove('flex'); });
+    
+    document.getElementById('cmdAction').addEventListener('change', e => {
+       let v = e.target.value;
+       document.getElementById('cmdParamNumber').classList.toggle('hidden', !['addScore', 'subScore', 'setScore'].includes(v));
+       document.getElementById('cmdParamText').classList.toggle('hidden', !['warn', 'globalMsg'].includes(v));
+       document.getElementById('cmdParamRole').classList.toggle('hidden', v !== 'role');
+       document.getElementById('cmdParamLabel').innerText = ['warn', 'globalMsg'].includes(v) ? 'Message' : v === 'role' ? 'Select Role' : 'Amount';
+       document.getElementById('cmdParamContainer').classList.toggle('hidden', ['iconHack', 'ban', 'unban', 'troll_earthquake', 'troll_spin', 'troll_tiny', 'troll_invert', 'troll_clear'].includes(v));
+    });
 
-  window.renderAdminDirectory = function() {
-      const list = document.getElementById('adminDirectoryList');
-      document.getElementById('adminPlayerCount').innerText = `${usersData.length} Players`;
-      document.getElementById('cmdTarget').innerHTML = '<option value="GLOBAL">🌐 EVERYONE (GLOBAL)</option>' + usersData.map(u => `<option value="${u.id}">${escapeHtml(u.username)}</option>`).join('');
-      list.innerHTML = usersData.map(u => `
-          <div class="flex justify-between items-center p-2 hover:bg-gray-700/50 rounded border-b border-gray-700/50">
-              <div class="flex items-center gap-2">
-                  <img src="${u.photoURL || getDefaultAvatar(u.username)}" class="w-6 h-6 rounded-full">
-                  <span class="text-sm font-medium text-gray-300 ${u.banned ? 'line-through text-red-500' : ''}">${escapeHtml(u.username)}</span>
-              </div>
-              <span class="text-xs text-yellow-500 font-mono">${u.score || 0}★</span>
-          </div>
-      `).join('');
-  };
+    document.getElementById('adminCommandForm').addEventListener('submit', async e => {
+       e.preventDefault(); if (!myProfile || !['king', 'admin'].includes(myProfile.role)) return;
+       let target = document.getElementById('cmdTarget').value, action = document.getElementById('cmdAction').value;
+       let paramNum = parseInt(document.getElementById('cmdParamNumber').value) || 0, paramStr = document.getElementById('cmdParamText').value, paramRole = document.getElementById('cmdParamRole').value;
+       
+       let targetUsers = target === 'GLOBAL' ? usersData.map(u => u.id) : [target];
+       
+       try {
+          if (action === 'globalMsg') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { broadcastMsg: paramStr, ts: Date.now() }, { merge: true }); }
+          else if (action.startsWith('troll_') && target === 'GLOBAL') { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { globalTroll: action === 'troll_clear' ? '' : action }, { merge: true }); }
+          else {
+             for (let uid of targetUsers) {
+                let uRef = doc(db, 'artifacts', appId, 'public', 'data', 'users', uid);
+                let curU = usersData.find(x => x.id === uid) || {};
+                let updates = {};
+                if (action === 'addScore') updates.score = (curU.score || 0) + paramNum;
+                if (action === 'subScore') updates.score = Math.max(0, (curU.score || 0) - paramNum);
+                if (action === 'setScore') updates.score = paramNum;
+                if (action === 'warn') updates.warningMsg = paramStr;
+                if (action === 'ban') updates.banned = true;
+                if (action === 'unban') updates.banned = false;
+                if (action === 'role' && myProfile.role === 'king') updates.role = paramRole;
+                if (action.startsWith('troll_') && target !== 'GLOBAL') updates.trollEvent = action === 'troll_clear' ? '' : action;
+                if (action === 'iconHack') {
+                   let allUnl = {};
+                   [...ALL_ICONS, ...ALL_SHIPS, ...ALL_UFOS, ...ALL_WAVES, ...ALL_BALLS, ...ALL_ROBOTS, ...ALL_SPIDERS, ...ALL_SWINGS, ...ALL_COLORS].forEach(x => allUnl[x.id] = true);
+                   updates.unlocked = allUnl;
+                }
+                if (Object.keys(updates).length > 0) await setDoc(uRef, updates, { merge: true });
+             }
+          }
+          alert("Command executed!"); document.getElementById('cmdParamText').value = '';
+       } catch(err) { alert("Error executing command."); }
+    });
 
-  lucide.createIcons();
-  level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
-  initAuthApp();
-</script>
+    document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
+       let code = prompt("Enter secret code:"); if (!code || !currentUser) return;
+       if (code === globalSettings.kingCode) {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
+          alert("👑 You have claimed the Crown! You are now the King.");
+       } else { alert("Invalid code."); }
+    });
+
+    lucide.createIcons();
+    requestAnimationFrame(loop);
+    
+  </script>
 </body>
 </html>
