@@ -652,6 +652,19 @@
     </div>
   </div>
 
+  <!-- CUSTOM MODAL SYSTEM -->
+  <div id="customModalOverlay" class="hide fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
+    <div class="bg-gray-900 border-2 border-gray-600 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] w-full max-w-sm flex flex-col p-6 animate-pop text-center relative">
+      <h2 id="customModalTitle" class="text-2xl font-black text-white mb-2">Notice</h2>
+      <p id="customModalText" class="text-gray-300 font-medium mb-4">Are you sure?</p>
+      <input type="text" id="customModalInput" class="hide w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-blue-500 mb-4" placeholder="Enter text...">
+      <div class="flex gap-3 mt-2">
+        <button id="customModalCancel" class="flex-1 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl text-white font-bold transition-colors">Cancel</button>
+        <button id="customModalConfirm" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-bold transition-colors shadow-lg">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -666,6 +679,51 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
+
+    // ==========================================
+    // CUSTOM MODAL LOGIC (Replaces Native Popups)
+    // ==========================================
+    window.customConfirm = function(title, text, onConfirm) {
+      document.getElementById('customModalTitle').innerText = title;
+      document.getElementById('customModalText').innerText = text;
+      document.getElementById('customModalInput').classList.add('hide');
+      document.getElementById('customModalOverlay').classList.remove('hide');
+      
+      const confirmBtn = document.getElementById('customModalConfirm');
+      const cancelBtn = document.getElementById('customModalCancel');
+      const newConfirm = confirmBtn.cloneNode(true);
+      const newCancel = cancelBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+      cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+      
+      newCancel.addEventListener('click', () => document.getElementById('customModalOverlay').classList.add('hide'));
+      newConfirm.addEventListener('click', () => {
+        document.getElementById('customModalOverlay').classList.add('hide');
+        onConfirm();
+      });
+    };
+
+    window.customPrompt = function(title, text, onSubmit) {
+      document.getElementById('customModalTitle').innerText = title;
+      document.getElementById('customModalText').innerText = text;
+      const input = document.getElementById('customModalInput');
+      input.classList.remove('hide');
+      input.value = '';
+      document.getElementById('customModalOverlay').classList.remove('hide');
+      
+      const confirmBtn = document.getElementById('customModalConfirm');
+      const cancelBtn = document.getElementById('customModalCancel');
+      const newConfirm = confirmBtn.cloneNode(true);
+      const newCancel = cancelBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+      cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+      
+      newCancel.addEventListener('click', () => document.getElementById('customModalOverlay').classList.add('hide'));
+      newConfirm.addEventListener('click', () => {
+        document.getElementById('customModalOverlay').classList.add('hide');
+        onSubmit(document.getElementById('customModalInput').value);
+      });
+    };
 
     // ==========================================
     // 🎨 ASSET DICTIONARIES (ICONS & COLORS & FACES)
@@ -2141,11 +2199,13 @@
     });
 
     document.getElementById('btnCreateNewLevel').addEventListener('click', () => {
-       level = parseLevelString(BLANK_LEVEL_DATA); editor.selectedObjs = []; updateEditPanelUI();
-       currentEditingLevelId = null; currentEditingLevelName = prompt("Enter Level Name:", "My New Level") || "Unnamed Level";
-       document.getElementById('hubUI').classList.add('hide');
-       document.getElementById('gameUI').classList.remove('hide'); document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide');
-       setEditorMode('build'); state.mode = 'edit'; state.isPlaytesting = false; resetPlayer();
+       window.customPrompt("New Level", "Enter Level Name:", (name) => {
+           level = parseLevelString(BLANK_LEVEL_DATA); editor.selectedObjs = []; updateEditPanelUI();
+           currentEditingLevelId = null; currentEditingLevelName = name || "Unnamed Level";
+           document.getElementById('hubUI').classList.add('hide');
+           document.getElementById('gameUI').classList.remove('hide'); document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide');
+           setEditorMode('build'); state.mode = 'edit'; state.isPlaytesting = false; resetPlayer();
+       });
     });
 
     window.editLevel = function(lvlId) {
@@ -2267,20 +2327,27 @@
        document.getElementById('loadingScreen').classList.remove('hidden');
        try {
           if (isSignupMode) {
-             let u = document.getElementById('usernameInput').value.trim(); if (!u) return alert("Username required");
+             let u = document.getElementById('usernameInput').value.trim(); if (!u) { document.getElementById('loadingScreen').classList.add('hidden'); showBanner("Username required", "bg-red-600"); return; }
              pendingUsername = u;
              await createUserWithEmailAndPassword(auth, email, pass);
           } else { await signInWithEmailAndPassword(auth, email, pass); }
-       } catch(err) { alert(err.message); document.getElementById('loadingScreen').classList.add('hidden'); }
+       } catch(err) { showBanner(err.message, "bg-red-600"); document.getElementById('loadingScreen').classList.add('hidden'); }
     });
 
     document.getElementById('googleLoginBtn').addEventListener('click', async () => {
        document.getElementById('loadingScreen').classList.remove('hidden');
-       try { await signInWithPopup(auth, googleProvider); } catch(err) { alert(err.message); document.getElementById('loadingScreen').classList.add('hidden'); }
+       try { await signInWithPopup(auth, googleProvider); } catch(err) { 
+           document.getElementById('loadingScreen').classList.add('hidden'); 
+           showBanner("Google Login is blocked in this preview. Please use Email/Password.", "bg-amber-600"); 
+       }
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
-    document.getElementById('deleteAccountBtn').addEventListener('click', async () => { if (confirm("Are you sure? This cannot be undone.")) { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid)); await deleteUser(currentUser); } catch(e){} } });
+    document.getElementById('deleteAccountBtn').addEventListener('click', () => { 
+        window.customConfirm("Delete Account", "Are you sure? This cannot be undone.", async () => {
+            try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid)); await deleteUser(currentUser); } catch(e){} 
+        });
+    });
 
     function showBanner(msg, bgClass) {
        const b = document.getElementById('globalBanner');
@@ -2426,16 +2493,18 @@
                 if (Object.keys(updates).length > 0) await setDoc(uRef, updates, { merge: true });
              }
           }
-          alert("Command executed!"); document.getElementById('cmdParamText').value = '';
-       } catch(err) { alert("Error executing command."); }
+          showBanner("Command executed!", "bg-green-600"); document.getElementById('cmdParamText').value = '';
+       } catch(err) { showBanner("Error executing command.", "bg-red-600"); }
     });
 
-    document.getElementById('redeemCodeBtn').addEventListener('click', async () => {
-       let code = prompt("Enter secret code:"); if (!code || !currentUser) return;
-       if (code === globalSettings.kingCode) {
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
-          alert("👑 You have claimed the Crown! You are now the King.");
-       } else { alert("Invalid code."); }
+    document.getElementById('redeemCodeBtn').addEventListener('click', () => {
+       window.customPrompt("Redeem Crown", "Enter secret code:", async (code) => {
+           if (!code || !currentUser) return;
+           if (code === globalSettings.kingCode) {
+              await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', currentUser.uid), { role: 'king' }, { merge: true });
+              showBanner("👑 You have claimed the Crown! You are now the King.", "bg-yellow-600");
+           } else { showBanner("Invalid code.", "bg-red-600"); }
+       });
     });
 
     lucide.createIcons();
