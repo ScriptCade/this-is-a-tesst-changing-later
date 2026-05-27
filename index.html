@@ -1705,6 +1705,56 @@
       }
     });
 
+    canvas.addEventListener('pointermove', (e) => {
+      if (state.mode !== 'edit' || !editor.isDragging) return;
+      if (!editor.swipeEnabled) {
+         state.cameraX = editor.initialCamX - (e.clientX - editor.camDragStartX);
+         state.cameraY = editor.initialCamY - (e.clientY - editor.camDragStartY);
+         editor.isClick = false;
+      } else {
+         if (editor.mode === 'edit' && editor.selBox) {
+            const p = getGridPos(e.clientX, e.clientY);
+            editor.selBox.ex = p.worldX; editor.selBox.ey = p.worldY;
+         } else {
+            handleEditorAction(e.clientX, e.clientY);
+         }
+      }
+    });
+
+    canvas.addEventListener('pointerup', (e) => {
+      if (state.mode === 'play' || state.isPlaytesting) { input.jumpHeld = false; return; }
+      if (state.mode !== 'edit') return;
+      editor.isDragging = false;
+      
+      if (editor.swipeEnabled && editor.mode === 'edit' && editor.selBox) {
+         let rx = Math.min(editor.selBox.sx, editor.selBox.ex), ry = Math.min(editor.selBox.sy, editor.selBox.ey);
+         let rw = Math.abs(editor.selBox.sx - editor.selBox.ex), rh = Math.abs(editor.selBox.sy - editor.selBox.ey);
+         if (rw > 5 && rh > 5) {
+             editor.selectedObjs = level.filter(obj => {
+                 let px = obj.gx * GRID_SIZE, py = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE;
+                 return px < rx + rw && px + GRID_SIZE > rx && py < ry + rh && py + GRID_SIZE > ry;
+             });
+         }
+         editor.selBox = null;
+         updateEditPanelUI();
+      }
+      
+      if (!editor.swipeEnabled && editor.isClick) {
+         if (editor.mode === 'edit') {
+             const {gx, gy} = getGridPos(e.clientX, e.clientY);
+             let clicked = level.slice().reverse().find(o => o.gx === gx && o.gy === gy);
+             if (e.shiftKey && clicked) {
+                 if (!editor.selectedObjs.includes(clicked)) editor.selectedObjs.push(clicked);
+             } else {
+                 editor.selectedObjs = clicked ? [clicked] : [];
+             }
+             updateEditPanelUI();
+         } else {
+             handleEditorAction(e.clientX, e.clientY);
+         }
+      }
+    });
+
   async function initAuthApp() {
     try {
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -2577,6 +2627,120 @@
     });
 
     function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+
+    document.getElementById('btnViewBrowser').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewBrowser').classList.remove('hidden'); renderLevelBrowser(); });
+    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
+    document.getElementById('btnViewLeaderboard').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewLeaderboard').classList.remove('hidden'); renderLeaderboard(); });
+    document.getElementById('btnViewIconKit').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewIconKit').classList.remove('hidden'); renderIconKit(); });
+    document.getElementById('btnViewTreasure').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewTreasure').classList.remove('hidden'); updateTreasureUI(); });
+    
+    document.querySelectorAll('.btnBackToMain').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('viewBrowser').classList.add('hidden'); document.getElementById('viewMyLevels').classList.add('hidden');
+        document.getElementById('viewLeaderboard').classList.add('hidden'); document.getElementById('viewIconKit').classList.add('hidden');
+        document.getElementById('viewTreasure').classList.add('hidden'); document.getElementById('viewMainMenu').classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('googleLoginBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch (e) { alert(e.message); } });
+    document.getElementById('tabLogin').addEventListener('click', () => { isSignupMode = false; document.getElementById('usernameGroup').classList.add('hidden'); document.getElementById('emailSubmitBtn').innerText = 'Log In'; document.getElementById('tabLogin').classList.replace('text-gray-500', 'text-white'); document.getElementById('tabLogin').classList.add('border-blue-500'); document.getElementById('tabLogin').classList.remove('border-gray-700', 'hover:text-gray-300'); document.getElementById('tabSignup').classList.replace('text-white', 'text-gray-500'); document.getElementById('tabSignup').classList.remove('border-blue-500'); document.getElementById('tabSignup').classList.add('border-gray-700', 'hover:text-gray-300'); });
+    document.getElementById('tabSignup').addEventListener('click', () => { isSignupMode = true; document.getElementById('usernameGroup').classList.remove('hidden'); document.getElementById('usernameInput').required = true; document.getElementById('emailSubmitBtn').innerText = 'Sign Up'; document.getElementById('tabSignup').classList.replace('text-gray-500', 'text-white'); document.getElementById('tabSignup').classList.add('border-blue-500'); document.getElementById('tabSignup').classList.remove('border-gray-700', 'hover:text-gray-300'); document.getElementById('tabLogin').classList.replace('text-white', 'text-gray-500'); document.getElementById('tabLogin').classList.remove('border-blue-500'); document.getElementById('tabLogin').classList.add('border-gray-700', 'hover:text-gray-300'); });
+    document.getElementById('emailAuthForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); const email = document.getElementById('emailInput').value; const pass = document.getElementById('passwordInput').value;
+      try { if (isSignupMode) { pendingUsername = document.getElementById('usernameInput').value; await createUserWithEmailAndPassword(auth, email, pass); } else { await signInWithEmailAndPassword(auth, email, pass); } } catch (err) { alert(err.message); }
+    });
+    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+    document.getElementById('btnExitGame').addEventListener('click', () => {
+      state.mode = 'menu'; document.getElementById('gameUI').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide');
+      document.getElementById('hubUI').classList.remove('hide', 'opacity-0');
+      if (isMusicOn) { isMusicOn = false; document.getElementById('btnMusic').innerText = '🎵 Music: OFF'; document.getElementById('btnMusic').classList.replace('bg-green-600', 'bg-blue-600'); document.getElementById('btnMusic').classList.replace('hover:bg-green-500', 'hover:bg-blue-500'); }
+    });
+
+    document.getElementById('btnPlaytest').addEventListener('click', () => {
+       state.isPlaytesting = !state.isPlaytesting;
+       if (state.isPlaytesting) { document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="square" class="w-5 h-5"></i> Stop (Z)'; document.getElementById('btnPlaytest').classList.replace('bg-blue-600', 'bg-red-600'); document.getElementById('btnPlaytest').classList.replace('hover:bg-blue-500', 'hover:bg-red-500'); } 
+       else { document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)'; document.getElementById('btnPlaytest').classList.replace('bg-red-600', 'bg-blue-600'); document.getElementById('btnPlaytest').classList.replace('hover:bg-red-500', 'hover:bg-blue-500'); }
+       resetPlayer(); lucide.createIcons();
+    });
+
+    function switchEditorMode(m) {
+       editor.mode = m; document.getElementById('tabBuild').classList.remove('active'); document.getElementById('tabEditMode').classList.remove('active'); document.getElementById('tabDelete').classList.remove('active');
+       document.getElementById('panelBuild').classList.add('hide'); document.getElementById('panelEdit').classList.add('hide'); document.getElementById('panelDelete').classList.add('hide'); document.getElementById('panelEdit').classList.remove('flex'); document.getElementById('panelDelete').classList.remove('flex');
+       if (m === 'build') { document.getElementById('tabBuild').classList.add('active'); document.getElementById('panelBuild').classList.remove('hide'); } 
+       else if (m === 'edit') { document.getElementById('tabEditMode').classList.add('active'); document.getElementById('panelEdit').classList.remove('hide'); document.getElementById('panelEdit').classList.add('flex'); updateEditPanelUI(); } 
+       else if (m === 'delete') { document.getElementById('tabDelete').classList.add('active'); document.getElementById('panelDelete').classList.remove('hide'); document.getElementById('panelDelete').classList.add('flex'); }
+    }
+    
+    document.getElementById('tabBuild').addEventListener('click', () => switchEditorMode('build'));
+    document.getElementById('tabEditMode').addEventListener('click', () => switchEditorMode('edit'));
+    document.getElementById('tabDelete').addEventListener('click', () => switchEditorMode('delete'));
+
+    document.querySelectorAll('.cat-btn').forEach(b => {
+      b.addEventListener('click', (e) => { document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active')); e.currentTarget.classList.add('active'); ['blocks', 'hazards', 'interact', 'portals', 'triggers'].forEach(c => document.getElementById('cat-' + c).classList.add('hide')); document.getElementById('cat-' + e.currentTarget.dataset.cat).classList.remove('hide'); });
+    });
+
+    document.querySelectorAll('.tool-btn').forEach(b => {
+      b.addEventListener('click', (e) => { if(e.currentTarget.closest('#editControls')) return; document.querySelectorAll('#panelBuild .tool-btn').forEach(btn => btn.classList.remove('active')); e.currentTarget.classList.add('active'); editor.tool = parseInt(e.currentTarget.dataset.tool); });
+    });
+
+    function updateEditPanelUI() {
+       if (editor.selectedObjs.length > 0) { document.getElementById('editNoSelection').classList.add('hide'); document.getElementById('editControls').classList.remove('hide'); } 
+       else { document.getElementById('editNoSelection').classList.remove('hide'); document.getElementById('editControls').classList.add('hide'); }
+    }
+
+    document.getElementById('btnSwipeToggle').addEventListener('click', () => {
+       editor.swipeEnabled = !editor.swipeEnabled;
+       if (editor.swipeEnabled) { document.getElementById('swipeStatus').innerText = 'ON'; document.getElementById('swipeStatus').classList.replace('text-red-200', 'text-green-300'); document.getElementById('btnSwipeToggle').classList.replace('border-green-900', 'border-green-400'); } 
+       else { document.getElementById('swipeStatus').innerText = 'OFF'; document.getElementById('swipeStatus').classList.replace('text-green-300', 'text-red-200'); document.getElementById('btnSwipeToggle').classList.replace('border-green-400', 'border-green-900'); }
+    });
+
+    document.getElementById('btnBuildRotLeft').addEventListener('click', () => { editor.rot = (editor.rot - 90 + 360) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
+    document.getElementById('btnBuildRotRight').addEventListener('click', () => { editor.rot = (editor.rot + 90) % 360; document.getElementById('lblBuildRot').innerText = `${editor.rot}°`; });
+
+    ['Up','Down','Left','Right'].forEach(dir => { document.getElementById(`btnNudge${dir}`).addEventListener('click', () => { if(editor.selectedObjs.length > 0) { editor.selectedObjs.forEach(o => { if(dir==='Up') o.gy++; if(dir==='Down') o.gy--; if(dir==='Left') o.gx--; if(dir==='Right') o.gx++; }); saveHistory(); } }); });
+    document.getElementById('btnEditRotLeft').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.rot = (o.rot - 90 + 360) % 360); saveHistory(); });
+    document.getElementById('btnEditRotRight').addEventListener('click', () => { editor.selectedObjs.forEach(o => o.rot = (o.rot + 90) % 360); saveHistory(); });
+    document.getElementById('btnDeleteAll').addEventListener('click', () => { if(confirm("Clear all objects?")) { level = []; saveHistory(); } });
+
+    document.getElementById('btnMusic').addEventListener('click', () => {
+      isMusicOn = !isMusicOn; initAudio();
+      if (isMusicOn) { document.getElementById('btnMusic').innerText = '🎵 Music: ON'; document.getElementById('btnMusic').classList.replace('bg-blue-600', 'bg-green-600'); document.getElementById('btnMusic').classList.replace('hover:bg-blue-500', 'hover:bg-green-500'); } 
+      else { document.getElementById('btnMusic').innerText = '🎵 Music: OFF'; document.getElementById('btnMusic').classList.replace('bg-green-600', 'bg-blue-600'); document.getElementById('btnMusic').classList.replace('hover:bg-green-500', 'hover:bg-blue-500'); }
+    });
+
+    document.getElementById('btnPublish').addEventListener('click', async () => {
+       if (!currentUser || !myProfile) return alert("Log in to publish."); if (level.length < 5) return alert("Level is too empty to publish.");
+       let name = prompt("Enter Level Name:", currentEditingLevelName || ""); if (!name) return;
+       let lvlData = { name: name, authorId: currentUser.uid, authorName: myProfile.username, data: generateLevelString(), updatedAt: Date.now(), stars: 0, difficulty: 'NA' };
+       if (!currentEditingLevelId) {
+           lvlData.createdAt = Date.now(); lvlData.plays = 0; lvlData.likes = []; lvlData.comments = [];
+           try { await setDoc(doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels')), lvlData); alert("Published!"); } catch(e) { alert("Failed to publish."); }
+       } else {
+           try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', currentEditingLevelId), lvlData, {merge: true}); alert("Updated!"); } catch(e) { alert("Failed to update."); }
+       }
+    });
+
+    window.addEventListener('keydown', (e) => {
+       if(state.mode === 'play' || state.isPlaytesting) { if (e.code === 'Space' || e.key === 'ArrowUp') { input.jumpHeld = true; if (!input.clickConsumed && triggerAction()) input.clickConsumed = true; } }
+       if(state.mode === 'edit') {
+           if(e.code === 'KeyZ' && !e.ctrlKey) document.getElementById('btnPlaytest').click();
+           if(e.code === 'KeyT' && !e.ctrlKey) document.getElementById('btnSwipeToggle').click();
+           if(e.code === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); }
+           if(e.code === 'KeyD' && e.ctrlKey) { e.preventDefault(); duplicateSelected(); }
+           if(e.code === 'KeyZ' && e.ctrlKey) { e.preventDefault(); undo(); }
+           if(e.code === 'KeyY' && e.ctrlKey) { e.preventDefault(); redo(); }
+           if(editor.selectedObjs.length > 0) {
+               if(e.code === 'KeyW') { editor.selectedObjs.forEach(o=>o.gy++); saveHistory(); }
+               if(e.code === 'KeyS') { editor.selectedObjs.forEach(o=>o.gy--); saveHistory(); }
+               if(e.code === 'KeyA') { editor.selectedObjs.forEach(o=>o.gx--); saveHistory(); }
+               if(e.code === 'KeyD' && !e.ctrlKey) { editor.selectedObjs.forEach(o=>o.gx++); saveHistory(); }
+               if(e.code === 'KeyQ') { document.getElementById('btnEditRotLeft').click(); }
+               if(e.code === 'KeyE') { document.getElementById('btnEditRotRight').click(); }
+           }
+       }
+    });
+    window.addEventListener('keyup', (e) => { if(e.code === 'Space' || e.key === 'ArrowUp') { input.jumpHeld = false; input.clickConsumed = false; } });
 
     level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
   </script>
