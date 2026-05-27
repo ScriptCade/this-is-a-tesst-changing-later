@@ -2629,7 +2629,8 @@
     function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
     document.getElementById('btnViewBrowser').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewBrowser').classList.remove('hidden'); renderLevelBrowser(); });
-    document.getElementById('btnCreateLevel').addEventListener('click', () => { launchGame(BLANK_LEVEL_DATA, 'edit'); });
+    document.getElementById('btnCreateLevel').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewMyLevels').classList.remove('hidden'); renderMyLevels(); });
+    document.getElementById('btnCreateNewLevel').addEventListener('click', () => { currentEditingLevelId = null; currentEditingLevelName = ""; launchGame(BLANK_LEVEL_DATA, 'edit'); });
     document.getElementById('btnViewLeaderboard').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewLeaderboard').classList.remove('hidden'); renderLeaderboard(); });
     document.getElementById('btnViewIconKit').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewIconKit').classList.remove('hidden'); renderIconKit(); });
     document.getElementById('btnViewTreasure').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewTreasure').classList.remove('hidden'); updateTreasureUI(); });
