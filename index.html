@@ -86,11 +86,16 @@
   <canvas id="gameCanvas"></canvas>
 
   <div id="gameUI" class="hide absolute top-0 left-0 w-full p-4 pointer-events-none flex justify-between items-start z-40">
-    <div class="pointer-events-auto flex gap-2 bg-gray-900/80 p-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl">
-      <button id="btnExitGame" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-white font-bold transition-colors shadow flex items-center gap-2">
-        <i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>
-      </button>
-      <button id="btnMusic" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow">🎵 Music: OFF</button>
+    <div class="pointer-events-auto flex flex-col gap-2">
+      <div class="flex gap-2 bg-gray-900/80 p-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl">
+        <button id="btnExitGame" class="px-4 py-2 bg-red-600 hover:bg-red-500 rounded text-white font-bold transition-colors shadow flex items-center gap-2">
+          <i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>
+        </button>
+        <button id="btnMusic" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white font-bold transition-colors shadow">🎵 Music: OFF</button>
+      </div>
+      <div id="mpStatusContainer" class="hide gap-2 bg-blue-900/80 p-2 rounded-lg backdrop-blur-sm border border-blue-500 shadow-xl items-center text-white font-bold">
+         <i data-lucide="users" class="w-4 h-4"></i> <span id="mpPlayerCount">1 Player(s)</span>
+      </div>
     </div>
     
     <div id="gameProgressContainer" class="hide pointer-events-auto absolute top-6 left-1/2 -translate-x-1/2 w-64 bg-black/60 rounded-full border-2 border-white/20 p-1 backdrop-blur-md">
@@ -101,6 +106,16 @@
 
     <div id="stats" class="pointer-events-auto bg-gray-900/80 px-4 py-2 rounded-lg backdrop-blur-sm border border-gray-700 shadow-xl font-mono text-xl text-yellow-400">
       Attempt 1
+    </div>
+  </div>
+
+  <div id="mobileControls" class="hide absolute bottom-8 left-0 w-full px-8 pointer-events-none flex justify-between z-40">
+    <div class="flex gap-4">
+       <button id="btnMobLeft" class="w-16 h-16 bg-white/20 border-2 border-white/50 rounded-full flex items-center justify-center text-white pointer-events-auto active:bg-white/40"><i data-lucide="arrow-left" class="w-8 h-8"></i></button>
+       <button id="btnMobRight" class="w-16 h-16 bg-white/20 border-2 border-white/50 rounded-full flex items-center justify-center text-white pointer-events-auto active:bg-white/40"><i data-lucide="arrow-right" class="w-8 h-8"></i></button>
+    </div>
+    <div>
+       <button id="btnMobJump" class="w-20 h-20 bg-green-500/30 border-2 border-green-400/80 rounded-full flex items-center justify-center text-white pointer-events-auto active:bg-green-500/60"><i data-lucide="arrow-up" class="w-10 h-10"></i></button>
     </div>
   </div>
 
@@ -660,6 +675,26 @@
     </div>
   </div>
 
+  <!-- NEW LEVEL MODE MODAL -->
+  <div id="modeSelectModal" class="hide fixed inset-0 z-[75] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-gray-900 border-2 border-green-500 rounded-3xl shadow-[0_0_50px_rgba(34,197,94,0.3)] w-full max-w-lg flex flex-col overflow-hidden relative animate-pop p-8 text-center">
+      <h2 class="text-3xl font-black text-white mb-6">SELECT LEVEL MODE</h2>
+      <div class="flex gap-4">
+        <button id="btnCreateStandard" class="flex-1 bg-blue-600 hover:bg-blue-500 border-[3px] border-blue-400 p-6 rounded-2xl transition-transform hover:scale-105 flex flex-col items-center gap-3 group">
+          <i data-lucide="arrow-right-circle" class="w-12 h-12 text-white group-hover:text-blue-200"></i>
+          <span class="text-xl font-bold text-white tracking-wider">STANDARD</span>
+          <span class="text-xs text-blue-200 font-medium">Auto-scroll, one-button</span>
+        </button>
+        <button id="btnCreatePlatformer" class="flex-1 bg-indigo-600 hover:bg-indigo-500 border-[3px] border-indigo-400 p-6 rounded-2xl transition-transform hover:scale-105 flex flex-col items-center gap-3 group">
+          <i data-lucide="gamepad-2" class="w-12 h-12 text-white group-hover:text-indigo-200"></i>
+          <span class="text-xl font-bold text-white tracking-wider">PLATFORMER</span>
+          <span class="text-xs text-indigo-200 font-medium">Free move, multiplayer</span>
+        </button>
+      </div>
+      <button id="btnCloseModeSelect" class="mt-6 text-gray-400 hover:text-white font-bold px-6 py-2 rounded-lg hover:bg-gray-800 self-center transition-colors">Cancel</button>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -1061,10 +1096,13 @@
     let groundY = 0;
     const DEFAULT_BG = [26, 26, 36], C_BLOCK = '#1a5f7a', C_BLOCK_OUTLINE = '#22d3ee', C_SPIKE = '#ff2a6d';
 
-    let state = { mode: 'menu', isPlaytesting: false, cameraX: 0, cameraY: 0, attempts: 1, particles: [], trail: [], currentPath: [], savedPath: [], bgColor: [...DEFAULT_BG], targetBgColor: [...DEFAULT_BG], win: false };
+    let state = { mode: 'menu', isPlaytesting: false, cameraX: 0, cameraY: 0, attempts: 1, particles: [], trail: [], currentPath: [], savedPath: [], bgColor: [...DEFAULT_BG], targetBgColor: [...DEFAULT_BG], win: false, isPlatformer: false };
     let bgParticles = Array.from({length: 60}, () => ({ x: Math.random() * 2000, y: Math.random() * 2000, s: Math.random() * 4 + 2, spd: Math.random() * 0.4 + 0.1, op: Math.random() * 0.3 + 0.1 }));
-    let player = { x: 0, y: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, sizeMultiplier: 1.0, dead: false, progress: 0, gravityFlipTimer: 0, gravityFlipBoost: 0, robotJumpFrames: 0 };
-    let level = [], levelMaxX = 0, input = { jumpHeld: false, clickConsumed: false };
+    let player = { x: 0, y: 0, vx: 0, vy: 0, rotation: 0, grounded: true, gravityDir: 1, gamemode: 0, speedMultiplier: 1.0, sizeMultiplier: 1.0, dead: false, progress: 0, gravityFlipTimer: 0, gravityFlipBoost: 0, robotJumpFrames: 0 };
+    let level = [], levelMaxX = 0, input = { jumpHeld: false, leftHeld: false, rightHeld: false, clickConsumed: false };
+    let otherPlayers = {};
+    let mpUnsubscribe = null;
+    let mpSyncInterval = null;
 
     let editor = { 
       mode: 'build', tool: 0, rot: 0, isDragging: false, swipeEnabled: false, lastGx: -1, lastGy: -1, selectedObjs: [], selBox: null, camDragStartX: 0, camDragStartY: 0, initialCamX: 0, initialCamY: 0, isClick: true, restoreState: { camX: 0, camY: 0 }, hasChangedLevel: false
@@ -1081,7 +1119,7 @@
 
     function resetPlayer() {
       let pSize = 30 * player.sizeMultiplier;
-      player.x = 0; player.y = groundY - pSize; player.vy = 0; player.rotation = 0; player.grounded = true; player.gravityDir = 1; player.gamemode = 0; player.speedMultiplier = 1.0; player.sizeMultiplier = 1.0; player.dead = false; player.progress = 0; player.gravityFlipTimer = 0; player.gravityFlipBoost = 0; player.robotJumpFrames = 0;
+      player.x = 0; player.y = groundY - pSize; player.vx = 0; player.vy = 0; player.rotation = 0; player.grounded = true; player.gravityDir = 1; player.gamemode = 0; player.speedMultiplier = 1.0; player.sizeMultiplier = 1.0; player.dead = false; player.progress = 0; player.gravityFlipTimer = 0; player.gravityFlipBoost = 0; player.robotJumpFrames = 0;
       state.cameraX = 0; state.cameraY = 0; state.particles = []; state.trail = []; state.currentPath = []; state.bgColor = [...DEFAULT_BG]; state.targetBgColor = [...DEFAULT_BG]; state.win = false;
       document.getElementById('winOverlay').classList.add('hide');
 
@@ -1268,9 +1306,37 @@
         let pSize = 30 * player.sizeMultiplier;
         if (state.currentPath.length === 0 || Math.abs(player.x - state.currentPath[state.currentPath.length-1].x) > 5) state.currentPath.push({x: player.x + pSize/2, y: player.y + pSize/2});
 
-        player.x += BASE_MOVE_SPEED * player.speedMultiplier;
+        let targetVx = 0;
+        if (state.isPlatformer) {
+            if (input.leftHeld) targetVx = -BASE_MOVE_SPEED * player.speedMultiplier * 0.8;
+            else if (input.rightHeld) targetVx = BASE_MOVE_SPEED * player.speedMultiplier * 0.8;
+            if (player.gamemode === 2) targetVx *= 1.2; 
+            player.vx += (targetVx - player.vx) * 0.3; 
+            
+            player.x += player.vx;
+            let pBoxX = { x: player.x, y: player.y + 4, w: pSize, h: pSize - 8 }; 
+            if (player.gamemode === 1) pBoxX = { x: player.x + 5, y: player.y + 5, w: pSize - 10, h: pSize - 10 };
+            if (player.x < 0) { player.x = 0; player.vx = 0; } 
+            
+            for (let obj of level) {
+                if (obj.type !== 0 && obj.type !== 19) continue;
+                let objX = obj.gx * GRID_SIZE, objY = groundY - (obj.gy * GRID_SIZE) - GRID_SIZE;
+                if (objX < player.x - 100 || objX > player.x + 100) continue;
+                let cx = objX + GRID_SIZE/2, cy = objY + GRID_SIZE/2;
+                let oBox = { x: objX, y: objY, w: GRID_SIZE, h: obj.type === 19 ? GRID_SIZE/2 : GRID_SIZE };
+                if (obj.type === 19) oBox.y = objY + GRID_SIZE/2;
+                oBox = getRotatedBox(oBox, obj.rot, cx, cy);
+                
+                if (checkRectCollision(pBoxX, oBox)) {
+                   if (player.vx > 0) { player.x = oBox.x - pSize; player.vx = 0; }
+                   else if (player.vx < 0) { player.x = oBox.x + oBox.w; player.vx = 0; }
+                }
+            }
+        } else {
+            player.x += BASE_MOVE_SPEED * player.speedMultiplier;
+        }
         
-        if (!state.isPlaytesting) {
+        if (!state.isPlaytesting && !state.isPlatformer) {
           let curPct = Math.min(100, Math.floor((player.x / levelMaxX) * 100));
           if (curPct > player.progress) {
              player.progress = curPct;
@@ -1415,13 +1481,19 @@
             if (checkRectCollision(pBox, oBox)) {
               if (player.gamemode === 1) hitDeath = true;
               else {
-                let prevY = player.y, prevBottom = player.y + pSize, prevRight = player.x - (BASE_MOVE_SPEED * player.speedMultiplier) + pSize;
+                let prevY = player.y, prevBottom = player.y + pSize;
+                let prevRight = state.isPlatformer ? (player.vx > 0 ? player.x - player.vx + pSize : 99999) : player.x - (BASE_MOVE_SPEED * player.speedMultiplier) + pSize;
+                
                 if (player.gravityDir === 1) {
-                  if (prevBottom <= oBox.y + 8 && player.vy >= 0) { nextY = oBox.y - pSize; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
-                  else if (prevRight <= oBox.x + 8) hitDeath = true; else if (prevY >= oBox.y + oBox.h - 8 && player.vy < 0) { nextY = oBox.y + oBox.h; player.vy = 0; pBox.y = nextY; } else hitDeath = true;
+                  if (prevBottom <= oBox.y + Math.max(10, Math.abs(player.vy)) && player.vy >= 0) { nextY = oBox.y - pSize; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
+                  else if (!state.isPlatformer && prevRight <= oBox.x + 8) hitDeath = true; 
+                  else if (prevY >= oBox.y + oBox.h - Math.max(10, Math.abs(player.vy)) && player.vy < 0) { nextY = oBox.y + oBox.h; player.vy = 0; pBox.y = nextY; } 
+                  else if (!state.isPlatformer) hitDeath = true;
                 } else {
-                  if (prevY >= oBox.y + oBox.h - 8 && player.vy <= 0) { nextY = oBox.y + oBox.h; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
-                  else if (prevRight <= oBox.x + 8) hitDeath = true; else if (prevBottom <= oBox.y + 8 && player.vy > 0) { nextY = oBox.y - pSize; player.vy = 0; pBox.y = nextY; } else hitDeath = true;
+                  if (prevY >= oBox.y + oBox.h - Math.max(10, Math.abs(player.vy)) && player.vy <= 0) { nextY = oBox.y + oBox.h; player.vy = 0; player.grounded = true; pBox.y = nextY; } 
+                  else if (!state.isPlatformer && prevRight <= oBox.x + 8) hitDeath = true; 
+                  else if (prevBottom <= oBox.y + Math.max(10, Math.abs(player.vy)) && player.vy > 0) { nextY = oBox.y - pSize; player.vy = 0; pBox.y = nextY; } 
+                  else if (!state.isPlatformer) hitDeath = true;
                 }
               }
             }
@@ -1430,8 +1502,23 @@
         player.y = nextY;
         if ((player.gamemode === 0 || player.gamemode === 5) && player.grounded) { player.rotation = Math.round(player.rotation / 90) * 90; }
         if (player.gamemode === 6 && player.grounded) { player.rotation = 0; }
+        
+        if (state.isPlatformer) {
+           for (let id in otherPlayers) {
+               let op = otherPlayers[id];
+               let opBox = {x: op.x, y: op.y, w: 30*(op.size||1), h: 30*(op.size||1)};
+               if (checkRectCollision(pBox, opBox)) {
+                   if (player.vy > 0 && player.y + pSize - player.vy <= op.y + 10) {
+                       player.y = op.y - pSize; jump(); player.grounded = false;
+                       for(let i=0; i<5; i++) state.particles.push({ x: player.x+pSize/2, y: player.y+pSize, vx: (Math.random()-0.5)*5, vy: -Math.random()*5, life: 1, color: '#fff' });
+                   }
+               }
+           }
+        }
+
         if (hitDeath) die();
-        state.cameraX = player.x - (canvas.width * 0.3); 
+        if (state.isPlatformer) { state.cameraX += (player.x - (canvas.width * 0.5) - state.cameraX) * 0.1; } 
+        else { state.cameraX = player.x - (canvas.width * 0.3); }
         state.cameraY += ((player.y - canvas.height / 1.6) - state.cameraY) * 0.08;
       }
 
@@ -1540,6 +1627,21 @@
           ctx.strokeStyle = pColorStr; ctx.fillStyle = pFillStr; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(0, 0, 12*wMult, GRID_SIZE*(obj.type===28||obj.type===29?0.7:1), 0, 0, Math.PI * 2); ctx.stroke(); ctx.fill(); ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 0, 6*wMult, (GRID_SIZE - 8)*(obj.type===28||obj.type===29?0.7:1), 0, 0, Math.PI * 2); ctx.stroke();
         }
         ctx.restore();
+      }
+
+      if (state.mode === 'play' && state.isPlatformer) {
+         for (let id in otherPlayers) {
+             let op = otherPlayers[id];
+             if (Date.now() - op.timestamp > 3000) continue;
+             let opSize = 30 * (op.size || 1);
+             ctx.save(); ctx.translate(op.x + opSize/2, op.y + opSize/2); ctx.rotate(op.rot * Math.PI / 180); ctx.scale(op.size, (op.gDir||1) * op.size); 
+             ctx.globalAlpha = 0.6;
+             ctx.fillStyle = op.c1 || '#ff00ff'; ctx.fillRect(-15, -15, 30, 30);
+             ctx.strokeStyle = op.c2 || '#ffffff'; ctx.lineWidth = 2; ctx.strokeRect(-15, -15, 30, 30);
+             ctx.fillStyle = '#111'; ctx.fillRect(-8, -6, 4, 4); ctx.fillRect(4, -6, 4, 4); ctx.fillRect(-6, 2, 12, 3);
+             ctx.restore();
+             ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(op.name || 'Player', op.x + opSize/2, op.y - 10);
+         }
       }
 
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead) {
@@ -1757,28 +1859,13 @@
 
   async function initAuthApp() {
     try {
+      // Wait for Firebase to check IndexedDB for an existing session
+      await auth.authStateReady(); 
+      if (auth.currentUser) return; // Exit if we successfully loaded an account!
+
       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
         await signInWithCustomToken(auth, __initial_auth_token);
-        return;
-      }
-
-      let hasSavedUser = false;
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith("firebase:authUser")) {
-          hasSavedUser = true;
-          break;
-        }
-      }
-      for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-        if (key && key.startsWith("firebase:authUser")) {
-          hasSavedUser = true;
-          break;
-        }
-      }
-
-      if (!hasSavedUser) {
+      } else {
         await signInAnonymously(auth);
       }
     } catch (e) {
@@ -2252,6 +2339,7 @@
                 <h4 class="text-lg font-bold text-white flex items-center gap-2">
                   ${escapeHtml(lvl.name)}
                   ${lvl.stars ? `<span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/30 flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-yellow-400"></i> ${lvl.stars}</span>` : ''}
+                  ${lvl.isPlatformer ? `<i data-lucide="gamepad-2" class="w-5 h-5 text-indigo-400" title="Platformer Mode"></i>` : ''}
                 </h4>
                 <p class="text-xs text-gray-400">By <span class="text-purple-300 font-bold">${escapeHtml(lvl.authorName)}</span></p>
               </div>
@@ -2286,7 +2374,7 @@
               ${getDiffIconHTML(lvl.difficulty)}
             </div>
             <div>
-              <h4 class="text-lg font-bold text-white flex items-center gap-2">${escapeHtml(lvl.name)}</h4>
+              <h4 class="text-lg font-bold text-white flex items-center gap-2">${escapeHtml(lvl.name)} ${lvl.isPlatformer ? `<i data-lucide="gamepad-2" class="w-4 h-4 text-indigo-400" title="Platformer Mode"></i>` : ''}</h4>
               <p class="text-xs text-gray-400">${lvl.plays || 0} Plays • ${(lvl.likes && lvl.likes.length) || 0} Likes</p>
             </div>
           </div>
@@ -2304,6 +2392,7 @@
             if (lObj) {
                 currentEditingLevelId = lObj.id;
                 currentEditingLevelName = lObj.name;
+                state.isPlatformer = !!lObj.isPlatformer;
                 launchGame(lObj.data, 'edit');
             }
          });
@@ -2341,7 +2430,7 @@
 
     function populateLevelModal(lvlObj) {
       document.getElementById('prevLevelId').innerText = lvlObj.id.substring(0, 6).toUpperCase();
-      document.getElementById('prevLevelName').innerText = lvlObj.name;
+      document.getElementById('prevLevelName').innerHTML = `${escapeHtml(lvlObj.name)} ${lvlObj.isPlatformer ? '<i data-lucide="gamepad-2" class="w-6 h-6 inline text-indigo-400 align-middle"></i>' : ''}`;
       document.getElementById('prevAuthorName').innerText = lvlObj.authorName;
       document.getElementById('prevDownloads').innerText = (lvlObj.plays || 0).toLocaleString();
       document.getElementById('prevLikes').innerText = ((lvlObj.likes && lvlObj.likes.length) || 0).toLocaleString();
@@ -2405,6 +2494,7 @@
        if (!currentPreviewLevel) return;
        const lvlId = currentPreviewLevel.id;
        const data = currentPreviewLevel.data;
+       state.isPlatformer = !!currentPreviewLevel.isPlatformer;
        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'levels', lvlId), { plays: (currentPreviewLevel.plays||0) + 1 }, { merge: true }); } catch(err){}
        document.getElementById('levelPreviewModal').classList.add('hide');
        hubUI.classList.add('opacity-0'); // Smooth transition
@@ -2479,12 +2569,58 @@
     document.getElementById('btnWinReplay').addEventListener('click', () => { state.mode = 'play'; state.attempts = 1; resetPlayer(); });
     document.getElementById('btnWinExit').addEventListener('click', () => { document.getElementById('btnExitGame').click(); });
 
+    function leaveMultiplayerRoom() {
+       if (mpUnsubscribe) { mpUnsubscribe(); mpUnsubscribe = null; }
+       if (mpSyncInterval) { clearInterval(mpSyncInterval); mpSyncInterval = null; }
+       if (currentPreviewLevel && currentUser) {
+           try { deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'room_' + currentPreviewLevel.id, currentUser.uid)); } catch(e){}
+       }
+       otherPlayers = {};
+    }
+
+    function joinMultiplayerRoom(lvlId) {
+       leaveMultiplayerRoom();
+       if (!currentUser || !myProfile) return;
+       const roomRef = collection(db, 'artifacts', appId, 'public', 'data', 'room_' + lvlId);
+       
+       mpUnsubscribe = onSnapshot(roomRef, (snap) => {
+          let count = 1;
+          snap.forEach(doc => { if (doc.id !== currentUser.uid) { otherPlayers[doc.id] = doc.data(); count++; } });
+          document.getElementById('mpPlayerCount').innerText = count + ' Player(s)';
+       }, (err) => console.error(err));
+
+       mpSyncInterval = setInterval(async () => {
+          if (player.dead) return;
+          try {
+              let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
+              let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
+              await setDoc(doc(roomRef, currentUser.uid), {
+                  x: player.x, y: player.y, rot: player.rotation, gamemode: player.gamemode, size: player.sizeMultiplier, gDir: player.gravityDir,
+                  c1: c1, c2: c2, name: myProfile.username, timestamp: Date.now()
+              });
+          } catch(e){}
+       }, 150);
+    }
+
     function launchGame(dataStr, mode) {
       hubUI.classList.add('hide'); document.getElementById('gameUI').classList.remove('hide');
       level = parseLevelString(dataStr); resetPlayer(); resize(); state.mode = mode;
       
       historyList = []; historyIndex = -1; saveHistory();
       
+      let isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+      if (state.isPlatformer && (isMobile || mode === 'play' || state.isPlaytesting)) document.getElementById('mobileControls').classList.remove('hide');
+      else document.getElementById('mobileControls').classList.add('hide');
+
+      if (mode === 'play' && state.isPlatformer && currentPreviewLevel) {
+          document.getElementById('mpStatusContainer').classList.remove('hide');
+          document.getElementById('mpStatusContainer').classList.add('flex');
+          joinMultiplayerRoom(currentPreviewLevel.id);
+      } else {
+          document.getElementById('mpStatusContainer').classList.add('hide');
+          document.getElementById('mpStatusContainer').classList.remove('flex');
+      }
+
       if (mode === 'edit') { 
         document.getElementById('editorToolbar').classList.remove('hide'); document.getElementById('editorTopRight').classList.remove('hide'); document.getElementById('stats').classList.add('hide'); document.getElementById('gameProgressContainer').classList.add('hide'); 
         document.getElementById('btnExitGame').innerHTML = '<i data-lucide="log-out" class="w-4 h-4"></i> <span id="lblExitGame">Exit</span>';
@@ -2649,7 +2785,15 @@
 
     document.getElementById('btnViewBrowser').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewBrowser').classList.remove('hidden'); renderLevelBrowser(); });
     document.getElementById('btnCreateLevel').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewMyLevels').classList.remove('hidden'); renderMyLevels(); });
-    document.getElementById('btnCreateNewLevel').addEventListener('click', () => { currentEditingLevelId = null; currentEditingLevelName = ""; launchGame(BLANK_LEVEL_DATA, 'edit'); });
+    
+    document.getElementById('btnCreateNewLevel').addEventListener('click', () => { 
+        currentEditingLevelId = null; currentEditingLevelName = ""; 
+        document.getElementById('modeSelectModal').classList.remove('hide');
+    });
+    document.getElementById('btnCloseModeSelect').addEventListener('click', () => { document.getElementById('modeSelectModal').classList.add('hide'); });
+    document.getElementById('btnCreateStandard').addEventListener('click', () => { document.getElementById('modeSelectModal').classList.add('hide'); state.isPlatformer = false; launchGame(BLANK_LEVEL_DATA, 'edit'); });
+    document.getElementById('btnCreatePlatformer').addEventListener('click', () => { document.getElementById('modeSelectModal').classList.add('hide'); state.isPlatformer = true; launchGame(BLANK_LEVEL_DATA, 'edit'); });
+    
     document.getElementById('btnViewLeaderboard').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewLeaderboard').classList.remove('hidden'); renderLeaderboard(); });
     document.getElementById('btnViewIconKit').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewIconKit').classList.remove('hidden'); renderIconKit(); });
     document.getElementById('btnViewTreasure').addEventListener('click', () => { document.getElementById('viewMainMenu').classList.add('hidden'); document.getElementById('viewTreasure').classList.remove('hidden'); updateTreasureUI(); });
@@ -2672,7 +2816,8 @@
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
     document.getElementById('btnExitGame').addEventListener('click', () => {
-      state.mode = 'menu'; document.getElementById('gameUI').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide');
+      leaveMultiplayerRoom();
+      state.mode = 'menu'; document.getElementById('gameUI').classList.add('hide'); document.getElementById('editorToolbar').classList.add('hide'); document.getElementById('editorTopRight').classList.add('hide'); document.getElementById('winOverlay').classList.add('hide'); document.getElementById('mobileControls').classList.add('hide');
       document.getElementById('hubUI').classList.remove('hide', 'opacity-0');
       if (isMusicOn) { isMusicOn = false; document.getElementById('btnMusic').innerText = '🎵 Music: OFF'; document.getElementById('btnMusic').classList.replace('bg-green-600', 'bg-blue-600'); document.getElementById('btnMusic').classList.replace('hover:bg-green-500', 'hover:bg-blue-500'); }
     });
@@ -2682,9 +2827,11 @@
        if (state.isPlaytesting) { 
            document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="square" class="w-5 h-5"></i> Stop (Z)'; document.getElementById('btnPlaytest').classList.replace('bg-blue-600', 'bg-red-600'); document.getElementById('btnPlaytest').classList.replace('hover:bg-blue-500', 'hover:bg-red-500'); 
            document.getElementById('editorToolbar').classList.add('hide');
+           if (state.isPlatformer) document.getElementById('mobileControls').classList.remove('hide');
        } else { 
            document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)'; document.getElementById('btnPlaytest').classList.replace('bg-red-600', 'bg-blue-600'); document.getElementById('btnPlaytest').classList.replace('hover:bg-red-500', 'hover:bg-blue-500'); 
            document.getElementById('editorToolbar').classList.remove('hide');
+           document.getElementById('mobileControls').classList.add('hide');
        }
        resetPlayer(); lucide.createIcons();
     });
@@ -2737,7 +2884,7 @@
     document.getElementById('btnPublish').addEventListener('click', async () => {
        if (!currentUser || !myProfile) return alert("Log in to publish."); if (level.length < 5) return alert("Level is too empty to publish.");
        let name = prompt("Enter Level Name:", currentEditingLevelName || ""); if (!name) return;
-       let lvlData = { name: name, authorId: currentUser.uid, authorName: myProfile.username, data: generateLevelString(), updatedAt: Date.now(), stars: 0, difficulty: 'NA' };
+       let lvlData = { name: name, authorId: currentUser.uid, authorName: myProfile.username, data: generateLevelString(), updatedAt: Date.now(), stars: 0, difficulty: 'NA', isPlatformer: state.isPlatformer };
        if (!currentEditingLevelId) {
            lvlData.createdAt = Date.now(); lvlData.plays = 0; lvlData.likes = []; lvlData.comments = [];
            try { await setDoc(doc(collection(db, 'artifacts', appId, 'public', 'data', 'levels')), lvlData); alert("Published!"); } catch(e) { alert("Failed to publish."); }
@@ -2747,7 +2894,11 @@
     });
 
     window.addEventListener('keydown', (e) => {
-       if(state.mode === 'play' || state.isPlaytesting) { if (e.code === 'Space' || e.key === 'ArrowUp') { input.jumpHeld = true; if (!input.clickConsumed && triggerAction()) input.clickConsumed = true; } }
+       if(state.mode === 'play' || state.isPlaytesting) { 
+           if (e.code === 'Space' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { input.jumpHeld = true; if (!input.clickConsumed && triggerAction()) input.clickConsumed = true; } 
+           if (e.code === 'KeyA' || e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') input.leftHeld = true;
+           if (e.code === 'KeyD' || e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') input.rightHeld = true;
+       }
        if(state.mode === 'edit') {
            if(e.code === 'KeyZ' && !e.ctrlKey) document.getElementById('btnPlaytest').click();
            if(e.code === 'KeyT' && !e.ctrlKey) document.getElementById('btnSwipeToggle').click();
@@ -2765,7 +2916,21 @@
            }
        }
     });
-    window.addEventListener('keyup', (e) => { if(e.code === 'Space' || e.key === 'ArrowUp') { input.jumpHeld = false; input.clickConsumed = false; } });
+    window.addEventListener('keyup', (e) => { 
+        if(e.code === 'Space' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { input.jumpHeld = false; input.clickConsumed = false; } 
+        if (e.code === 'KeyA' || e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') input.leftHeld = false;
+        if (e.code === 'KeyD' || e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') input.rightHeld = false;
+    });
+
+    document.getElementById('btnMobLeft').addEventListener('pointerdown', () => input.leftHeld = true);
+    document.getElementById('btnMobLeft').addEventListener('pointerup', () => input.leftHeld = false);
+    document.getElementById('btnMobLeft').addEventListener('pointerleave', () => input.leftHeld = false);
+    document.getElementById('btnMobRight').addEventListener('pointerdown', () => input.rightHeld = true);
+    document.getElementById('btnMobRight').addEventListener('pointerup', () => input.rightHeld = false);
+    document.getElementById('btnMobRight').addEventListener('pointerleave', () => input.rightHeld = false);
+    document.getElementById('btnMobJump').addEventListener('pointerdown', () => { input.jumpHeld = true; if(!input.clickConsumed && triggerAction()) input.clickConsumed = true; });
+    document.getElementById('btnMobJump').addEventListener('pointerup', () => { input.jumpHeld = false; input.clickConsumed = false; });
+    document.getElementById('btnMobJump').addEventListener('pointerleave', () => { input.jumpHeld = false; input.clickConsumed = false; });
 
     level = parseLevelString(BLANK_LEVEL_DATA); resetPlayer(); requestAnimationFrame(loop);
   </script>
