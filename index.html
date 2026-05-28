@@ -1384,7 +1384,7 @@
         else if (player.gamemode === 3) player.vy += grav * player.gravityDir; 
         else if (player.gamemode === 7) { player.vy += grav * 0.8 * player.gravityDir; player.vy = Math.max(-15, Math.min(15, player.vy)); }
         
-        if (state.trail.length > 10) state.trail.shift();
+        if (state.trail.length > 15) state.trail.shift();
         state.trail.push({x: player.x, y: player.y, rot: player.rotation, gDir: player.gravityDir, mode: player.gamemode, size: player.sizeMultiplier});
 
         let nextY = player.y + player.vy; player.grounded = false;
@@ -1662,7 +1662,7 @@
         let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
 
         if (player.gamemode === 1) { 
-          ctx.strokeStyle = c1 + '55'; ctx.lineWidth = (30 * player.sizeMultiplier) - 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
+          ctx.strokeStyle = c1 + '55'; ctx.lineWidth = Math.max(4, (30 * player.sizeMultiplier) - 10); ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.beginPath();
           for (let i = 0; i < state.trail.length; i++) { 
              let t = state.trail[i]; let ts = 30*t.size;
              if (i === 0) ctx.moveTo(t.x + ts/2, t.y + ts/2); else ctx.lineTo(t.x + ts/2, t.y + ts/2); 
@@ -1670,10 +1670,11 @@
           let ps = 30 * player.sizeMultiplier;
           ctx.lineTo(player.x + ps/2, player.y + ps/2); ctx.stroke();
         } else {
+          let maxLen = Math.max(1, state.trail.length);
           state.trail.forEach((t, i) => { 
              let ts = 30*t.size;
              ctx.save(); ctx.translate(t.x + ts/2, t.y + ts/2); ctx.rotate(t.rot * Math.PI / 180); ctx.scale(1, t.gDir); 
-             ctx.fillStyle = c1; ctx.globalAlpha = i / 30; ctx.fillRect(-ts/2, -ts/2, ts, ts); ctx.restore(); 
+             ctx.fillStyle = c1; ctx.globalAlpha = (i / maxLen) * 0.5; ctx.fillRect(-ts/2, -ts/2, ts, ts); ctx.restore(); 
           });
         }
       }
@@ -1867,6 +1868,11 @@
          } else {
              handleEditorAction(e.clientX, e.clientY);
          }
+      }
+
+      if (editor.hasChangedLevel) {
+          saveHistory();
+          editor.hasChangedLevel = false;
       }
     });
 
@@ -2601,13 +2607,16 @@
           snap.forEach(doc => { 
              if (doc.id !== currentUser.uid) { 
                  let data = doc.data();
+                 let realY = groundY - data.y; // Decode relative Y
                  if (!otherPlayers[doc.id]) {
                      otherPlayers[doc.id] = data;
+                     otherPlayers[doc.id].x = data.x;
+                     otherPlayers[doc.id].y = realY;
                      otherPlayers[doc.id].targetX = data.x;
-                     otherPlayers[doc.id].targetY = data.y;
+                     otherPlayers[doc.id].targetY = realY;
                  } else {
                      otherPlayers[doc.id].targetX = data.x;
-                     otherPlayers[doc.id].targetY = data.y;
+                     otherPlayers[doc.id].targetY = realY;
                      otherPlayers[doc.id].rot = data.rot;
                      otherPlayers[doc.id].gamemode = data.gamemode;
                      otherPlayers[doc.id].size = data.size;
@@ -2626,7 +2635,7 @@
               let c1 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol1)?.val || '#00f0ff') : '#00f0ff';
               let c2 = myProfile ? (ALL_COLORS.find(c=>c.id===myProfile.equippedCol2)?.val || '#ffffff') : '#ffffff';
               await setDoc(doc(roomRef, currentUser.uid), {
-                  x: player.x, y: player.y, rot: player.rotation, gamemode: player.gamemode, size: player.sizeMultiplier, gDir: player.gravityDir,
+                  x: player.x, y: groundY - player.y, rot: player.rotation, gamemode: player.gamemode, size: player.sizeMultiplier, gDir: player.gravityDir,
                   c1: c1, c2: c2, name: myProfile.username, timestamp: Date.now()
               });
           } catch(e){}
@@ -2856,10 +2865,12 @@
     document.getElementById('btnPlaytest').addEventListener('click', () => {
        state.isPlaytesting = !state.isPlaytesting;
        if (state.isPlaytesting) { 
+           editor.selectedObjs = []; editor.selBox = null; updateEditPanelUI();
            document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="square" class="w-5 h-5"></i> Stop (Z)'; document.getElementById('btnPlaytest').classList.replace('bg-blue-600', 'bg-red-600'); document.getElementById('btnPlaytest').classList.replace('hover:bg-blue-500', 'hover:bg-red-500'); 
            document.getElementById('editorToolbar').classList.add('hide');
            if (state.isPlatformer) document.getElementById('mobileControls').classList.remove('hide');
        } else { 
+           state.savedPath = [...state.currentPath];
            document.getElementById('btnPlaytest').innerHTML = '<i data-lucide="play" class="w-5 h-5"></i> Test (Z)'; document.getElementById('btnPlaytest').classList.replace('bg-red-600', 'bg-blue-600'); document.getElementById('btnPlaytest').classList.replace('hover:bg-red-500', 'hover:bg-blue-500'); 
            document.getElementById('editorToolbar').classList.remove('hide');
            document.getElementById('mobileControls').classList.add('hide');
@@ -2925,23 +2936,24 @@
     });
 
     window.addEventListener('keydown', (e) => {
+       const isCmdOrCtrl = e.ctrlKey || e.metaKey;
        if(state.mode === 'play' || state.isPlaytesting) { 
            if (e.code === 'Space' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { input.jumpHeld = true; if (!input.clickConsumed && triggerAction()) input.clickConsumed = true; } 
            if (e.code === 'KeyA' || e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') input.leftHeld = true;
            if (e.code === 'KeyD' || e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') input.rightHeld = true;
        }
        if(state.mode === 'edit') {
-           if(e.code === 'KeyZ' && !e.ctrlKey) document.getElementById('btnPlaytest').click();
-           if(e.code === 'KeyT' && !e.ctrlKey) document.getElementById('btnSwipeToggle').click();
+           if(e.code === 'KeyZ' && !isCmdOrCtrl) document.getElementById('btnPlaytest').click();
+           if(e.code === 'KeyT' && !isCmdOrCtrl) document.getElementById('btnSwipeToggle').click();
            if(e.code === 'Escape') { editor.selectedObjs = []; updateEditPanelUI(); }
-           if(e.code === 'KeyD' && e.ctrlKey) { e.preventDefault(); duplicateSelected(); }
-           if(e.code === 'KeyZ' && e.ctrlKey) { e.preventDefault(); undo(); }
-           if(e.code === 'KeyY' && e.ctrlKey) { e.preventDefault(); redo(); }
+           if(e.code === 'KeyD' && isCmdOrCtrl) { e.preventDefault(); duplicateSelected(); }
+           if(e.code === 'KeyZ' && isCmdOrCtrl) { e.preventDefault(); undo(); }
+           if(e.code === 'KeyY' && isCmdOrCtrl) { e.preventDefault(); redo(); }
            if(editor.selectedObjs.length > 0) {
                if(e.code === 'KeyW') { editor.selectedObjs.forEach(o=>o.gy++); saveHistory(); }
                if(e.code === 'KeyS') { editor.selectedObjs.forEach(o=>o.gy--); saveHistory(); }
                if(e.code === 'KeyA') { editor.selectedObjs.forEach(o=>o.gx--); saveHistory(); }
-               if(e.code === 'KeyD' && !e.ctrlKey) { editor.selectedObjs.forEach(o=>o.gx++); saveHistory(); }
+               if(e.code === 'KeyD' && !isCmdOrCtrl) { editor.selectedObjs.forEach(o=>o.gx++); saveHistory(); }
                if(e.code === 'KeyQ') { document.getElementById('btnEditRotLeft').click(); }
                if(e.code === 'KeyE') { document.getElementById('btnEditRotRight').click(); }
            }
