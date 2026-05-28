@@ -1297,6 +1297,16 @@
 
       if (state.mode === 'menu') { state.cameraX += 3; return; }
 
+      if (state.isPlatformer) {
+         for (let id in otherPlayers) {
+             let op = otherPlayers[id];
+             if (op.targetX !== undefined) {
+                 op.x += (op.targetX - op.x) * 0.3;
+                 op.y += (op.targetY - op.y) * 0.3;
+             }
+         }
+      }
+
       if ((state.mode === 'play' || state.isPlaytesting) && !player.dead && !state.win) {
         
         if (input.jumpHeld && !input.clickConsumed) {
@@ -1508,9 +1518,12 @@
                let op = otherPlayers[id];
                let opBox = {x: op.x, y: op.y, w: 30*(op.size||1), h: 30*(op.size||1)};
                if (checkRectCollision(pBox, opBox)) {
-                   if (player.vy > 0 && player.y + pSize - player.vy <= op.y + 10) {
-                       player.y = op.y - pSize; jump(); player.grounded = false;
-                       for(let i=0; i<5; i++) state.particles.push({ x: player.x+pSize/2, y: player.y+pSize, vx: (Math.random()-0.5)*5, vy: -Math.random()*5, life: 1, color: '#fff' });
+                   if (player.vy > 0 && player.y + pSize - player.vy <= op.y + 15) {
+                       player.y = op.y - pSize; player.vy = JUMP_FORCE * 1.2; player.grounded = false;
+                       for(let i=0; i<10; i++) state.particles.push({ x: player.x+pSize/2, y: player.y+pSize, vx: (Math.random()-0.5)*5, vy: -Math.random()*5, life: 1, color: '#fff' });
+                   } else {
+                       if (player.x < op.x) { player.x = op.x - pSize; player.vx = 0; }
+                       else { player.x = op.x + opBox.w; player.vx = 0; }
                    }
                }
            }
@@ -2585,7 +2598,25 @@
        
        mpUnsubscribe = onSnapshot(roomRef, (snap) => {
           let count = 1;
-          snap.forEach(doc => { if (doc.id !== currentUser.uid) { otherPlayers[doc.id] = doc.data(); count++; } });
+          snap.forEach(doc => { 
+             if (doc.id !== currentUser.uid) { 
+                 let data = doc.data();
+                 if (!otherPlayers[doc.id]) {
+                     otherPlayers[doc.id] = data;
+                     otherPlayers[doc.id].targetX = data.x;
+                     otherPlayers[doc.id].targetY = data.y;
+                 } else {
+                     otherPlayers[doc.id].targetX = data.x;
+                     otherPlayers[doc.id].targetY = data.y;
+                     otherPlayers[doc.id].rot = data.rot;
+                     otherPlayers[doc.id].gamemode = data.gamemode;
+                     otherPlayers[doc.id].size = data.size;
+                     otherPlayers[doc.id].gDir = data.gDir;
+                     otherPlayers[doc.id].timestamp = data.timestamp;
+                 }
+                 count++; 
+             } 
+          });
           document.getElementById('mpPlayerCount').innerText = count + ' Player(s)';
        }, (err) => console.error(err));
 
@@ -2599,7 +2630,7 @@
                   c1: c1, c2: c2, name: myProfile.username, timestamp: Date.now()
               });
           } catch(e){}
-       }, 150);
+       }, 50);
     }
 
     function launchGame(dataStr, mode) {
